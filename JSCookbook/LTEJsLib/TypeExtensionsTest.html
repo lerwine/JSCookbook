@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>JavaScript Utility Page</title>
+<style type="text/css">
+	table.formAlignment {
+		border-style: none;
+		border-width: 0px;
+		border-collapse: collapse;
+		margin: 0px;
+		padding: 0px
+	}
+	table.formAlignment td {
+		border-style: none;
+		border-width: 0px;
+		margin: 0px;
+		padding: 0px;
+		vertical-align: top;
+		text-align: left;
+		font-weight: normal;
+	}
+	table.formAlignment td.formFieldHeading {
+		text-align: right;
+		font-weight: bold;
+		padding: 8px 0px 4px 0px;
+	}
+	div.tabPage {
+		display: block;
+	}
+	.hiddenElement {
+		display: none;
+	}
+	input.tabButton, input.currentButton {
+		display: block;
+		float: left;
+		margin: 0px 4px 8px 4px;
+		padding: 4px;
+	}
+	input.tabButton {
+		border: 1px solid #000000;
+		color: #000000;
+		background-color:#cccccc;
+	}
+	input.currentButton {
+		border: 1px solid #000000;
+		color: #cccccc;
+		background-color:#000000;
+	}
+	.resultSuccess {
+		color: black;
+	}
+	.resultError {
+		color: red;
+	}
+	div#tabButtonContainer, div#tabPageContainer {
+		clear: both;
+	}
+</style>
+<script language="JavaScript" type="text/javascript" src="TypeExtensions.js"></script>
+<script language="JavaScript" type="text/javascript">
+var tabPages = {
+	visibleTabPageId: undefined,
+	currentButtonId: undefined,
+	tabButtonMapping: { },
+
+	getDebugInfo: function(obj, outputAsTable, depth) {
+		var result = document.createElement((outputAsTable) ? "table" : "ul");
+		if (outputAsTable) {
+			result.style.borderWidth = "0px";
+			result.style.borderStyle = "none";
+			result.style.borderCollapse = "collapse";
+		}
+		
+		var depthVal = (!depth || isNaN(depth)) ? 0 : parseInt(depth);
+		
+		if (obj === undefined || obj === null) {
+			var item = document.createElement((outputAsTable) ? "tr" : "li");
+			result.appendChild(item);
+			var heading = document.createElement((outputAsTable) ? "td" : "span");
+			heading.innerText = "(" + typeof(obj) + ")";
+			heading.colSpan = "2";
+			item.appendChild(heading);
+		} else if (typeof(obj) != 'object') {
+			var item = document.createElement((outputAsTable) ? "tr" : "li");
+			result.appendChild(item);
+			var heading = document.createElement((outputAsTable) ? "td" : "span");
+			heading.innerText = "(" + typeof(obj) + "): ";
+			content = document.createElement((outputAsTable) ? "td" : "span");
+			content.innerText = obj.toString();
+			item.appendChild(heading);
+			item.appendChild(content);
+		} else if (obj instanceof Array) {
+			for (var i = 0; i<item.length; i++) {
+				var item = document.createElement((outputAsTable) ? "tr" : "li");
+				result.appendChild(item);
+				var heading = document.createElement((outputAsTable) ? "td" : "span");
+				var content = null;
+				if (!outputAsTable)
+					result.fontWeight = "bold";
+				var v = obj[i];
+				heading.innerText = "[" + i + "] (" + typeof(v) + "): ";
+				content = document.createElement((outputAsTable) ? "td" : "span");
+				if (v != undefined && v != null)
+				{
+					if (depthVal > 0)
+						content.appendChild(this.getDebugInfo(v, outputAsTable, depthVal - 1));
+					else
+						content.innerText = v.toString();
+				}
+				item.appendChild(heading);
+				item.appendChild(content);
+			}
+		} else if (obj instanceof Date) {
+			var item = document.createElement((outputAsTable) ? "tr" : "li");
+			result.appendChild(item);
+			var heading = document.createElement((outputAsTable) ? "td" : "span");
+			heading.innerText = "(Date): ";
+			content = document.createElement((outputAsTable) ? "td" : "span");
+			content.innerText = obj.toString();
+			item.appendChild(heading);
+			item.appendChild(content);
+		} else {
+			for (var n in obj) {
+				var item = document.createElement((outputAsTable) ? "tr" : "li");
+				result.appendChild(item);
+				var heading = document.createElement((outputAsTable) ? "td" : "span");
+				var content = null;
+				if (!outputAsTable)
+					result.fontWeight = "bold";
+				if (n == undefined || n == "null") {
+					heading.fontStyle = "italic";
+					heading.innerText = "(" + typeof(n) + ")";
+					if (outputAsTable)
+						heading.colSpan = "2";
+					item.appendChild(heading);
+				} else {
+					var v;
+					if (typeof(n) == "string" && obj.hasOwnProperty(n)) {
+						v = obj[n];
+						heading.innerText = n + " (" + typeof(v) + "): ";
+					} else {
+						v = n;
+						heading.innerText = "(" + typeof(n) + "): ";
+					}
+					content = document.createElement((outputAsTable) ? "td" : "span");
+					if (v != undefined && v != null)
+					{
+						if (depthVal > 0)
+							content.appendChild(this.getDebugInfo(v,outputAsTable, depthVal - 1));
+						else
+							content.innerText = v.toString();
+					}
+					item.appendChild(heading);
+					item.appendChild(content);
+				}
+			}
+		}
+		
+		return result;
+	},
+
+	getElement: function(tag) {
+		if (tag === undefined || tag === null || typeof(contentPanel) == 'object' && contentPanel instanceof Element)
+			return tag;
+		
+		if (typeof(tag) != 'string')
+			tag = tag.toString();
+		
+		if (tag.length == 0)
+			throw "Tag id not provided";
+		
+		var result = document.getElementById(tag);
+		
+		if (result === undefined || result === null)
+			return document.getElementById(tag.trim());
+		
+		return result;
+	},
+	
+	setResultMessage: function(heading, message, encodeMessage, isError, contentPanel, errorClassName, successClassName) {
+		contentPanel = this.getElement(contentPanel);
+		if (contentPanel === undefined || contentPanel === null)
+			throw "Content panel must be defined";
+		
+		while (contentPanel.children.length > 0)
+			contentPanel.removeChild(contentPanel.children[0]);
+		
+		var txt = (isError) ? errorClassName : successClassName;
+		if (txt !== undefined && txt !== null)
+			contentPanel.className = ((typeof(txt) == 'string') ? txt : txt.toString()).trim();
+		
+		if (heading !== null) {
+			if (heading === undefined)
+				heading = null;
+			else if (typeof(heading) != 'object' || !(heading instanceof Element)) {
+				txt = (heading === undefined || heading === null) ? "" : ((typeof(heading) == 'string') ? heading : heading.toString()).trim();
+				if (txt.length == 0)
+					heading = null;
+				else {
+					heading = document.createElement('h3');
+					heading.innerText = txt;
+					heading.className = (isError) ? "resultError" : "resultSuccess";
+					contentPanel.appendChild(heading);
+				}
+			}
+		}
+		
+		if (heading != null)
+			contentPanel.appendChild(heading);
+		
+		if (message !== null) {
+			if (message === undefined)
+				message = null;
+			else if (typeof(message) != 'object' || !(message instanceof Element)) {
+				txt = (message === undefined || message === null) ? "" : ((typeof(message) == 'string') ? message : message.toString()).trim();
+				if (txt.length == 0)
+					message = null;
+				else {
+					message = document.createElement('h3');
+					message.innerText = txt;
+					message.className = (isError) ? "resultError" : "resultSuccess";
+				}
+			}
+		}
+		
+		if (message != null)
+			contentPanel.appendChild(message);
+	},
+	
+	setResultMessageWithContainer: function(heading, message, encodeMessage, isError, contentPanel, containerPanel, errorClassName, successClassName) {
+		containerPanel = this.getElement(containerPanel);
+		if (containerPanel === undefined || containerPanel === null)
+			throw "Container panel must be defined";
+		
+		this.setResultMessage(heading, message, encodeMessage, isError, contentPanel);
+		
+		var txt = (isError) ? errorClassName : successClassName;
+		if (txt !== undefined && txt !== null)
+			containerPanel.className = ((typeof(txt) == 'string') ? txt : txt.toString()).trim();
+	},
+
+	setTabVisible: function(button) {
+		if (typeof(button) == 'object' && button instanceof Element) {
+			this.setTabVisible(button.id);
+			return;
+		}
+		
+		var buttonElement;
+		
+		if (this.visibleTabPageId !== undefined)
+			this.getElement(this.visibleTabPageId).className = "hiddenElement";
+		
+		if (this.currentButtonId !== undefined) {
+			buttonElement = document.getElementById(this.currentButtonId);
+			buttonElement.enabled = true;
+			buttonElement.className = "tabButton";
+		}
+		
+		this.visibleTabPageId = this.tabButtonMapping[button];
+		this.getElement(this.visibleTabPageId).className = "tabPage";
+		
+		this.currentButtonId = button;
+		buttonElement = document.getElementById(button);
+		buttonElement.enabled = false;
+		buttonElement.className = "currentButton";
+	},
+
+	getSelectedDropDownValue: function(dropDown) {
+		if (typeof(dropDown) == 'object' && dropDown instanceof Element)
+			return dropDown.options[(dropDown.selectedIndex < 0) ? 0 : dropDown.selectedIndex].value;
+		
+		return this.getSelectedDropDownValue(document.getElementById(String(dropDown)));
+	},
+
+	getSelectedDropDownText: function(dropDown) {
+		if (typeof(dropDown) == 'object' && dropDown instanceof Element)
+			return dropDown.options[(dropDown.selectedIndex < 0) ? 0 : dropDown.selectedIndex].text;
+		
+		return this.getSelectedDropDownText(document.getElementById(String(dropDown)));
+	},
+
+	getTextBoxText: function(textBox) {
+		if (typeof(textBox) == 'object' && textBox instanceof Element)
+			return textBox.value;
+		
+		return this.getTextBoxText(document.getElementById(String(textBox)));
+	},
+	
+	ensureClassName: function(tag, className, addClassName) {
+		if (addClassName === undefined)
+			addClassName = true;
+			
+		if (typeof(tag) != 'object' || !(tag instanceof Element)) {
+			this.ensureClassName(document.getElementById(tag), className, addClassName);
+			return;
+		}
+		
+		var classNames = new Array();
+		if (tag.className != undefined && tag.className != null && tag.className.trim().length > 0)
+		{
+			var cn = tag.className.trim().split(/\s+/);
+			for (var i = 0; i < cn.length; i++) {
+				if (cn[i] != className)
+					classNames.push(cn[i]);
+			}
+		}
+		
+		if (addClassName)
+			classNames.unshift(className);
+		
+		tag.className = classNames.join(" ");
+	},
+	
+	setDisplayNone: function(tag, isDisplayNone, notDisplayNoneClassName) {
+		if (notDisplayNoneClassName === undefined)
+			this.ensureClassName(tag, "hiddenElement", isDisplayNone);
+		else
+			this.getElement(tag).className = (isDisplayNone) ? "hiddenElement" : notDisplayNoneClassName
+	},
+	
+	tabButton_OnClick: function() {
+		tabPages.setTabVisible(this);
+	},
+	
+	addTabPage: function(buttonId, buttonText, tabPageId) {
+		var buttonInput = document.createElement("input");
+		buttonInput.type = "button";
+		buttonInput.value = buttonText;
+		buttonInput.className = "tabButton";
+		buttonInput.onclick = this.tabButton_OnClick;
+		buttonInput.id = buttonId;
+		this.tabButtonMapping[buttonId] = tabPageId;
+		document.getElementById("tabButtonContainer").appendChild(buttonInput);
+	},
+	
+	Body_OnLoad: function() {
+		var buttonIds = new Array();
+		for (var n in this.tabButtonMapping)
+			buttonIds.push(n);
+		
+		this.setTabVisible(buttonIds[0])
+	}
+};
+</script>
+</head>
+<body onload="tabPages.Body_OnLoad()">
+<form id="myForm">
+<h1>Type Extensions Test Page</h1>
+<div id="tabButtonContainer">
+</div>
+<div id="tabPageContainer">
+	<div id="GetDebugInfoTabPage" class="hiddenElement">
+		<h2>getDebugInfo</h2>
+		<table class="formAlignment">
+			<tr>
+				<td>
+					<input id="GetDebugInfoTestButton" type="button" value="Run Test" onclick="return testGetDebugInfo.TestButton_Click();" />
+				</td>
+			</tr>
+			<tr id="GetDebugInfoTr" class="hiddenElement">
+				<td id="GetDebugInfoTd">
+					<h3 id="GetDebugInfoResultHeading"></h3>
+					<span id="GetDebugInfoResultContent"></span>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<script language="JavaScript" type="text/javascript">
+var testGetDebugInfo = {
+	TestButton_Click: function() {
+		var obj = { First: 1, Second: 2 };
+		tabPages.setResultMessageWithContainer("Success", tabPages.getDebugInfo(obj, true), false, false, "GetDebugInfoTd", "GetDebugInfoTr", '', '');
+	}
+};
+tabPages.addTabPage("GetDebugInfoTabButton", "getDebugInfo", "GetDebugInfoTabPage");
+	</script>
+		
+	<div id="NestedErrorTabPage" class="hiddenElement">
+		<h2>NestedError</h2>
+		<table class="formAlignment">
+			<tr>
+				<td class="formFieldHeading">Constructor:</td>
+				<td>
+					<select id="NestedErrorDropDown" multiple="false" onchange="testNestedError.NestedErrorDropDown_OnChange(this)">
+						<option selected="true" value="0">()</option>
+						<option value="1">(number)</option>
+						<option value="2">(number, message)</option>
+						<option value="3">(number, message, innerError)</option>
+					</select>
+				</td>
+				<td colspan="4"><input type="text" id="NestedErrorNumberTextBox" style="width:64px" /></td>
+			</tr>
+			<tr id="NestedErrorNumberRow">
+				<td class="formFieldHeading">Number:</td>
+				<td>
+					<select id="NestedErrorNumberDropDown" multiple="false" onchange="testNestedError.NestedErrorNumberDropDown_OnChange(this)">
+						<option value="0" selected="true">number:</option>
+						<option value="1">string:</option>
+						<option value="2">null</option>
+						<option value="3">undefined</option>
+					</select>
+				</td>
+				<td colspan="4"><input type="text" id="NestedErrorNumberTextBox" style="width:64px" /></td>
+			</tr>
+			<tr id="NestedErrorMessageRow">
+				<td class="formFieldHeading">Message:</td>
+				<td>
+					<select id="NestedErrorMessageDropDown" multiple="false" onchange="testNestedError.NestedErrorMessageDropDown_OnChange(this)">
+						<option value="0" selected="true">string:</option>
+						<option value="1">number:</option>
+						<option value="2">null</option>
+						<option value="3">undefined</option>
+					</select>
+				</td>
+				<td colspan="4"><input type="text" id="NestedErrorMessageTextBox" style="width:1024px" /></td>
+			</tr>
+			<tr id="NestedErrorInnerRow">
+				<td class="formFieldHeading">Inner Error:</td>
+				<td>
+					<select id="NestedErrorInnerDropDown" multiple="false" onchange="testNestedError.NestedErrorInnerDropDown_OnChange(this)">
+						<option value="-1" selected="true">string:</option>
+						<option value="0">error():</option>
+						<option value="1">error(number):</option>
+						<option value="2">error(number, message):</option>
+						<option value="3">null</option>
+						<option value="4">undefined</option>
+					</select>
+				</td>
+				<td id="NestedErrorInnerParam1HeadingTd" class="formFieldHeading" style="visibility: collapsed">Number:</td>
+				<td id="NestedErrorInnerParam1ValueTd"><input type="text" id="NestedErrorInnerParam1TextBox" style="width:64px;" /></td>
+				<td id="NestedErrorInnerParam2HeadingTd" class="formFieldHeading" style="visibility: collapsed">Message:</td>
+				<td id="NestedErrorInnerParam2ValueTd" style="visibility: collapsed"><input type="text" id="NestedErrorInnerParam2TextBox" style="width:1024px;" /></td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<input id="NestedErrorTestButton" type="button" value="Create Error Object" onclick="return testNestedError.TestButton_Click();" />
+				</td>
+			</tr>
+			<tr id="NestedErrorResultTr" class="hiddenElement">
+				<td id="NestedErrorResultTd" colspan="3">
+				</td>
+			</tr>
+		</table>
+	</div>
+	<script language="JavaScript" type="text/javascript">
+var testNestedError = {
+	NestedErrorDropDown_OnChange: function(nestedErrorDropDown) {
+		var opt = parseInt(tabPages.getSelectedDropDownValue(nestedErrorDropDown));
+		tabPages.setDisplayNone("NestedErrorNumberRow", (opt < 1), "");
+		tabPages.setDisplayNone("NestedErrorMessageRow", (opt < 2), "");
+		tabPages.setDisplayNone("NestedErrorInnerRow", (opt < 3), "");
+	},
+	
+	NestedErrorNumberDropDown_OnChange: function(nestedErrorNumberDropDown) {
+		var opt = parseInt(tabPages.getSelectedDropDownValue(nestedErrorDropDown));
+		tabPages.setDisplayNone("NestedErrorNumberTextBox", (opt > 1), "");
+	},
+	
+	NestedErrorMessageDropDown_OnChange: function(nestedErrorMessageDropDown) {
+		var opt = parseInt(tabPages.getSelectedDropDownValue(nestedErrorMessageDropDown));
+		tabPages.setDisplayNone("NestedErrorMessageTextBox", (opt > 1), "");
+	},
+	
+	NestedErrorInnerDropDown_OnChange: function(nestedErrorInnerDropDown) {
+		var opt = parseInt(tabPages.getSelectedDropDownValue(nestedErrorInnerDropDown));
+		tabPages.setDisplayNone("NestedErrorInnerParam1HeadingTd", (opt != 1 && opt != 2), "");
+		tabPages.setDisplayNone("NestedErrorInnerParam1ValueTd", (value == 0 || value > 2), "");
+		tabPages.setDisplayNone("NestedErrorInnerParam2HeadingTd", (value != 2), "");
+		tabPages.setDisplayNone("NestedErrorInnerParam2ValueTd", (value != 2), "");
+	},
+	
+	TestButton_Click: function() {
+		var constructorOpt = parseInt(tabPages.getSelectedDropDownValue("NestedErrorDropDown"));
+		var errObj;
+		var isSuccess;
+		
+		try {
+			if (constructorOpt == 0)
+				errObj = new NestedError();
+			else {
+				var numberOpt = parseInt(tabPages.getSelectedDropDownValue("NestedErrorNumberDropDown"));
+				var errNumber;
+				switch (numberOpt) {
+					case 0:
+						errNumber = tabPages.getTextBoxText("NestedErrorNumberTextBox");
+						if (isNaN(errNumber))
+							throw "Invalid error number";
+						errNumber = parseInt(errNumber);
+						break;
+					case 2:
+						errNumber = null;
+						break;
+					case 3:
+						errNumber = undefined;
+						break;
+					default:
+						errNumber = tabPages.getTextBoxText("NestedErrorNumberTextBox");
+						break;
+				}
+				
+				if (constructorOpt == 1)
+					errObj = new NestedError(errNumber);
+				else {
+					var messageOpt = parseInt(tabPages.getSelectedDropDownValue("NestedErrorMessageDropDown"));
+					var messageText;
+					switch (messageOpt) {
+						case 1:
+							messageText = tabPages.getTextBoxText("NestedErrorMessageTextBox");
+							if (isNaN(messageText))
+								throw "Invalid message number";
+							messageText = parseInt(messageText);
+							break;
+						case 2:
+							messageText = null;
+							break;
+						case 3:
+							messageText = undefined;
+							break;
+						default:
+							messageText = tabPages.getTextBoxText("NestedErrorMessageTextBox");
+							break;
+					}
+					if (constructorOpt == 2)
+						errObj = new NestedError(errNumber, messageText);
+					else {
+						var innerConstructorOpt =  parseInt(tabPages.getSelectedDropDownValue("NestedErrorInnerDropDown"));
+						var innerError;
+						if (innerConstructorOpt == -1)
+							innerError = tabPages.getTextBoxText("NestedErrorInnerParam1TextBox");
+						else if (innerConstructorOpt == 0)
+							innerError = new Error();
+						else {
+							try {
+								innerNumber = tabPages.getTextBoxText("NestedErrorInnerParam1TextBox");
+								if (!isNan(innerNumber))
+									innerNumber = parseInt(innerNumber);
+								if (innerConstructorOpt == 1)
+									innerError = new Error(innerNumber);
+								else
+									innerError = new Error(innerNumber, tabPages.getTextBoxText("NestedErrorInnerParam2TextBox"));
+							} catch (err) {
+								if (typeof(err) == 'string')
+									throw new "Error creating inner error object: " + err;
+									
+								throw new "Error creating inner error object: " + err.toString();
+							}
+						}
+						
+						errObj = new NestedError(errNumber, message, innerError);
+					}
+				}
+			}
+			isSuccess = true;
+		} catch (err) {
+			errObj = err;
+			isSuccess = false;
+		}
+		
+		tabPages.setResultMessageWithContainer((isSuccess) ? "Success" : "Error creating NestedError object", tabPages.getDebugInfo(err, true), false, !isSuccess, "NestedErrorResultTd", "NestedErrorResultTr", '', '');
+	}
+};
+tabPages.addTabPage("NestedErrorTabButton", "NestedError", "NestedErrorTabPage");
+	</script>
+
+	<div id="FormatErrorTabPage" class="hiddenElement">
+		<h2>FormatError</h2>
+		<table class="formAlignment">
+			<tr>
+				<td colspan="3">
+					<input id="FormatErrorTestButton" type="button" value="Create Error Object" onclick="return testFormatError.TestButton_Click();" />
+				</td>
+			</tr>
+			<tr id="FormatErrorResultTr" class="hiddenElement">
+				<td id="FormatErrorResultTd" colspan="3">
+				</td>
+			</tr>
+		</table>
+	</div>
+	<script language="JavaScript" type="text/javascript">
+var testFormatError = {
+	TestButton_Click: function() {
+		var errObj;
+		var isSuccess;
+		try {
+			errObj = new FormatError();
+			isSuccess = true;
+		} catch (err) {
+			errObj = err;
+			isSuccess = false;
+		}
+		
+		tabPages.setResultMessageWithContainer((isSuccess) ? "Success" : "Error creating FormatError object", tabPages.getDebugInfo(err, true), false, !isSuccess, "FormatErrorResultTd", "FormatErrorResultTr", '', '');
+	}
+};
+tabPages.addTabPage("FormatErrorTestButton", "FormatError", "FormatErrorTabPage");
+	</script>
+	
+	<div id="KeyNotFoundErrorTabPage" class="hiddenElement">
+		<h2>KeyNotFoundError</h2>
+		<table class="formAlignment">
+			<tr>
+				<td colspan="3">
+					<input id="KeyNotFoundErrorTestButton" type="button" value="Create Error Object" onclick="return testKeyNotFoundError.TestButton_Click();" />
+				</td>
+			</tr>
+			<tr id="KeyNotFoundErrorResultTr" class="hiddenElement">
+				<td id="KeyNotFoundErrorResultTd" colspan="3">
+				</td>
+			</tr>
+		</table>
+	</div>
+	<script language="JavaScript" type="text/javascript">
+var testKeyNotFoundError = {
+	TestButton_Click: function() {
+		var errObj;
+		var isSuccess;
+		try {
+			errObj = new KeyNotFoundError();
+			isSuccess = true;
+		} catch (err) {
+			errObj = err;
+			isSuccess = false;
+		}
+		
+		tabPages.setResultMessageWithContainer((isSuccess) ? "Success" : "Error creating KeyNotFoundError object", tabPages.getDebugInfo(err, true), false, !isSuccess, "KeyNotFoundErrorResultTd", "KeyNotFoundErrorResultTr", '', '');
+	}
+};
+tabPages.addTabPage("KeyNotFoundErrorTestButton", "KeyNotFoundError", "KeyNotFoundErrorTabPage");
+	</script>
+
+	<div id="StringToFormattedStringTabPage" class="hiddenElement">
+		<h2>String.toFormattedString</h2>
+		<table class="formAlignment">
+			<tr>
+				<td colspan="3">
+					<input id="StringToFormattedStringTestButton" type="button" value="Run Test" onclick="return testStringToFormattedString.TestButton_Click();" />
+				</td>
+			</tr>
+			<tr id="StringToFormattedStringResultTr" class="hiddenElement">
+				<td id="StringToFormattedStringResultTd" colspan="3">
+				</td>
+			</tr>
+		</table>
+	</div>
+	<script language="JavaScript" type="text/javascript">
+var testStringToFormattedString = {
+	TestButton_Click: function() {
+		var content;
+		var isSuccess;
+		try {
+			content = "{0}".toFormattedString(new { 0: "test" });
+			isSuccess = true;
+		} catch (err) {
+			content = err;
+			isSuccess = false;
+		}
+		
+		tabPages.setResultMessageWithContainer((isSuccess) ? "Success" : "Error running String.toFormattedString()", tabPages.getDebugInfo(err, true), false, !isSuccess, "StringToFormattedStringResultTd", "StringToFormattedStringResultTr", '', '');
+	}
+};
+tabPages.addTabPage("StringToFormattedStringTestButton", "String.toFormattedString", "StringToFormattedStringTabPage");
+	</script>
+</div>
+</form>
+</body>
