@@ -1,0 +1,278 @@
+<html>
+	<head>
+		<title>LTEJsLib Unit Tests</title>
+		<script language="javascript" type="text/javascript">
+JsUnitTesting = {
+	Utility: {}
+};
+
+JsUnitTesting.Utility.getFunctionName = function(func) {
+	if (func === null || func === undefined || !(typeof func == 'function'))
+		throw 'func is not a function';
+	
+	var re = /^function\s+([^(]+)/i;
+	var r = re.exec(func.toString());
+	if (r != null)
+		return r[1];
+	
+	return null;
+};
+
+JsUnitTesting.Utility.getTypeName = function(obj) {
+	var tn = typeof obj;
+	
+	if (tn === 'object') {
+	}
+	
+	switch (tn) {
+		case 'object':
+			break;
+		case 'function':
+			break;
+	}
+	
+	return result;
+	if (tn != 'object' && tn != 'function')
+		return tn;
+	
+	var p = obj.prototype;
+	if (p) {
+		var c = p.constructor;
+		var n = obj.prototype.name;
+		if (c) {
+			var cn = obj.prototype.constructor.name;
+			if (cn)
+				return cn;
+			
+			return (n) ? n : JsUnitTesting.Utility.getFunctionName(c);
+		}
+		
+		if (n)
+			return n;
+		
+		var ptn = typeof(p);
+		if (ptn == 'function')
+			return JsUnitTesting.Utility.getFunctionName(p);
+	}
+	
+	return tn;
+};
+
+function showTypeInfo(heading, obj, typeObj) {
+	var resultTable = document.getElementById("resultTable");
+	var tr = resultTable.insertRow(resultTable.rows.length);
+	tr.insertCell(0).innerText = heading;
+	tr.insertCell(1).innerText = typeof obj;
+	tr.insertCell(2).innerText = Object.prototype.toString.call(obj);
+	tr.insertCell(3).innerText = typeof obj.name;
+	if (obj.name === undefined || obj.name === null)
+		tr.insertCell(4).innerHTML = '&nbsp;';
+	else
+		tr.insertCell(4).innerText = obj.name;
+	tr.insertCell(5).innerText = typeof obj.prototype;
+	var objInstanceOfTypeObjTd = tr.insertCell(6);
+	try {
+		objInstanceOfTypeObjTd.innerText = (obj instanceof typeObj) ? "Yes" : "No";
+	} catch (e) {
+		objInstanceOfTypeObjTd.innerText = e.message;
+	}
+	var typeofPrototypeNameTd = tr.insertCell(7);
+	var prototypeNameTd = tr.insertCell(8);
+	var typeOfPrototypeConstructorTd = tr.insertCell(9);
+	var stringPrototypeConstructorTd = tr.insertCell(10);
+	var typeofPrototypeConstructorNameTd = tr.insertCell(11);
+	var prototypeConstructorNameTd = tr.insertCell(12);
+	var stringPrototypeTd = tr.insertCell(13);
+
+	if (obj.prototype === undefined || obj.prototype === null) {
+		stringPrototypeTd.innerHTML = '&nbsp;';
+		typeofPrototypeNameTd.innerHTML = '&nbsp;';
+		prototypeNameTd.innerHTML = '&nbsp;';
+		typeOfPrototypeConstructorTd.innerHTML = '&nbsp;';
+		stringPrototypeConstructorTd.innerHTML = '&nbsp;';
+		typeofPrototypeConstructorNameTd.innerHTML = '&nbsp;';
+		prototypeConstructorNameTd.innerHTML = '&nbsp;';
+	} else {
+		stringPrototypeTd.innerText = obj.prototype;
+		typeofPrototypeNameTd.innerText = typeof obj.prototype.name;
+		if (obj.prototype.name === undefined || obj.prototype.name === null)
+			prototypeNameTd.innerHTML = '&nbsp;';
+		else
+			prototypeNameTd.innerText = obj.prototype.name;
+		
+		typeOfPrototypeConstructorTd.innerText = typeof obj.prototype.constructor;
+		
+		if (obj.prototype.constructor === undefined || obj.prototype.constructor === null) {
+			stringPrototypeConstructorTd.innerHTML = '&nbsp;';
+			typeofPrototypeConstructorNameTd.innerHTML = '&nbsp;';
+			prototypeConstructorNameTd.innerHTML = '&nbsp;';
+		} else {
+			stringPrototypeConstructorTd.innerText = obj.prototype.constructor;
+			typeofPrototypeConstructorNameTd.innerText = typeof obj.prototype.constructor.name;
+			if (obj.prototype.constructor.name === undefined || obj.prototype.constructor.name === null)
+				prototypeConstructorNameTd.innerHTML = '&nbsp;';
+			else
+				prototypeConstructorNameTd.innerText = obj.prototype.constructor.name;
+		}
+	}
+	
+	for (var i=0; i<12; i++) {
+		tr.cells[i].style.borderWidth = "1px";
+		tr.cells[i].style.borderColor = "#000000";
+		tr.cells[i].style.borderStyle = "solid";
+	}
+};
+
+function FuncWithNoNameOrProto(sParam) {
+	this.valueObj = sParam;
+}
+
+function FuncWithOnlyConstructor(sParam) {
+	this.valueObj = sParam;
+}
+FuncWithOnlyConstructor.prototype.constructor = FuncWithOnlyConstructor;
+
+
+function FuncWithOnlyPrototype(sParam) {
+	this.valueObj = sParam;
+}
+FuncWithOnlyPrototype.prototype = new FuncWithOnlyPrototype();
+
+function FuncWithAll(sParam) {
+	this.valueObj = sParam;
+}
+FuncWithAll.prototype = new FuncWithAll();
+FuncWithAll.prototype.constructor = FuncWithAll;
+
+function FuncFromError(aNumber, aMsg) {
+	Error.call(this, aNumber, aMsg);
+}
+FuncFromError.prototype = new Error();
+FuncFromError.prototype.constructor = FuncFromError;
+
+var ObjWithNoNameOrProto = {};
+
+var ObjWithOnlyConstructor = {};
+FuncWithOnlyConstructor.prototype.constructor = function(sParam) {
+	this.valueObj = sParam;
+};
+
+var ObjWithOnlyPrototype = {};
+ObjWithOnlyPrototype.prototype = {};
+
+var ObjWithAll = {}
+ObjWithAll.prototype = {};
+ObjWithAll.prototype.constructor = function(sParam) {
+	this.valueObj = sParam;
+};
+
+
+function button_Click() {
+	var testObjects = Array(
+		{ name: 'FuncWithNoNameOrProto', instanceObj: FuncWithNoNameOrProto, typeObj: FuncWithNoNameOrProto, prototypeDefined: false, constructorDefined: false, isInstance: false },
+		{ name: 'FuncWithNoNameOrProto', instanceObj: new FuncWithNoNameOrProto("test"), typeObj: FuncWithNoNameOrProto, prototypeDefined: false, constructorDefined: false, isInstance: true },
+		{ name: 'FuncWithOnlyConstructor', instanceObj: FuncWithOnlyConstructor, typeObj: FuncWithOnlyConstructor, prototypeDefined: false, constructorDefined: true, isInstance: false },
+		{ name: 'FuncWithOnlyConstructor', instanceObj: new FuncWithOnlyConstructor("test"), typeObj: FuncWithOnlyConstructor, prototypeDefined: false, constructorDefined: true, isInstance: true },
+		{ name: 'FuncWithOnlyPrototype', instanceObj: FuncWithOnlyPrototype, typeObj: FuncWithOnlyPrototype, prototypeDefined: true, constructorDefined: false, isInstance: false },
+		{ name: 'FuncWithOnlyPrototype', instanceObj: new FuncWithOnlyPrototype("test"), typeObj: FuncWithOnlyPrototype, prototypeDefined: true, constructorDefined: false, isInstance: true },
+		{ name: 'FuncWithAll', instanceObj: FuncWithAll, typeObj: FuncWithAll, prototypeDefined: true, constructorDefined: true, isInstance: false },
+		{ name: 'FuncWithAll', instanceObj: new FuncWithAll("test"), typeObj: FuncWithAll, prototypeDefined: true, constructorDefined: true, isInstance: true },
+		{ name: 'FuncFromError', instanceObj: FuncFromError, typeObj: FuncFromError, prototypeDefined: true, constructorDefined: true, isInstance: false },
+		{ name: 'FuncFromError', instanceObj: new FuncFromError(1, "test"), typeObj: FuncFromError, prototypeDefined: true, constructorDefined: true, isInstance: true },
+		{ name: 'ObjWithOnlyPrototype', instanceObj: ObjWithOnlyPrototype, typeObj: ObjWithOnlyPrototype, prototypeDefined: true, constructorDefined: false, isInstance: false },
+		{ name: 'ObjWithOnlyConstructor', instanceObj: ObjWithOnlyConstructor, typeObj: ObjWithOnlyConstructor, prototypeDefined: false, constructorDefined: true, isInstance: false },
+		{ name: 'ObjWithAll', instanceObj: ObjWithAll, typeObj: ObjWithAll, prototypeDefined: true, constructorDefined: true, isInstance: false }
+	);
+	var columns = {
+		"Name": function(obj) {
+			return obj.name;
+		},
+		"Prototype Defined": function(obj) {
+			return (obj.prototypeDefined) ? "Yes" : "No";
+		},
+		"Constructor Defined": function(obj) {
+			return (obj.constructorDefined) ? "Yes" : "No";
+		},
+		"Is Instance": function(obj) {
+			return (obj.isInstance) ? "Yes" : "No";
+		},
+		"instanceObj instanceof typeObj": function(obj) {
+			return (obj.instanceObj instanceof obj.typeObj) ? "Yes" : "No";
+		},
+		"typeof instanceObj": function(obj) {
+			return typeof obj.instanceObj;
+		},
+		"String(instanceObj)": function(obj) {
+			return String(obj.instanceObj);
+		},
+		"Object.prototype.toString.call(instanceObj)": function(obj) {
+			return Object.prototype.toString.call(obj.instanceObj);
+		},
+		"typeof instanceObj.prototype": function(obj) {
+			return typeof obj.instanceObj.prototype;
+		},
+		"String(instanceObj.prototype)": function(obj) {
+			return (obj.instanceObj.prototype) ? String(obj.instanceObj.prototype) : undefined;
+		},
+		"Object.prototype.toString.call(instanceObj.prototype)": function(obj) {
+			return (obj.instanceObj.prototype) ? Object.prototype.toString.call(obj.instanceObj.prototype) : undefined;
+		},
+		"typeof instanceObj.prototype.constructor": function(obj) {
+			return (obj.instanceObj.prototype) ? (typeof obj.instanceObj.prototype.constructor) : undefined;
+		},
+		"String(instanceObj.prototype.constructor)": function(obj) {
+			return (obj.instanceObj.prototype && obj.instanceObj.prototype.constructor) ? String(obj.instanceObj.prototype.constructor) : undefined;
+		},
+		"Object.prototype.toString.call(instanceObj.prototype)": function(obj) {
+			return (obj.instanceObj.prototype && obj.instanceObj.prototype.constructor) ? Object.prototype.toString.call(obj.instanceObj.prototype.constructor) : undefined;
+		}
+	}
+	
+	var resultTable = document.getElementById("resultTable");
+	if (resultTable.tHead === undefined || resultTable.tHead === null)
+		resultTable.createTHead();
+	else {
+		while (resultTable.tHead.rows.length > 0)
+			resultTable.tHead.deleteRow(0);
+	}
+	if (resultTable.tBodies.length == 0)
+		resultTable.createTBody();
+	else {
+		for (var i = 0; i < resultTable.tBodies.length; i++) {
+			while (resultTable.tBodies[i].rows.length > 0)
+				resultTable.tBodies[i].deleteRow(0);
+		}
+	}
+	var row = resultTable.tHead.insertRow(resultTable.tHead.rows.length);
+	var cell;
+	for (var colName in columns) {
+		cell = row.insertCell(row.cells.length);
+		cell.innerText = colName;
+		cell.style.borderWidth = "1px";
+		cell.style.borderStyle = "solid";
+		cell.style.borderColor = "#000000";
+	}
+	
+	for (var i = 0; i < testObjects.length; i++) {
+		row = resultTable.tBodies[0].insertRow(resultTable.tBodies[0].rows.length);
+		for (var colName in columns) {
+			cell = row.insertCell(row.cells.length);
+			try {
+				cell.innerText = columns[colName](testObjects[i]);
+			} catch (e) {
+				cell.innerText = (e.message) ? e.message : String(e);
+			}
+			cell.style.borderWidth = "1px";
+			cell.style.borderStyle = "solid";
+			cell.style.borderColor = "#000000";
+		}
+	}
+}
+		</script>
+	</head>
+	<body>
+		<input id="GetDebugInfoTestButton" type="button" value="Run Test" onclick="button_Click();" />
+		<table id="resultTable" style="border:1px solid #000000">
+		</table>
+	</body>
+</html>
