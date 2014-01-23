@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>LTEJsLib Unit Tests</title>
+		<script language="JavaScript1.6" type="text/javascript">
+function button_Click() {
+function MyClass(myArg) {
+	this.getMyProperty = function() { return this.__myProperty__; }
+	this.setMyProperty = function(value) { this.__myProperty__ = (value === undefined || value === null) ? null : ((typeof(value) == 'string') ? value : String(value)); }
+
+	this.setMyProperty(myArg);
+}
+MyClass.prototype =  new MyClass();
+MyClass.prototype.constructor = MyClass;
+
+var myObj = new MyClass("My Value");
+alert(myObj.getMyProperty()); // Displays "My Value"
+myObj.setMyProperty(new Date());
+alert(myObj.getMyProperty()); // Displays current date as string
+}
+		</script>
+	</head>
+	<body>
+		<input id="GetDebugInfoTestButton" type="button" value="Run Test" onclick="button_Click();" />
+		<table id="resultTable" style="border:1px solid #000000">
+		</table>
+	</body>
+</html>
