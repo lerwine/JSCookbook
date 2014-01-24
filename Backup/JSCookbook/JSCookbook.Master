@@ -1,0 +1,169 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="JSCookbook.master.cs" Inherits="JSCookbook.JSCookbook_Master" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Lenny's JavaScript Cookbook</title>
+    <asp:ContentPlaceHolder ID="head" runat="server"></asp:ContentPlaceHolder>
+    <style type="text/css">
+        body 
+        {
+            font-family: Arial, Helvetica, sans-serif;
+            color:Black;
+            background-color:White;
+            padding:0px;
+        }
+        table.MainContentAlignment,
+        th.PageHeading,
+        td.MainMenu,
+        td.MainContent,
+        td.PageFooter
+        {
+            border:1px solid #000099;
+        }
+        th.PageHeading,
+        td.MainMenu,
+        td.PageFooter
+        {
+            color: #FFFFFF;
+            background-color: #000099;
+        }
+        th.PageHeading,
+        td.MainMenu,
+        td.MainContent,
+        td.PageFooter
+        {
+            padding:8px;
+        }
+        table.MainContentAlignment 
+        {
+            margin:0px;
+            border-collapse:collapse;
+        }
+        th.PageHeading
+        {
+            font-size: large;
+            text-align: left;
+        }
+        th.PageHeading h1
+        {
+            font-size: large;
+            text-align: left;
+        }
+        th.PageHeading h2
+        {
+            font-size:medium;
+            text-align: left;
+        }
+        td.MainContent,
+        td.MainMenu
+        {
+            vertical-align:top;
+        }
+        td.MainMenu
+        {
+            padding-top:0px;
+            padding-bottom:0px;
+        }
+        td.PageFooter
+        {
+            font-size: x-small;
+            text-align: right;
+        }
+        table.MainMenu
+        {
+            margin:0px;
+            border-collapse:collapse;
+            border-bottom-style:groove;
+            border-bottom-color:#000099;
+            border-bottom-width:1px;
+            border-top-style: none;
+            background-color:#000099;
+            color:White;
+        }
+        table.StaticMainMenuItem 
+        {
+            margin:0px;
+            border-collapse:collapse;
+            border-style: none;
+        }
+        td.StaticMainMenuItem 
+        {
+            border-bottom-style: none;
+            border-left-style:none;
+            border-right-style:none;
+            border-top-style:groove;
+            border-top-color:#000099;
+            border-top-width:1px;
+            margin:0px;
+            padding:8px;
+        }
+        div.DynamicMainMenu 
+        {
+            border-color:#000099;
+            color:Black;
+            padding:16px; background-color:#7f7f0c;
+        }
+    </style>
+</head>
+<body>
+    <form id="form1" runat="server">
+    <table class="MainContentAlignment">
+        <thead>
+            <tr>
+                <th colspan="2" class="PageHeading">
+                    <asp:ContentPlaceHolder ID="AppHeadingContentPlaceHolder" runat="server">
+                        <h2>Lenny's JavaScript Cookbook</h2>
+                    </asp:ContentPlaceHolder>
+                    <asp:ContentPlaceHolder ID="PageHeadingContentPlaceHolder" runat="server"></asp:ContentPlaceHolder>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="MainMenu">
+                    <asp:ContentPlaceHolder ID="BeforeDefaultMenuContentPlaceHolder" runat="server"></asp:ContentPlaceHolder>
+                    <asp:Menu ID="MainMenu" runat="server" CssClass="MainMenu" 
+                        MaximumDynamicDisplayLevels="4" StaticDisplayLevels="2">
+                        <DynamicHoverStyle CssClass="MainDynamicMenuHover" />
+                        <DynamicMenuItemStyle CssClass="MainDynamicMenuItem" />
+                        <DynamicMenuStyle CssClass="DynamicMainMenu" />
+                        <DynamicSelectedStyle CssClass="DynamicMainMenuSelected" />
+                        <Items>
+                            <asp:MenuItem NavigateUrl="~/Default.aspx" Text="Home" Value="Home">
+                                <asp:MenuItem NavigateUrl="~/Chapter1.aspx" Text="Chapter 1" 
+                                    ToolTip="Object Oriented Basics" Value="Chapter1">
+                                    <asp:MenuItem NavigateUrl="JavaScriptClasses.aspx" Text="JavaScript Classes" 
+                                        Value="JavaScript Classes"></asp:MenuItem>
+                                </asp:MenuItem>
+                            </asp:MenuItem>
+                        </Items>
+                        <StaticHoverStyle CssClass="StaticMainMenuHover" />
+                        <StaticMenuItemStyle CssClass="StaticMainMenuItem" />
+                        <StaticMenuStyle CssClass="StaticMainMenu" />
+                        <StaticSelectedStyle CssClass="StaticMainMenuSelected" />
+                    </asp:Menu>
+                    <asp:ContentPlaceHolder ID="AfterDefaultMenuContentPlaceHolder" runat="server"></asp:ContentPlaceHolder>
+                </td>
+                <td class="MainContent">
+                    <asp:ContentPlaceHolder ID="MainContentContentPlaceHolder" runat="server">
+                    </asp:ContentPlaceHolder>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2" class="PageFooter">
+                    <asp:ContentPlaceHolder ID="BeforeMainPageFootContentPlaceHolder" runat="server"></asp:ContentPlaceHolder>
+                    <asp:ContentPlaceHolder ID="MainPageFootContentPlaceHolder" runat="server">
+                        <asp:Label ID="MainPageFootLabel" runat="server" Text="Written and designed by Leonard T. Erwine; Licensed under the Apache License, Version 2.0"></asp:Label>
+                    </asp:ContentPlaceHolder>
+                    <asp:ContentPlaceHolder ID="AfterMainPageFootContentPlaceHolder" runat="server"></asp:ContentPlaceHolder>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    </form>
+</body>
+</html>
