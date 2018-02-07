@@ -1,28 +1,27 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>LTEJsLib Unit Tests</title>
-		<script language="JavaScript1.6" type="text/javascript">
-function button_Click() {
-function MyClass(myArg) {
-	this.getMyProperty = function() { return this.__myProperty__; }
-	this.setMyProperty = function(value) { this.__myProperty__ = (value === undefined || value === null) ? null : ((typeof(value) == 'string') ? value : String(value)); }
-
-	this.setMyProperty(myArg);
-}
-MyClass.prototype =  new MyClass();
-MyClass.prototype.constructor = MyClass;
-
-var myObj = new MyClass("My Value");
-alert(myObj.getMyProperty()); // Displays "My Value"
-myObj.setMyProperty(new Date());
-alert(myObj.getMyProperty()); // Displays current date as string
-}
-		</script>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=IE11" />
+		<title>Unit Testing Framework Test</title>
+		<meta name="description" content="Tests the unit testing framework" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="../Framework/Bootstrap/css/bootstrap.css" />
+        <link rel="stylesheet" href="../Framework/Bootstrap/css/bootstrap-grid.css" />
+        <link rel="stylesheet" href="../Framework/Bootstrap/css/bootstrap-reboot.css" />
+        <link rel="stylesheet" href="../Framework/Tether/css/tether.css" />
+        <link rel="stylesheet" type="text/css" href="../Framework/DataTables/datatables.css"/>
+        <script type="text/javascript" src="../Framework/jQuery/jquery-3.2.1.js"></script>
+        <script type="text/javascript" src="../Framework/Bootstrap/js/bootstrap.js"></script>
+        <script type="text/javascript" src="../Framework/Tether/js/tether.js"></script>
+        <script type="text/javascript" src="../Framework/DataTables/datatables.js"></script>
+		<script type="text/javascript">
+$(document).ready(function() {
+    
+});
+        </script>
 	</head>
 	<body>
-		<input id="GetDebugInfoTestButton" type="button" value="Run Test" onclick="button_Click();" />
-		<table id="resultTable" style="border:1px solid #000000">
-		</table>
+
 	</body>
 </html>

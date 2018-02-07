@@ -1,63 +1,24 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Lenny's JavaScript Cookbook Tests</title>
-		<script type="text/javascript" src="Unit Testing/00_JsUnitTesting_partial.js"></script>
-		<script type="text/javascript" src="Unit Testing/01_AssertionError.js"></script>
-		<script type="text/javascript" src="Unit Testing/02_Assert.js"></script>
-		<script type="text/javascript" src="Unit Testing/03_TestExecutionObject.js"></script>
-		<script type="text/javascript" src="Unit Testing/04_UnitTest.js"></script>
-		<script type="text/javascript" src="Unit Testing/05_TestCollection.js"></script>
-		<script type="text/javascript" src="Unit Testing/06_TestResult.js"></script>
-		<script type="text/javascript" src="Scripts/TypeExtensions.js"></script>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=IE11" />
+        <title>Lenny's JavaScript Cookbook Tests</title>
+        <meta name="description" content="Lenny's JavaScript Cookbook Tests" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="Framework/Bootstrap/css/bootstrap.css" />
+        <link rel="stylesheet" href="Framework/Bootstrap/css/bootstrap-grid.css" />
+        <link rel="stylesheet" href="Framework/Bootstrap/css/bootstrap-reboot.css" />
+        <link rel="stylesheet" href="Framework/Tether/css/tether.css" />
+        <link rel="stylesheet" type="text/css" href="Framework/DataTables/datatables.css"/>
+        <script type="text/javascript" src="Framework/jQuery/jquery-3.2.1.js"></script>
+        <script type="text/javascript" src="Framework/Bootstrap/js/bootstrap.js"></script>
+        <script type="text/javascript" src="Framework/Tether/js/tether.js"></script>
+        <script type="text/javascript" src="Framework/DataTables/datatables.js"></script>
 		<script type="text/javascript">
-		    function Button1_onclick() {
-		        var tc = new JsUnitTesting.TestCollection("My Test");
-
-		        var nestedErrorConstructorTest = function () {
-		            var message = "test Error";
-		            var innerError = "My Inner";
-		            var err = new NestedError(1, message, innerError);
-		            this.assert.areEqual(1, err.number);
-		            this.assert.areEqual(message, err.message);
-		            this.assert.areEqual(innerError, err.innerError);
-		        };
-		        tc.push(new JsUnitTesting.UnitTest(nestedErrorConstructorTest));
-
-		        var formatErrorConstructorTest = function () {
-		            var message = "test Error";
-		            var innerError = "My Inner";
-		            var formatString = "my format string";
-		            var position = 5;
-		            var err = new FormatError(1, message, formatString, position, innerError);
-		            this.assert.areEqual(1, err.number);
-		            this.assert.areEqual(message, err.message);
-		            this.assert.areEqual(formatString, err.formatString);
-		            this.assert.areEqual(position, err.position);
-		            this.assert.areEqual(innerError, err.innerError);
-		        };
-		        tc.push(new JsUnitTesting.UnitTest(formatErrorConstructorTest));
-
-		        var keyNotFoundErrorConstructorTest = function () {
-		            var message = "test Error";
-		            var innerError = "My Inner";
-		            var formatString = "my format string";
-		            var position = 5;
-		            var key = "abc";
-		            var err = new KeyNotFoundError(1, message, key, formatString, position, innerError);
-		            this.assert.areEqual(1, err.number);
-		            this.assert.areEqual(message, err.message);
-		            this.assert.areEqual(key, err.key);
-		            this.assert.areEqual(formatString, err.formatString);
-		            this.assert.areEqual(position, err.position);
-		            this.assert.areEqual(innerError, err.innerError);
-		        };
-		        tc.push(new JsUnitTesting.UnitTest(keyNotFoundErrorConstructorTest));
-
-		        var result = tc.runTests();
-		        var resultContainer = document.getElementById("resultContainer");
-		        resultContainer.innerText = JsUnitTesting.TestResult.getTestResultsTableHtml(result);
-		    }
+$(document).ready(function() {
+    
+});
         </script>
 	    <style type="text/css">
             table.results, table.error
