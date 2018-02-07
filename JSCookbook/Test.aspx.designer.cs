@@ -10,6 +10,6 @@
 namespace JSCookbook {
     
     
-    public partial class Chapter1_Page {
+    public partial class Test_Page {
     }
 }

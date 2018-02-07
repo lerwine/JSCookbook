@@ -7,7 +7,7 @@ using System.Web.UI.WebControls;
 
 namespace JSCookbook
 {
-    public partial class Chapter1_Page : System.Web.UI.Page
+    public partial class Test_Page : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {

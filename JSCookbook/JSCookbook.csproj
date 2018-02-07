@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Themes\Default\Default.css" />
-    <Content Include="Chapter1.aspx" />
+    <Content Include="Test.aspx" />
     <Content Include="Colors.htm" />
     <Content Include="Default.aspx" />
     <Content Include="LTEJsLib\JSUnitTesting\Assert.js" />
@@ -99,12 +99,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Chapter1.aspx.cs">
-      <DependentUpon>Chapter1.aspx</DependentUpon>
+    <Compile Include="Test.aspx.cs">
+      <DependentUpon>Test.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Chapter1.aspx.designer.cs">
-      <DependentUpon>Chapter1.aspx</DependentUpon>
+    <Compile Include="Test.aspx.designer.cs">
+      <DependentUpon>Test.aspx</DependentUpon>
     </Compile>
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
