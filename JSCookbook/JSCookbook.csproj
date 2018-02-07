@@ -62,34 +62,33 @@
     <Content Include="Test.aspx" />
     <Content Include="Colors.htm" />
     <Content Include="Default.aspx" />
-    <Content Include="LTEJsLib\JSUnitTesting\Assert.js" />
-    <Content Include="LTEJsLib\JSUnitTesting\AssertionError.js" />
-    <Content Include="LTEJsLib\JSUnitTesting\HtmlOutput.js" />
-    <Content Include="LTEJsLib\JSUnitTesting\Test.html" />
-    <Content Include="LTEJsLib\JSUnitTesting\TestCollection.js" />
-    <Content Include="LTEJsLib\JSUnitTesting\TestContext.js" />
-    <Content Include="LTEJsLib\JSUnitTesting\UnitTest.js" />
-    <Content Include="LTEJsLib\JSUnitTesting\Utility.js" />
-    <Content Include="LTEJsLib\LTEJsLib.js" />
-    <Content Include="LTEJsLib\OutputDateAndTime\Layout.htm" />
-    <Content Include="LTEJsLib\OutputDateAndTime\Script.js" />
-    <Content Include="LTEJsLib\test.html" />
-    <Content Include="LTEJsLib\test2.html" />
-    <Content Include="LTEJsLib\TypeExtensionsTest.html" />
-    <Content Include="LTEJsLib\TypeExtensions\TypeExtensions.js" />
+    <Content Include="JSUnitTesting\Assert.js" />
+    <Content Include="JSUnitTesting\AssertionError.js" />
+    <Content Include="JSUnitTesting\HtmlOutput.js" />
+    <Content Include="JSUnitTesting\Test.html" />
+    <Content Include="JSUnitTesting\TestCollection.js" />
+    <Content Include="JSUnitTesting\TestContext.js" />
+    <Content Include="JSUnitTesting\UnitTest.js" />
+    <Content Include="JSUnitTesting\Utility.js" />
+    <Content Include="Scripts\LTEJsLib\LTEJsLib.js" />
+    <Content Include="Scripts\LTEJsLib\OutputDateAndTime\Layout.htm" />
+    <Content Include="Scripts\LTEJsLib\OutputDateAndTime\Script.js" />
+    <Content Include="Scripts\LTEJsLib\test.html" />
+    <Content Include="Scripts\LTEJsLib\test2.html" />
     <Content Include="Scripts\jquery-1.4.1-vsdoc.js" />
     <Content Include="Scripts\jquery-1.4.1.js" />
     <Content Include="Scripts\jquery-1.4.1.min.js" />
-    <Content Include="Scripts\TypeExtensions.js" />
+    <Content Include="CultureSupport\CultureInfo.js" />
+    <Content Include="CultureSupport\NumberFormatInfo.js" />
+    <Content Include="CustomError\FormatError.js" />
+    <Content Include="CustomError\KeyNotFoundError.js" />
+    <Content Include="CustomError\NestedError.js" />
+    <Content Include="TypeExtensions\ArrayExtensions.js" />
+    <Content Include="TypeExtensions\DateExtensions.js" />
+    <Content Include="TypeExtensions\NumberExtensions.js" />
+    <Content Include="TypeExtensions\StringExtensions.js" />
+    <Content Include="TypeExtensions\Test.html" />
     <Content Include="Test.htm" />
-    <Content Include="Unit-Testing\00_JsUnitTesting_partial.js" />
-    <Content Include="Unit-Testing\01_AssertionError.js" />
-    <Content Include="Unit-Testing\02_Assert.js" />
-    <Content Include="Unit-Testing\03_TestExecutionObject.js" />
-    <Content Include="Unit-Testing\04_UnitTest.js" />
-    <Content Include="Unit-Testing\05_TestCollection.js" />
-    <Content Include="Unit-Testing\06_TestResult.js" />
-    <Content Include="Unit-Testing\JsUnitTesting.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -132,7 +131,7 @@
     <Content Include="JSCookbook.Master" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LTEJsLib\GenerateCultureInfoObjects.ps1" />
+    <Content Include="CultureSupport\GenerateCultureInfoObjects.ps1" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
