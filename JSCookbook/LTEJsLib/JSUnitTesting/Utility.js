@@ -1,168 +1,175 @@
 var JsUnitTesting = JsUnitTesting || {};
+JsUnitTesting.Utility = (function(Utility) {
+	Utility = Utility || {
+		isNil: function(obj) { return (typeof(obj) === "undefined" || obj === null); },
 
-JsUnitTesting.Utility = {};
-
-// Equivalent to Array.map, provided for compatibility with older browsers
-JsUnitTesting.Utility.mapArray = function(arrayObj, callback, thisArg) {
-	var result = new Array();
-	
-	for (var i = 0; i < arrayObj.length; i++) {
-		if (thisArg !== undefined)
-			result.push(callback.call(thisArg, arrayObj[i] /* currentValue */));
-		else
-			result.push(callback(arrayObj[i] /* currentValue */));
-	}
-	
-	return result;
-};
-
-// Similar to Array.map, but for object properties
-JsUnitTesting.Utility.mapObjectToArray = function(obj, callback, thisArg) {
-	var result = new Array();
-	
-	for (var propertyName in obj) {
-		if (thisArg !== undefined)
-			result.push(callback.call(thisArg, obj[propertyName] /* currentValue */, propertyName));
-		else
-			result.push((callback(obj[propertyName] /* currentValue */, propertyName));
-	}
-	
-	return result;
-};
-
-// Equivalent to Array.filter, provided for compatibility with older browsers
-JsUnitTesting.Utility.filterArray = function(arrayObj, callback, thisArg) {
-	var result = new Array();
-	
-	for (var i = 0; i < arrayObj.length; i++) {
-		if ((thisArg === undefined) ? callback(arrayObj[i]) : callback.call(thisArg, arrayObj[i]))
-			result.push(arrayObj[i]);
-	}
-	
-	return result;
-};
-
-// Equivalent to Array.reduce, provided for compatibility with older browsers
-JsUnitTesting.Utility.reduceArray = function(arrayObj, callback, initialValue) {
-	var previousValue = initialValue;
-	for (var i = 0; i < arrayObj.length; i++)
-		previousValue = callback(previousValue, arrayObj[i] /* currentValue */, i /* index */, arrayObj /* array */);
-	
-	return previousValue;
-};
-
-// Similar to Array.reduce, but for object properties
-JsUnitTesting.Utility.reduceObject = function(obj, callback, initialValue) {
-	var previousValue = initialValue;
-	if (obj === undefined || obj === null)
-		return initialValue;
-	
-	var previousValue = initialValue;
-	
-	for (var propertyName in obj)
-		previousValue = callback(previousValue, obj[propertyName] /* currentValue */, propertyName, obj);
-	
-	return previousValue;
-};
-
-// A robust method of getting a string representation of an object
-JsUnitTesting.Utility.convertToString = function(strValue, strDefaultValue) {
-	if (strValue === undefined || strValue === null) {
-		if (strDefaultValue === undefined)
-			return strValue;
-		
-		return JsUnitTesting.Utility.convertToString(strDefaultValue);
-	}
-	
-	var result;
-	switch (typeof(strValue)) {
-		case 'string':
-			result = strValue;
-			break;
-		case 'number':
-		case 'boolean':
-			result = strValue.toString();
-			break;
-		case 'object':
-			if (strValue instanceof Array)
-				return JsUnitTesting.Utility.reduceArray(strValue, function(previousValue, currentValue) { return previousValue + JsUnitTesting.Utility.convertToString(currentValue); }, '');
-			
-			if (strValue instanceof Error)
-				result = strValue.message;
-			else {
-				try {
-					result = String(strValue);
-					if (result == Object.prototype.toString.call(strValue))
-						throw 'Meaningful toString override not detected.';
-				} catch (e) {
-					throw 'Object cannot be converted to a string value';
+		asArray: function(obj) {
+			var t = typeof(obj);
+			if (t == "undefined" || obj === null)
+				return new Array();
+			if (t == "object") {
+				if (Array.isArray(obj))
+					return obj;
+				if (typeof(obj.toArray) == "function") {
+					var a = obj.toArray();
+					if (typeof(a) === "object" && a !== null && Array.isArray(a))
+						return a;
 				}
 			}
-			break;
-		default:
-			throw 'Type ' + typeof(strValue) + ' cannot be converted to a string value';
-	}
+			return [obj];
+		},
 	
-	return ((result === undefined || result === null) ? JsUnitTesting.Utility.convertToString(strDefaultValue) : ((typeof(result) == 'string') ? result : String(strValue);));
-};
-
-// Equivalent to String.trim(), provided for compatibility with older browsers
-JsUnitTesting.Utility.trimString = function(strValue) {
-	var s = JsUnitTesting.Utility.convertToString(strValue, undefined);
-	if (s === undefined)
-		return strValue;
+		asString: function(obj, defaultValue) {
+			var t = typeof(obj);
+			if (t == "undefined" || obj === null)
+				return defaultValue;
+			if (t == "string")
+				return obj;
+			if (t != "object")
+				return obj.toString();
+			return JSON.stringify(obj);
+		},
 	
-	return s.replace(/^\s+/, '').replace(/\s+$/, '');
-};
+		asNumber: function(obj, defaultValue) {
+			var t = typeof(obj);
+			
+			if (t == "number")
+				return obj;
+			
+			if (t == "boolean")
+				return (obj) ? 1 : 0;
+				
+			if (t !== "undefined" || obj !== null) {
+				obj = Utility.asString(obj, "");
 
-// A robust method for getting a numerical representation of an object
-JsUnitTesting.Utility.convertToNumber = function(nValue, nDefaultValue) {
-	if (nValue === undefined || nValue === null) {
-		if (nDefaultValue === undefined)
-			return nValue;
+				if (obj.length > 0) {
+					try {
+						var f = parseFloat(obj);
+						var i = parseInt(obj);
+						if (isNaN(i))
+							obj = f;
+						else if (isNaN() || i == f)
+							obj = i;
+						else
+							obj = f;
+					} catch (e) { obj = Number.NaN; }
+				} else
+					obj = Number.NaN;
+				if (!isNaN(obj))
+					return obj;
+			}
 		
-		return JsUnitTesting.Utility.convertToNumber(nDefaultValue);
-	}
+			t = typeof(defaultValue);
+			if (t == "undefined" || defaultValue === null || t == "number")
+				return defaultValue;
+			return Utility.asNumber(defaultValue);
+		},
 	
-	return (typeof(nValue) == 'number') ? nValue : Number(nValue);
-};
+		asBoolean: function(obj, defaultValue) {
+			var t = typeof(obj);
+			
+			if (t == "boolean")
+				return obj;
+			
+			if (t == "number")
+				return (!isNan(obj) && obj !== 0)
+				
+			if (t !== "undefined" || obj !== null) {
+				obj = Utility.asString(obj, "");
+				var re = /\s*((y(es)?|t(rue)?|-?0*(\.0*)?[1-9])|(no?|f(alse)?|-?(0+(\.0*)?|\.0*)(\D|$)))/i;
+				var m = re.test(obj);
+				if (m !== null)
+					return (typeof(m[1]) !== "undefined" && m[1] !== null);
+			}
+		
+			t = typeof(defaultValue);
+			if (t == "undefined" || defaultValue === null || t == "boolean")
+				return defaultValue;
+			return Utility.asBoolean(defaultValue);
+		},
+	
+		getTypeName: function(obj, functionAsProto) {
+			var t = typeof(obj)
+			
+			if (obj === null)
+				return null;
+			
+			var proto;
+			if (t === "object")
+				proto = Object.getPrototypeOf(obj);
+			else if (t === "function" && functionAsProto)
+				proto = obj;
+			else
+				return t;
+			
+			for (var p = proto; typeof(p) != "undefined" && p != null; p = p.__proto__) {
+				if (typeof(p.type) === "string" && p.type.length > 0)
+					return p.type;
+				if (typeof(p.constructor) === "function" && typeof(p.constructor.name) === "string" && p.constructor.name.length > 0)
+					return p.constructor.name;
+			}
+			
+			var re = /^\[((object\s+)?([^\]]+)?)\]/;
+			var name = t;
+			var m = null;
+			try {
+				name = Object.toString.call(obj);
+				m = re.exec(name)
+			} catch (e) { }
+			if (m !== null) {
+				if (typeof(m[3]) !== "undefined") {
+					if (m[3] !== "Object")
+						return m[3];
+					name = m[3];
+				} else if (typeof(m[2]) !== "undefined")
+					name = m[2];
+				else if (typeof(m[1]) !== "undefined")
+					name = m[1];
+			}
+			for (var p = proto; typeof(p) != "undefined" && p != null; p = p.__proto__) {
+				m = null;
+				try { m = re.exec(Object.toString.call(p)); } catch (e) { }
+				if (m != null && typeof(m[3] !== "undefined"))
+					return m[3];
+			}
+			
+			return name;		
+		},
 
-// Parses function name from a function object
-JsUnitTesting.Utility.getFunctionName = function(func) {
-	if (obj === null || object === undefined || !(typeof obj == 'function'))
-		throw 'func is not a function';
-	
-	var re = /^function\s+([^(]+)/i;
-	var r = re.exec(func.toString());
-	if (r != null)
-		return r[1];
-	
-	return null;
-};
+		// Equivalent to Array.map, provided for compatibility with older browsers
+		mapArray: function(arrayObj, callback, thisArg) {
+			var result = new Array();
+			arrayObj = Utility.asArray(arrayObj);
+			for (var i = 0; i < arrayObj.length; i++) {
+				if (thisArg !== undefined)
+					result.push(callback.call(thisArg, arrayObj[i], i, arrayObj));
+				else
+					result.push(callback(arrayObj[i], i, arrayObj));
+			}
+			
+			return result;
+		},
 
-// Ensures an object is an instance of a particular type, providing a call-back to be used when the object is not of the expected type
-JsUnitTesting.Utility.ensureInstanceOf = function(obj, typeObj, bAllowNullOrUndefined, onValidationFailFunc) {
-	var result = obj;
-	
-	var errorObj = undefined;
+		// Equivalent to Array.filter, provided for compatibility with older browsers
+		filterArray = function(arrayObj, callback, thisArg) {
+			var result = new Array();
+			
+			for (var i = 0; i < arrayObj.length; i++) {
+				if ((thisArg === undefined) ? callback(arrayObj[i]) : callback.call(thisArg, arrayObj[i]))
+					result.push(arrayObj[i]);
+			}
+			
+			return result;
+		},
 
-	if (obj === undefined || obj === null) {
-		if (bAllowNullOrUndefined)
-			return undefined;
-	} else {
-		try {
-			if (obj instanceof typeObj)
-				errorObj = null;
-		} catch (e) {
-			errorObj = e;
+		// Equivalent to Array.reduce, provided for compatibility with older browsers
+		reduceArray = function(arrayObj, callback, initialValue) {
+			var previousValue = initialValue;
+			for (var i = 0; i < arrayObj.length; i++)
+				previousValue = callback(previousValue, arrayObj[i] /* currentValue */, i /* index */, arrayObj /* array */);
+			
+			return previousValue;
 		}
-	}
-	
-	if (errorObj === null)
-		retrurn result;
-		
-	if (onValidationFailFunc !== undefined)
-		result = onValidationFailFunc(result, errorObj);
-	
-	return result;
-};
+	};
+	return Utility;
+})(JsUnitTesting.Utility);

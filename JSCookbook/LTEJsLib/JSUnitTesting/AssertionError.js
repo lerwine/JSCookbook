@@ -9,14 +9,11 @@ var JsUnitTesting = JsUnitTesting || {};
  */
 JsUnitTesting.AssertionError = function(number, description, unitTest, testCollection, innerError) {
 	var vDescription;
-	Error.call(this, JsUnitTesting.Utility.convertToNumber(number, JsUnitTesting.AssertionError.prototype.number), JsUnitTesting.Utility.convertToString(description, "Unexpected Error");
-	this.__innerError__ = innerError;
-	if (unitTest === null || unitTest === undefined)
-		this.__unitTest__ = undefined;
-	else {
-		if (typeof(unitTest
+	Error.prototype.constructor.call(this, JsUnitTesting.Utility.convertToString(description, "Unexpected Error"));
+	this.number = JsUnitTesting.Utility.convertToNumber(number, -1);
+	this.innerError = innerError;
 }
-JsUnitTesting.AssertionError.prototype = new Error();
+JsUnitTesting.AssertionError.prototype = new Error.prototype;
 JsUnitTesting.AssertionError.prototype.constructor = JsUnitTesting.AssertionError;
 
 /**
