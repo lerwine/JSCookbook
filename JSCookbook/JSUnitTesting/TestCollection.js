@@ -1,155 +1,223 @@
 var JsUnitTesting = JsUnitTesting || {};
-
-/**
- * @classDescription	A single unit test to be performed
- * @param {string} name	Optional. Name of unit test collection
- * @param {object} testCollectionContextObj	Optional. Test collection-specific context object
- * @constructor
- */
-JsUnitTesting.TestCollection = function(name, testCollectionContextObj) {
-	this.__name__ = JsUnitTesting.Utility.convertToString(name, '');
-	this.__contextObject__ = testCollectionContextObj;
-	this.__items__ = new Array();
-};
-JsUnitTesting.TestCollection.prototype =  new JsUnitTesting.TestCollection();
-JsUnitTesting.TestCollection.prototype.constructor =  JsUnitTesting.TestCollection;
-
-JsUnitTesting.TestCollection.prototype.__ensureItemType__ = function(itemObj) {
-	JsUnitTesting.Utility.ensureInstanceOf(unitTestObj, JsUnitTesting.UnitTest, false, function(itemObj, errorObj) {
-		JsUnitTesting.Assert.Fail = function("Only items of type 'JsUnitTesting.UnitTest' can be added to a 'JsUnitTesting.TestCollection' object.", undefined, this, errorObj);
-	});
-};
-
-JsUnitTesting.TestCollection.prototype.toString = function() {
-	// TODO: If test collection has been executed, return string output of last results;
-	return this.getName();
-};
-JsUnitTesting.TestCollection.prototype.valueOf = function() {
-	return this.getName();
-};
-
-JsUnitTesting.TestCollection.prototype.__items__ = new Array();
-
-/**
- * Get name of test collection
- * @return {String}	Returns name of test collection
- */
-JsUnitTesting.TestCollection.prototype.getName = function() {
-	return this.__name__;
-};
-
-/**
- * Get context object for test collection
- * @return {Object}	Returns context object associated with test collection
- */
-JsUnitTesting.TestCollection.prototype.getContextObject = function() {
-	return this__contextObject__;
-};
-
-/**
- * Get number of unit tests in test collection
- * @return {Number}	Returns length of test collection
- */
-JsUnitTesting.TestCollection.prototype.getLength = function() {
-	return this.__items__.length;
-};
-
-/**
- * Remove and return the last unit test from test collection 
- * @return {JsUnitTesting.UnitTest}	Returns the unit test object at the end of the array
- */
-JsUnitTesting.TestCollection.prototype.pop = function() {
-	return this.__items__.pop();
-};
-
-/**
- * Pull unit test off of a stack whose access is FILO from the start rather than the end 
- * @return {JsUnitTesting.UnitTest}	Returns the unit test object at the start of the array
- */
-JsUnitTesting.TestCollection.prototype.shift = function() {
-	return this.__items__.shift();
-};
-
-/**
- * Pushes unit test onto the end of the test collection like a FILO stack
- * @param {JsUnitTesting.UnitTest} unitTestObj	Object add to end of collection
- */
-JsUnitTesting.TestCollection.prototype.push = function(unitTestObj) {
-	this.__ensureItemType__(unitTestObj);
-	return this.__items__.push(unitTestObj);
-};
-
-/**
- * Push unit test onto a stack whose access is FILO from the start rather than the end
- * @param {JsUnitTesting.UnitTest} unitTestObj	Object to remove from the start of collection
- */
-JsUnitTesting.TestCollection.prototype.unshift = function(unitTestObj) {
-	this.__ensureItemType__(unitTestObj);
-	return this.__items__.unshift(unitTestObj);
-};
-
-/**
- * Get item by name or index
- * @return {JsUnitTesting.UnitTest}	Returns the unit test at the given index or with the given name
- */
-JsUnitTesting.TestCollection.prototype.item = function(indexOrName) {
-	if (indexOrName === undefined || indexOrName === null)
-		throw "Invalid index or name";
-		
-	if (typeof(indexOrName) === 'number') {
-		if (indexOrName > -1 && indexOrName < this.__items__.length)
-			return this.__items__[indexOrName];
-	}
-	
-	if (typeof(indexOrName) != 'string')
-		return this.item(String(indexOrName), (typeof(indexOrName) === 'number');
-	
-	for (var i = 0; i < this.__items__.length; i++) {
-		if (this.__items__[i].getName() == s)
-			return this.__items__[i];
-	}
-	
-	if (isNaN(indexOrName) || arguments[1])
-		return undefined;
-	
-	return this.item(parseInt(indexOrName), true);
-};
-
-/**
- * Runs unit tests
- * @return {Array}	Returns array of JsUnitTesting.TestContext objects representing execution results
- */
-JsUnitTesting.TestCollection.prototype.runTests = function(bRunAllTests) {
-	var orderContext = {
-		index: 0;
-		getNextIndex = function () {
-			var result = this.index;
-			this.index++;
-			return result;
+JsUnitTesting.TestCollection = (function(Utility, UnitTest) {
+	/**
+	 * @classDescription	A collection of unit tests to be performed.
+	 * @param {Array=} tests -	Tests to initialy add.
+	 * @param {string=} name -	Name of unit test collection.
+	 * @param {number=} id -	Unique ID of unit test collection.
+	 * @constructor
+	 */
+	function TestCollection(tests, name, id) {
+		this.notRun = [];
+		this.__resultInfo = [];
+		this.name = Utility.convertToString(name);
+		this.id = Utility.convertToNumber(id);
+		this.add = function() {
+			for (var a = 0; a < arguments.length; a++) {
+				var arr = Utility.toArray(arguments[a]);
+				for (var i = 0; i < arr.length; i++) {
+					if (typeof(arr[i]) !== "undefined" && arr[i] !== null && (arr[i] instanceof UnitTest))
+						this.notRun.push(arr[i]);
+				}
+			}
 		};
-	};
-	
-	var orderedTests = JsUnitTesting.Utility.mapArray(this.__items__, function(item, orderContext) {
-		var result = { arrayOrder = this.getNextIndex(), item = item };
-	});
-	
-	orderedTests.sort(function(a, b) {
-		var r = a.item.compareTo(b.item);
-		if (r != 0)
-			return r;
-		
-		if (a.arrayOrder < b.arrayOrder)
-			return -1;
-		
-		return (a.arrayOrder > b.arrayOrder) ? 1 : 0;
-	});
-	
-	var results = new Array();
-	for (var i = 0; i < orderedTests.length; i++) {
-		var ut = orderedTests[i];
-		if (bRunAllTests || ut.getIsSelected())
-			results.push(ut.execTestFunc(this));
+		this.clear = function() {
+			this.notRun = [];
+			this.__resultInfo = [];
+		};
+		this.getPassedTests = function() {
+			return Utility.mapArray(Utility.filterArray(this.__resultInfo, function(r) { return r.result.passed; }),
+				function(r) { return r.test; }); };
+		this.getFailedTests = function() {
+			return Utility.mapArray(Utility.filterArray(this.__resultInfo, function(r) { return !r.result.passed; }),
+				function(r) { return r.test; }); };
+		this.getResults = function() { return Utility.mapArray(this.__resultInfo, function(r) { return !r.result.passed; }); };
+		this.allPassed = function() {
+			for (var i = 0; i < this.__resultInfo.length; i++) {
+				if (!this.__resultInfo[i].result.passed)
+					return false;
+			}
+			return true;
+		};
+		this.anyPassed = function() {
+			for (var i = 0; i < this.__resultInfo.length; i++) {
+				if (this.__resultInfo[i].result.passed)
+					return true;
+			}
+			return false;
+		};
+		this.run = function() {
+			var passCount = 0;
+			var totalCount = 0;
+			var completedIds = Utility.mapArray(this.__resultInfo, function(r) { return r.result.testId; });
+			var state = {};
+			var currentResults = [];
+			while (this.notRun.length > 0) {
+				var unitTest = this.notRun.pop();
+				if (Utility.nil(unitTest))
+					return null;
+				totalCount++;
+				var id = unitTest.id;
+				if (typeof(id) !== "number" || isNaN(id) || !Number.isFinite(id))
+					id = 0;
+				var canUseId = true;
+				for (var i = 0; i < completedIds.length; i++) {
+					if (completedIds[i] == n) {
+						canUseId = false;
+						break;
+					}
+				}
+				if (!canUseId) {
+					var hasId = function(n) {
+						for (var i = 0; i < this.completed.length; i++) {
+							var x = this.completed[i].id;
+							if (typeof(x) === "number" && !isNaN(x) && Number.isFinite(x) && x == n)
+								return true;
+						}
+						for (var i = 0; i < this.notRun.length; i++) {
+							var x = this.notRun[i].id;
+							if (typeof(x) === "number" && !isNaN(x) && Number.isFinite(x) && x == n)
+								return true;
+						}
+						return false;
+					};
+					do {
+						id++;
+					} while (hasId(id));
+				}
+				completedIds.push(id);
+				var result = unitTest.exec(this, id, state);
+				this.__resultInfo.push({
+					test: unitTest,
+					result: result
+				});
+				currentResults.push(result);
+				if (result.passed)
+					passCount++;
+			}
+			return {
+				passed: passCount,
+				failed: totalCount - passed,
+				results: currentResults
+			};
+		};
+		this.runAll = function() {
+			var passCount = 0;
+			var toAdd = Utility.mapArray(this.__resultInfo, function(r) { return r.test; });
+			for (var i = 0; i < toAdd.length; i++)
+				this.notRun.push(toAdd[i]);
+			this.__resultInfo = [];
+			var completedIds = [];
+			var state = {};
+			
+			while (this.notRun.length > 0) {
+				var unitTest = this.notRun.pop();
+				if (Utility.nil(unitTest))
+					return null;
+				var id = unitTest.id;
+				if (typeof(id) !== "number" || isNaN(id) || !Number.isFinite(id))
+					id = 0;
+				var canUseId = true;
+				for (var i = 0; i < completedIds.length; i++) {
+					if (completedIds[i] == n) {
+						canUseId = false;
+						break;
+					}
+				}
+				if (!canUseId) {
+					var hasId = function(n) {
+						for (var i = 0; i < this.completed.length; i++) {
+							var x = this.completed[i].id;
+							if (typeof(x) === "number" && !isNaN(x) && Number.isFinite(x) && x == n)
+								return true;
+						}
+						for (var i = 0; i < this.notRun.length; i++) {
+							var x = this.notRun[i].id;
+							if (typeof(x) === "number" && !isNaN(x) && Number.isFinite(x) && x == n)
+								return true;
+						}
+						return false;
+					};
+					do {
+						id++;
+					} while (hasId(id));
+				}
+				completedIds.push(id);
+				var result = unitTest.exec(this, id, state);
+				this.__resultInfo.push({
+					test: unitTest,
+					result: result
+				});
+				if (result.passed)
+					passCount++;
+			}
+			return {
+				passed: passCount,
+				failed: this.__resultInfo.count - passCount,
+				results: this.getResults()
+			};
+		};
+		this.runFailed = function() {
+			var passCount = 0;
+			var totalCount = 0;
+			var toAdd = Utility.mapArray(Utility.filterArray(this.__resultInfo, function(r) { return !r.result.passed; }), function(r) { return r.test; });
+			for (var i = 0; i < this.notRun.length; i++)
+				toAdd.push(this.notRun[i]);
+			this.notRun = toAdd;
+			this.__resultInfo= Utility.filterArray(this.__resultInfo, function(r) { return r.result.passed; });
+			var completedIds = Utility.mapArray(this.__resultInfo, function(r) { return r.result.testId; });
+			var state = {};
+			var currentResults = [];
+			while (this.notRun.length > 0) {
+				var unitTest = this.notRun.pop();
+				if (Utility.nil(unitTest))
+					return null;
+				totalCount++;
+				var id = unitTest.id;
+				if (typeof(id) !== "number" || isNaN(id) || !Number.isFinite(id))
+					id = 0;
+				var canUseId = true;
+				for (var i = 0; i < completedIds.length; i++) {
+					if (completedIds[i] == n) {
+						canUseId = false;
+						break;
+					}
+				}
+				if (!canUseId) {
+					var hasId = function(n) {
+						for (var i = 0; i < this.completed.length; i++) {
+							var x = this.completed[i].id;
+							if (typeof(x) === "number" && !isNaN(x) && Number.isFinite(x) && x == n)
+								return true;
+						}
+						for (var i = 0; i < this.notRun.length; i++) {
+							var x = this.notRun[i].id;
+							if (typeof(x) === "number" && !isNaN(x) && Number.isFinite(x) && x == n)
+								return true;
+						}
+						return false;
+					};
+					do {
+						id++;
+					} while (hasId(id));
+				}
+				completedIds.push(id);
+				var result = unitTest.exec(this, id, state);
+				this.__resultInfo.push({
+					test: unitTest,
+					result: result
+				});
+				currentResults.push(result);
+				if (result.passed)
+					passCount++;
+			}
+			return {
+				passCount: passCount,
+				failed: totalCount - passCount,
+				results: currentResults
+			};
+		};
+		this.add(tests);
 	}
-	
-	return results;
-};
+	return TestCollection;
+})(JsUnitTesting.Utility, JsUnitTesting.UnitTest);

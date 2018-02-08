@@ -1,104 +1,67 @@
 var JsUnitTesting = JsUnitTesting || {};
+JsUnitTesting.UnitTest = (function(Utility, TestResult) {
+	/**
+	 * This gets executed to perform a unit test.
+	 *
+	 * @callback evaluatorCallback
+	 * @param {...*} arguments -	Arguments passed to the test evaluation, which were pass to the unit test constructor.
+	 * @throws {Error} If the evaluator performs its own assertions, then an error can be thrown.
+	 * @return {*} Return value to be passed to assertionCallback.
+	 * @this {TestContext}	This is an object which contains information about the current test. 
+	 * @description	When this is executed, 
+	 */
+	/**
+	 * This asserts a result value from a unit test.
+	 *
+	 * @callback assertionCallback
+	 * @param {*} evaluationResult -	The value returned from the unit test.
+	 * @throws {Error} If the result value does not indicate a success, then an error should be thrown.
+	 */
+	/**
+	 * @classDescription	A single unit test to be performed
+	 * @param {evaluatorCallback} evaluator -	Function to be executed which performs the test.
+	 * @param {string=} name -	User-friendly name of unit test.
+	 * @param {Array=[]} args -	Arguments to pass to evaluatorCallback.
+	 * @param {string=} description -	Description of unit test.
+	 * @param {assertionCallback=} assertion -	Asserts the result value from the unit test.
+	 * @description	When evaluator is called, args will be passed to the evaluator with a JsUnitTesting.TestContext object as "this", which describes the test being executed.
+	 * @constructor
+	 */
+	function UnitTest(evaluator, args, name, description, id, assertion) {
+		if (typeof(evaluator) !== "function") {
+			if (typeof(evaluator) === "undefined")
+				throw "testFunc must be defined";
+			if (evaluator === null)
+				throw "testFunc cannot be null";
+			throw "evaluator must be a function";
+		}
+		if (typeof(assertion) !== "function" && assertion !== null)
+			throw "assertion must be a function if it is defined";
+		id = JsUnitTesting.Utility.convertToNumber(id);
+		if (typeof(id) !== "undefined" && id != null && !isNaN(id))
+			this.id = id;
+		name = JsUnitTesting.Utility.convertToString(name, "");
+		if (name.trim().length > 0)
+			this.name = name;
+		else {
+			name = JsUnitTesting.Utility.getFunctionName(evaluator);
+			if (typeof(this.id) !== "undefined")
+				name = (name.length == 0) ? this.id.toString() : (name + " [" + this.id + "]");
+		}
+		this.name = name;
+		this.description = JsUnitTesting.Utility.convertToString(description, "");
 
-/**
- * @classDescription	A single unit test to be performed
- * @param {function} testFunc	Required. Function to be executed as the test
- * @param {string} name	Optional. Name of unit test
- * @param {object} testContextObj	Optional. Test-specific context object
- * @remarks	When 'testFunc' is called, a JsUnitTesting.TestContext object is passed as the only parameter.
- *	The JsUnitTesting.TestContext object contains a property which holds the testContextObj value as well as the context object (if any) defined by the test collection.
- * @constructor
- */
- JsUnitTesting.UnitTest = function(testFunc, name, order, testContextObj, isSelected) {
-	if (typeof(testFunc) != 'function')
-		throw 'testFunc must be a function';
+		this.toString = function() { return this.toJSON(); };
 		
-	this.__testFunc__ = testFunc;
-	this.__name__ = (name === undefined || name === null) ? JsUnitTesting.Utility.getFunctionName(testFunc) : ((typeof(name) == 'string') ? name : String(name));
-	this.__order__ = (order === undefined) ? null : order;
-	this.__context__ = testContextObj;
-	this.__lastResult__ = undefined;
-	this.setIsSelected(isSelected);
-};
-JsUnitTesting.UnitTest.prototype =  new JsUnitTesting.UnitTest();
-JsUnitTesting.UnitTest.prototype.constructor =  JsUnitTesting.UnitTest;
+		this.toJSON = function() {
+			JSON.stringify({ args: this.args, name: this.name, description: this.description, id: this.id });
+		};
+		
+		this.valueOf = function() { return (typeof(this.id) === "undefined") ? Number.NaN : this.id; };
 
-JsUnitTesting.UnitTest.prototype.compareTo = function(unitTestObj) {
-	if (typeof(unitTestObj) != 'object' || !(unitTestObj instanceof  JsUnitTesting.UnitTest) || this.getOrder() < unitTestObj.getOrder())
-		return -1;
-	
-	return (this.getOrder() > unitTestObj.getOrder()) ? 1 : 0;
-};
-
-JsUnitTesting.UnitTest.prototype.getLastResult = function() {
-	return this.__lastResult__;
-};
-
-JsUnitTesting.UnitTest.prototype.setLastResult = function(testContextObj) {
-	
-};
-
-JsUnitTesting.UnitTest.prototype.getIsSelected = function() {
-	return this.__selected__;
-};
-
-JsUnitTesting.UnitTest.prototype.setIsSelected = function(isSelected) {
-	this.__selected__ = (isSelected === undefined || isSelected) ? true : false;
-};
-
-JsUnitTesting.UnitTest.prototype.toString = function() {
-	// TODO: If unit test has been executed, return string output of results;
-	return this.getName();
-};
-JsUnitTesting.UnitTest.prototype.valueOf = function() {
-	return this.getName();
-};
-
-/**
- * Execute unit test
- * @return {JsUnitTesting.TestContext}	Returns result of unit test
- */
-JsUnitTesting.UnitTest.prototype.execTestFunc = function(testCollection) {
-	var tc = JsUnitTesting.Utility.ensureInstanceOf(testCollection, JJsUnitTesting.TestCollection, true, function(obj, errorObj) {
-		JsUnitTesting.Assert.Fail = function("Only items of type 'JsUnitTesting.TestCollection' passed to this method.", this, undefined, errorObj);
-	});
-	
-	this.__lastResult__ = new JsUnitTesting.TestContext(this, testCollection);
-	this.__lastResult__.setStarted();
-	try {
-		this.__testFunc__(this.__lastResult__);
-		this.__lastResult__.setCompleted();
-	} catch (e) {
-		this.__lastResult__.setCompleted();
-		this.__lastResult__.setSuccess(false);
-		this.__lastResult__.setError(e);
+		this.exec = function(testCollection, testId, stateInfo) {
+			return new TestResult(evaluator, assertion, this, testCollection, testId, stateInfo);
+		};
 	}
-	
-	this.setIsSelected(!this.__lastResult__.getSuccess());
-	
-	return this.__lastResult__;
-};
-
-/**
- * Get execution order of unit test
- * @return {String}	Returns execution order of unit test
- */
-JsUnitTesting.UnitTest.prototype.getOrder = function() {
-	return this.__order__;
-};
-
-/**
- * Get name of unit test
- * @return {String}	Returns name of unit test
- */
-JsUnitTesting.UnitTest.prototype.getName = function() {
-	return this.__name__;
-};
-
-/**
- * Get name of unit test
- * @return {String}	Returns name of unit test
- */
-JsUnitTesting.UnitTest.prototype.getContextObject = function() {
-	return this.__context__;
-};
+ 	return UnitTest;
+})(JsUnitTesting.Utility, JsUnitTesting.TestResult);

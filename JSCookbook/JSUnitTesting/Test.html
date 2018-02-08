@@ -6,22 +6,76 @@
 		<title>Unit Testing Framework Test</title>
 		<meta name="description" content="Tests the unit testing framework" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" href="../Framework/Bootstrap/css/bootstrap.css" />
-        <link rel="stylesheet" href="../Framework/Bootstrap/css/bootstrap-grid.css" />
-        <link rel="stylesheet" href="../Framework/Bootstrap/css/bootstrap-reboot.css" />
-        <link rel="stylesheet" href="../Framework/Tether/css/tether.css" />
-        <link rel="stylesheet" type="text/css" href="../Framework/DataTables/datatables.css"/>
-        <script type="text/javascript" src="../Framework/jQuery/jquery-3.2.1.js"></script>
-        <script type="text/javascript" src="../Framework/Bootstrap/js/bootstrap.js"></script>
-        <script type="text/javascript" src="../Framework/Tether/js/tether.js"></script>
-        <script type="text/javascript" src="../Framework/DataTables/datatables.js"></script>
+        <link rel="stylesheet" href="../API/Tether/css/tether.css" />
+        <link rel="stylesheet" href="../API/Bootstrap/css/bootstrap.css" />
+        <link rel="stylesheet" href="../API/Bootstrap/css/bootstrap-grid.css" />
+        <link rel="stylesheet" href="../API/Bootstrap/css/bootstrap-reboot.css" />
+        <link rel="stylesheet" type="text/css" href="../API/DataTables/datatables.css"/>
+        <script type="text/javascript" src="../API/jQuery/jquery-3.2.1.js"></script>
+        <script type="text/javascript" src="../API/Tether/js/tether.js"></script>
+        <script type="text/javascript" src="../API/Bootstrap/js/bootstrap.js"></script>
+        <script type="text/javascript" src="../API/DataTables/datatables.js"></script>
 		<script type="text/javascript">
+		var JsUnitTesting = JsUnitTesting || {};
+		JsUnitTesting.Assert = (function(Assert) {
+			Assert = Assert || {};
+			Assert.getTrue = function() { return "true"; };
+			Assert.areEqual = function(expected, actual, message) {
+				var et = typeof(expected);
+				var at = typeof(actual);
+				var m;
+				if (et !== at)
+					m = "Expected type: " + et + "; Actual type: " + at;
+				else {
+					if (et === "undefined" || expected === null || expected === actual)
+						return;
+					m = "Expected: ";
+					if (et === "undefined")
+						m += "undefined"
+					else if (et === null)
+						m += "null";
+					else
+						m += JSON.stringify(expected);
+					m += "; Actual: ";
+					if (at === "undefined")
+						m += "undefined"
+					else if (at === null)
+						m += "null";
+					else
+						m += JSON.stringify(actual);
+				}
+				if (typeof(message) === "undefined" || message === null)
+					message = "";
+				else
+					message = ((typeof(message) !== "string") ? (message + "") : message).trim();
+				if (message.length > 0)
+					m += ("; Message: " + message);
+				throw { expectedType: et, expectedValue: expected, actualType: at, actualValue: actual, message: m };
+			};
+			return Assert;
+		})();
+		function TestContext(evalScript) {
+			this.exec = function() {
+				var assert = Object.clone(JsUnitTesting.Assert);
+				for (var property in JsUnitTesting.Assert) {
+					assert[property] = JsUnitTesting.Assert[property];
+				}
+				evalScript();
+			}
+		}
 $(document).ready(function() {
-    
+    try {
+		var tc = new TestContext(function() { return assert.getTrue(); });
+		var r = tc.exec();
+		var s = typeof(r);
+		if (s !== "undefined" && r !== null)
+			s += (": " + JSON.stringify(r));
+		$("#messageSpan").text(s);
+	} catch (e) { $("#messageSpan").text(JSON.stringify(e)); }
 });
         </script>
 	</head>
 	<body>
-
+		<span id="messageSpan"></span>
 	</body>
 </html>
