@@ -1,4 +1,3 @@
-var JsUnitTesting = JsUnitTesting || {};
 JsUnitTesting.TestCollection = (function(Utility, UnitTest) {
 	/**
 	 * @classDescription	A collection of unit tests to be performed.

@@ -1,4 +1,3 @@
-var JsUnitTesting = JsUnitTesting || {};
 JsUnitTesting.TypeSpec = (function(Utility) {
 	function TypeSpec(value) {
         this.prototypeChain = [];

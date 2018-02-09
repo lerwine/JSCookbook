@@ -1,4 +1,3 @@
-var JsUnitTesting = JsUnitTesting || {};
 JsUnitTesting.Assert = (function(Utility, AssertionError, TypeSpec) {
 	function Assert(unitTest, testCollection) {
 		if (Utility.isNil(unitTest))

@@ -130,8 +130,6 @@ JsUnitTesting.Utility = function(Utility) {
     };
 }(JsUnitTesting.Utility);
 
-var JsUnitTesting = JsUnitTesting || {};
-
 JsUnitTesting.TypeSpec = function(Utility) {
     function TypeSpec(value) {
         this.prototypeChain = [];
@@ -200,8 +198,6 @@ JsUnitTesting.TypeSpec = function(Utility) {
     return TypeSpec;
 }(JsUnitTesting.Utility);
 
-var JsUnitTesting = JsUnitTesting || {};
-
 JsUnitTesting.TestResult = function(Utility, TypeSpec) {
     function TestResult(evaluator, assertion, unitTest, testCollection, testId, stateInfo) {
         var cb = function(evaluator, args) {
@@ -261,8 +257,6 @@ JsUnitTesting.TestResult = function(Utility, TypeSpec) {
     return TestResult;
 }(JsUnitTesting.Utility, JsUnitTesting.TypeSpec);
 
-var JsUnitTesting = JsUnitTesting || {};
-
 JsUnitTesting.UnitTest = function(Utility, TestResult) {
     function UnitTest(evaluator, args, name, description, id, assertion) {
         if (typeof evaluator !== "function") {
@@ -300,8 +294,6 @@ JsUnitTesting.UnitTest = function(Utility, TestResult) {
     }
     return UnitTest;
 }(JsUnitTesting.Utility, JsUnitTesting.TestResult);
-
-var JsUnitTesting = JsUnitTesting || {};
 
 JsUnitTesting.TestCollection = function(Utility, UnitTest) {
     function TestCollection(tests, name, id) {
@@ -522,8 +514,6 @@ JsUnitTesting.TestCollection = function(Utility, UnitTest) {
     return TestCollection;
 }(JsUnitTesting.Utility, JsUnitTesting.UnitTest);
 
-var JsUnitTesting = JsUnitTesting || {};
-
 JsUnitTesting.AssertionError = function(Utility, UnitTest, TypeSpec) {
     function AssertionError(number, message, unitTest, testCollection, innerError, expected, actual, condition) {
         message = Utility.convertToString(message);
@@ -557,8 +547,6 @@ JsUnitTesting.AssertionError = function(Utility, UnitTest, TypeSpec) {
     AssertionError.prototype.constructor = AssertionError;
     return AssertionError;
 }(JsUnitTesting.Utility, JsUnitTesting.UnitTest, JsUnitTesting.TypeSpec);
-
-var JsUnitTesting = JsUnitTesting || {};
 
 JsUnitTesting.Assert = function(Utility, AssertionError, TypeSpec) {
     function Assert(unitTest, testCollection) {

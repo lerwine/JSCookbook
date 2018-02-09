@@ -1,4 +1,3 @@
-var JsUnitTesting = JsUnitTesting || {};
 JsUnitTesting.UnitTest = (function(Utility, TestResult) {
 	/**
 	 * This gets executed to perform a unit test.

@@ -1,4 +1,3 @@
-var JsUnitTesting = JsUnitTesting || {};
 JsUnitTesting.TestResult = (function(Utility, TypeSpec) {
 	function TestResult(evaluator, assertion, unitTest, testCollection, testId, stateInfo) {
 		var cb = function(evaluator, args) {

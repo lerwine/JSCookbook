@@ -1,4 +1,3 @@
-var JsUnitTesting = JsUnitTesting || {};
 JsUnitTesting.AssertionError = (function(Utility, UnitTest, TypeSpec) {
 	/**
 	 * @classDescription	Represents an error with an optional inner error
