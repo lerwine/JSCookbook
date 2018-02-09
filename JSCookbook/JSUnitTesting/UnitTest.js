@@ -2,7 +2,6 @@ var JsUnitTesting = JsUnitTesting || {};
 JsUnitTesting.UnitTest = (function(Utility, TestResult) {
 	/**
 	 * This gets executed to perform a unit test.
-	 *
 	 * @callback evaluatorCallback
 	 * @param {...*} arguments -	Arguments passed to the test evaluation, which were pass to the unit test constructor.
 	 * @throws {Error} If the evaluator performs its own assertions, then an error can be thrown.

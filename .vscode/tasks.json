@@ -1,0 +1,50 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build JSUnitTesting",
+            "type": "shell",
+            "command": "uglifyjs",
+            "args": [
+                "./JSCookbook/JSUnitTesting/Utility.js",
+                "./JSCookbook/JSUnitTesting/TypeSpec.js",
+                "./JSCookbook/JSUnitTesting/TestResult.js",
+                "./JSCookbook/JSUnitTesting/UnitTest.js",
+                "./JSCookbook/JSUnitTesting/TestCollection.js",
+                "./JSCookbook/JSUnitTesting/AssertionError.js",
+                "./JSCookbook/JSUnitTesting/Assert.js",
+                "-o",
+                "./Dist/JSUnitTesting.js",
+                "--source-map",
+                "--source-map-root",
+                "https://github.com/lerwine/JSCookbook/tree/master/JSCookbook",
+                "-b"
+            ],
+            "problemMatcher":"$jshint"
+        },
+        {
+            "label": "Build JSUnitTesting Min",
+            "type": "shell",
+            "command": "uglifyjs",
+            "args": [
+                "./JSCookbook/JSUnitTesting/Utility.js",
+                "./JSCookbook/JSUnitTesting/TypeSpec.js",
+                "./JSCookbook/JSUnitTesting/TestResult.js",
+                "./JSCookbook/JSUnitTesting/UnitTest.js",
+                "./JSCookbook/JSUnitTesting/TestCollection.js",
+                "./JSCookbook/JSUnitTesting/AssertionError.js",
+                "./JSCookbook/JSUnitTesting/Assert.js",
+                "-o",
+                "./Dist/JSUnitTesting.min.js",
+                "--source-map",
+                "--source-map-root",
+                "https://github.com/lerwine/JSCookbook/tree/master/JSCookbook",
+                "-c",
+                "-m"
+            ],
+            "problemMatcher":"$jshint"
+        }
+    ]
+}
