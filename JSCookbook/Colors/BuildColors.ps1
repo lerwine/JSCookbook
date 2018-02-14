@@ -198,7 +198,7 @@ $Script:AllCssNumbers = [System.Collections.ObjectModel.Collection[System.Manage
 $Script:AllCssAliases = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
 $Script:AllX11Codes = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
 $Script:AllVGANames = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
-256-16
+
 $Script:ColorGroupDefinitions = @(
     @{ colorGroup = 'pink'; HueRange = @(316.0, 346.0); BrightnessRange = @(0.01, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 255, 0, 255); XPath = '//*[@id="x11LeftCol"]/tbody/tr[count(preceding-sibling::tr[@id="redColorStart"])=0]' },
     @{ colorGroup = 'red'; HueRange = @(346.0, 16.0); BrightnessRange = @(0.01, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 255, 0, 0); XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="redColorStart"])=0) and count(preceding-sibling::tr[@id="orangeColorStart"])=0]' },
@@ -460,9 +460,13 @@ foreach ($CssAliasInfo in $Script:AllCssAliases) {
     }
 };
 
+$XmlWriterSettings = [System.Xml.XmlWriterSettings]::new();
+$XmlWriterSettings.Indent = $true;
+$XmlWriterSettings.OmitXmlDeclaration = $true;
+$XmlWriterSettings.Encoding = [System.Text.UTF8Encoding]::new($false);
 $Script:OutputXmlDocument = [System.Xml.XmlDocument]::new();
 $Script:OutputXmlDocument.AppendChild($Script:OutputXmlDocument.CreateElement('colors')) | Out-Null;
-$TextWriter = [System.IO.StreamWriter]::new(($PSScriptRoot | Join-Path -ChildPath 'WebColors.json'), ([System.Text.UTF8Encoding]::new($false)));
+$TextWriter = [System.IO.StreamWriter]::new(($PSScriptRoot | Join-Path -ChildPath 'WebColors.json'), $XmlWriterSettings.Encoding);
 $TextWriter.WriteLine('{');
 $groupNamesElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('groupNames'));
 $CurrentLine = '';
@@ -500,7 +504,6 @@ foreach ($ColorInfo in $Script:AllColorData) {
     
     if ($ColorInfo.Group -eq $null) {
         $cgd = $null;
-        $v = $ColorInfo.Brightness;
         if ($ColorInfo.Saturation -lt 0.15) {
             if ($ColorInfo.Brightness -lt 0.75) {
                 $cgd = $Script:ColorGroupDefinitions | Where-Object { $_.colorGroup -eq 'gray' }
@@ -528,24 +531,6 @@ foreach ($ColorInfo in $Script:AllColorData) {
                 return ($ColorInfo.Brightness -ge $_.BrightnessRange[0] -and $ColorInfo.Brightness -lt $_.BrightnessRange[1]);
             };
         }
-        <#$ShortestDistance = [float]::MaxValue;
-        $cgd = $Script:ColorGroupDefinitions[0];
-        foreach ($Def in $Script:ColorGroupDefinitions) {
-            $b = ($ColorInfo.Brightness - $Def.Color.GetBrightness()) * 18.0;
-            $s = ($ColorInfo.Saturation - $Def.Color.GetSaturation()) * 18.0;
-            $h = ($ColorInfo.Hue - $Def.Color.GetHue()) / 10.0;
-            if ($h -lt -180.0) {
-                $h += 180.0;
-            } else {
-                if ($h -gt 180.0) { $h -= 180.0 }
-            }
-            $d = [System.Math]::Sqrt(($b * $b) + ($s * $s) + ($h * $h));
-            if ($d -lt $ShortestDistance) {
-                $ShortestDistance = $d;
-                $cgd = $Def;
-                if ($d -eq 0.0) { break }
-            }
-        }#>
         $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Group' -Value $cgd.colorGroup;
     }
     $NameInfo = $Script:AllWindowsNames | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | Select-Object -Last 1;
@@ -626,42 +611,6 @@ foreach ($ColorInfo in $Script:AllColorData) {
 $TextWriter.WriteLine($CurrentLine);
 $TextWriter.WriteLine("    ],");
 $TextWriter.WriteLine("    `"cssNumbers`": [");
-
-$BodyElement = $WebColorsHtmlDocument.DocumentElement.SelectSingleNode('body');
-$BodyElement.RemoveAll();
-$TableElement = $BodyElement.AppendChild($WebColorsHtmlDocument.CreateElement('table'));
-$TableRowElement = $TableElement.AppendChild($WebColorsHtmlDocument.CreateElement('tr'));
-$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'ID';
-$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'RGB';
-$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'HSB';
-$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'CSS #';
-$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'CSS name';
-$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'X11 name';
-$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'VGA name';
-$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'Windows name';
-
-$CurrentGroup = '';
-foreach ($ColorInfo in @($Script:AllColorData | Sort-Object -Property 'Group', 'Hue', 'Brightness', 'Saturation')) {
-    if ($CurrentGroup -ne $ColorInfo.Group) {
-        $CurrentGroup = $ColorInfo.Group;
-        $TableRowElement = $TableElement.AppendChild($WebColorsHtmlDocument.CreateElement('tr'));
-        $TableDataElement = $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td'));
-        $TableDataElement.Attributes.Append($WebColorsHtmlDocument.CreateAttribute('style')).Value = 'font-weight: bold';
-        $TableDataElement.Attributes.Append($WebColorsHtmlDocument.CreateAttribute('colspan')).Value = '7';
-        $TableDataElement.InnerText = $CurrentGroup;
-    }
-    $TableRowElement = $TableElement.AppendChild($WebColorsHtmlDocument.CreateElement('tr'));
-    $TableDataElement = $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td'));
-    $TableDataElement.Attributes.Append($WebColorsHtmlDocument.CreateAttribute('style')).Value = "background-color: #$($ColorInfo.ID)";
-    $TableDataElement.InnerText = $ColorInfo.ID;
-    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = "$($ColorInfo.R), $($ColorInfo.G), $($ColorInfo.B)";
-    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = "$($ColorInfo.Hue), $($ColorInfo.Saturation), $($ColorInfo.Brightness)";
-    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = ($Script:AllCssNumbers | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | ForEach-Object { $_.Number }) -join ", ";
-    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = ($Script:AllCssNames | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | ForEach-Object { $_.Name }) -join ", ";
-    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = ($Script:AllX11Codes | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | ForEach-Object { $_.Name }) -join ", ";
-    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = ($Script:AllVgaNames | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | ForEach-Object { $_.Name }) -join ", ";
-    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = ($Script:AllWindowsNames | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | ForEach-Object { $_.Name }) -join ", ";
-}
 
 $CssNumbersElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('cssNumbers'));
 $CurrentLine = '';
@@ -745,22 +694,9 @@ $TextWriter.WriteLine("}");
 
 $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('originalData')).AppendChild($Script:OutputXmlDocument.CreateCDataSection($originalDataText)) | Out-Null;
 
-$XmlWriterSettings = [System.Xml.XmlWriterSettings]::new();
-$XmlWriterSettings.Indent = $true;
-$XmlWriterSettings.OmitXmlDeclaration = $true;
-$XmlWriterSettings.Encoding = [System.Text.UTF8Encoding]::new($false);
 $XmlWriter = [System.Xml.XmlWriter]::Create($Path, $XmlWriterSettings);
 $Script:OutputXmlDocument.WriteTo($XmlWriter);
 $XmlWriter.Flush();
 $XmlWriter.Close();
 $TextWriter.Flush();
 $TextWriter.Close();
-
-$MemoryStream = [System.IO.MemoryStream]::new();
-$XmlWriter = [System.Xml.XmlWriter]::Create($MemoryStream, $XmlWriterSettings);
-$WebColorsHtmlDocument.WriteTo($XmlWriter);
-$XmlWriter.Flush();
-[System.IO.File]::WriteAllText(($PSScriptRoot | Join-Path -ChildPath 'WebColors.html'), $XmlWriterSettings.Encoding.GetString($MemoryStream.ToArray()).Replace('&#160;', '&nbsp;'));
-#[System.IO.File]::WriteAllText('C:\Users\Daddy\GitHub\JSCookbook\JSCookbook\Colors\WebColors.html', $XmlWriterSettings.Encoding.GetString($MemoryStream.ToArray()).Replace('&#160;', '&nbsp;'));
-$XmlWriter.Close();
-$MemoryStream.Dispose();
