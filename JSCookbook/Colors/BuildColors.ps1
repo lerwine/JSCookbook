@@ -1,26 +1,29 @@
-﻿Param(
-    [bool]$ForceRebuild = $false
-)
-$Script:ColorsXmlDocument = [System.Xml.XmlDocument]::new();
-$Path = $PSScriptRoot | Join-Path -ChildPath 'WebColors.xml';
-$Script:ColorsXmlDocument.Load($Path);
+﻿Function Get-ColorInfo {
+    Param(
+        [Parameter(Mandatory = $true)]
+        [ValidateRange(0, 255)]
+        [int]$R,
 
-if ($Script:ColorsXmlDocument.SelectSingleNode('/colors/color') -eq $null -or $ForceRebuild) {
-    [System.IO.File]::Copy($Path, ($PSScriptRoot | Join-Path -ChildPath "WebColors-backup$([DateTime]::Now.ToString('yyyyMMddHHmmssffffff')).xml"));
-    $WebColorsHtmlDocument = [System.Xml.XmlDocument]::new();
-    $originalDataText = $Script:ColorsXmlDocument.SelectSingleNode('/colors/originalData').InnerText;
-    $WebColorsHtmlDocument.LoadXml($originalDataText.Replace('&nbsp;', '&#160;'));
+        [Parameter(Mandatory = $true)]
+        [ValidateRange(0, 255)]
+        [int]$G,
+        
+        [Parameter(Mandatory = $true)]
+        [ValidateRange(0, 255)]
+        [int]$B
+    )
+    
+    $ColorInfo = $Script:AllColorData | Where-Object { $_.R -eq $R -and $_.G -eq $G -and $_.B -eq $B }
+    if ($ColorInfo -eq $null) {
+        $ColorInfo = New-Object -TypeName 'System.Management.Automation.PSObject' -Property @{
+            ID = "$($R.ToString('x2'))$($G.ToString('x2'))$($B.ToString('x2'))"; R = $R; G = $G; B = $B
+        };
+        $Script:AllColorData.Add($ColorInfo);
+    }
+    $ColorInfo | Write-Output;
+}
 
-    $Script:RgbPattern = [System.Text.RegularExpressions.Regex]::new('rgb\(\s*(?<r>\d+)\s*,\s*(?<g>\d+)\s*,\s*(?<b>\d+)\s*\)', ([System.Text.RegularExpressions.RegexOptions]::Compiled -bor [System.Text.RegularExpressions.RegexOptions]::IgnoreCase));
-    $Script:HexPattern = [System.Text.RegularExpressions.Regex]::new('\#?((?<r>[a-f\d]{2})\s*(?<g>[a-f\d]{2})\s*(?<b>[a-f\d]{2})|(?<r>[a-f\d])(?<g>[a-f\d])(?<b>[a-f\d]))', ([System.Text.RegularExpressions.RegexOptions]::Compiled -bor [System.Text.RegularExpressions.RegexOptions]::IgnoreCase));
-    $Script:NumberNamePattern = [System.Text.RegularExpressions.Regex]::new('(?<n>\d+)(\s*\(\s*(?<v>[^\s\(\)]+(\s+[^\s\(\)]+)*)\s*\))?(\s*;?\s*(?<c>\S+))?', ([System.Text.RegularExpressions.RegexOptions]::Compiled -bor [System.Text.RegularExpressions.RegexOptions]::IgnoreCase));
-    $Script:StyleBgColorNamePattern = [System.Text.RegularExpressions.Regex]::new('(^|;)\s*background:\s*(?<n>[^;\#\(\)\s]+)', ([System.Text.RegularExpressions.RegexOptions]::Compiled -bor [System.Text.RegularExpressions.RegexOptions]::IgnoreCase));
-    $Script:CamelCasePattern = [System.Text.RegularExpressions.Regex]::new('(^|\G)\s*(?<l>\d+|[A-Z]+|[^\#\s])(?<r>[^A-Z\d\s]+)?', [System.Text.RegularExpressions.RegexOptions]::Compiled);
-
-    $Script:ColorsXmlDocument = [System.Xml.XmlDocument]::new();
-    $Script:ColorsXmlDocument.AppendChild($Script:ColorsXmlDocument.CreateElement('colors')) | Out-Null;
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                Function Add-ColorInfo {
+Function Add-ColorInfo {
     Param(
         [Parameter(Mandatory = $true)]
         [ValidateRange(0, 255)]
@@ -66,83 +69,110 @@ if ($Script:ColorsXmlDocument.SelectSingleNode('/colors/color') -eq $null -or $F
 
         [string]$ColorGroup
     )
-    [System.Xml.XmlElement]$ColorXmlElement = $Script:ColorsXmlDocument.SelectSingleNode("/colors/color[@r=$R and @g=$G and @b=$B]");
-    if ($ColorXmlElement -eq $null) {
-        $ColorXmlElement = $Script:ColorsXmlDocument.DocumentElement.AppendChild($Script:ColorsXmlDocument.CreateElement('color'));
-        $ColorXmlElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('r')).Value = $R.ToString();
-        $ColorXmlElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('g')).Value = $G.ToString();
-        $ColorXmlElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('b')).Value = $B.ToString();
-        $ColorXmlElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute("is$Source")).Value = 'true';
-    } else {
-        $XmlAttribute = $ColorXmlElement.SelectSingleNode("@is$Source");
-        if ($XmlAttribute -eq $null) {
-            $ColorXmlElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute("is$Source")).Value = 'true';
-        }
+    
+    $ColorInfo = Get-ColorInfo -R $R -G $G -B $B;
+    if (-not $ColorInfo.("Is$Source")) {
+        $ColorInfo | Add-Member -MemberType NoteProperty -Name "Is$Source" -Value $true;
     }
-    if ($PSBoundParameters.ContainsKey('Brightness')) {
-        $XmlAttribute = $ColorXmlElement.SelectSingleNode('@brightness');
-        if ($XmlAttribute -eq $null) {
-            $ColorXmlElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('brightness')).Value = [System.Xml.XmlConvert]::ToString($Brightness);
-        }
+    if ($PSBoundParameters.ContainsKey('Brightness') -and $ColorInfo.Brightness -eq $null) {
+        $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Brightness' -Value $Brightness;
     }
-    if ($PSBoundParameters.ContainsKey('Saturation')) {
-        $XmlAttribute = $ColorXmlElement.SelectSingleNode('@saturation');
-        if ($XmlAttribute -eq $null) {
-            $ColorXmlElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('saturation')).Value = [System.Xml.XmlConvert]::ToString($Saturation);
-        }
+    if ($PSBoundParameters.ContainsKey('Saturation') -and $ColorInfo.Saturation -eq $null) {
+        $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Saturation' -Value $Saturation;
     }
-    if ($PSBoundParameters.ContainsKey('Hue')) {
-        $XmlAttribute = $ColorXmlElement.SelectSingleNode('@hue');
-        if ($XmlAttribute -eq $null) {
-            $ColorXmlElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('hue')).Value = [System.Xml.XmlConvert]::ToString($Hue);
-        }
+    if ($PSBoundParameters.ContainsKey('Hue') -and $ColorInfo.Hue -eq $null) {
+        $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Hue' -Value $Hue;
     }
     if ($PSBoundParameters.ContainsKey('ColorGroup')) {
-        if ($ColorXmlElement.SelectSingleNode("group[.=`"$($ColorGroup.Replace('"', '&quot;'))`"]") -eq $null) {
-            $ColorXmlElement.AppendChild($Script:ColorsXmlDocument.CreateElement('group')).InnerText = $ColorGroup;
+        if ($ColorInfo.Group -eq $null) {
+            $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Group' -Value $ColorGroup;
+        } else {
+            if ($ColorInfo.Group -ne $ColorGroup) {
+                Write-Warning "Cannot set group $ColorGroup for ($R,$G,$B): Color already is in group $($ColorInfo.Group)."
+            }
         }
     }
     if ($CssName.Length -gt 0) {
-        $XmlElement = $ColorXmlElement.SelectSingleNode("cssName[translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')=`"$($CssName.ToLower().Replace('"', '&quot;'))`"]");
-        if ($XmlElement -eq $null) {
-            $XmlElement = $ColorXmlElement.AppendChild($Script:ColorsXmlDocument.CreateElement('cssName'))
-            $XmlElement.InnerText = $CssName;
-        }
-        $XmlAttribute = $XmlElement.SelectSingleNode("@is$Source");
-        if ($XmlAttribute -eq $null) {
-            $XmlElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute("is$Source")).Value = 'true';
+        $NameInfo = $Script:AllCssNames | Where-Object { $_.Name -ieq $CssName };
+        if ($NameInfo -ne $null) {
+            if ($NameInfo.Colors -inotcontains $ColorInfo.ID) { $NameInfo.Colors.Add($ColorInfo.ID); }
         } else {
-            $XmlAttribute.Value = 'true';
+            $NameInfo = New-Object -TypeName 'System.Management.Automation.PSObject' -Property @{
+                Name = $CssName;
+                Colors = [System.Collections.ObjectModel.Collection[System.String]]::new();
+            };
+            $NameInfo.Colors.Add($ColorInfo.ID);
+            $Script:AllCssNames.Add($NameInfo);
         }
     }
     if ($CssAlias.Length -gt 0) {
-        if ($ColorXmlElement.SelectSingleNode("cssAlias[translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')=`"$($CssAlias.ToLower().Replace('"', '&quot;'))`"]") -eq $null) {
-            $ColorXmlElement.AppendChild($Script:ColorsXmlDocument.CreateElement('cssAlias')).InnerText = $CssAlias;
+        $NameInfo = $Script:AllCssAliases | Where-Object { $_.Name -ieq $CssAlias };
+        if ($NameInfo -ne $null) {
+            if ($NameInfo.Colors -inotcontains $ColorInfo.ID) { $NameInfo.Colors.Add($ColorInfo.ID); }
+        } else {
+            $NameInfo = New-Object -TypeName 'System.Management.Automation.PSObject' -Property @{
+                Name = $CssAlias;
+                Colors = [System.Collections.ObjectModel.Collection[System.String]]::new();
+            };
+            $NameInfo.Colors.Add($ColorInfo.ID);
+            $Script:AllCssAliases.Add($NameInfo);
         }
     }
     if ($PSBoundParameters.ContainsKey('CssNumber')) {
-        if ($ColorXmlElement.SelectSingleNode("cssNumber[.=$CssNumber]") -eq $null) {
-            $ColorXmlElement.AppendChild($Script:ColorsXmlDocument.CreateElement('cssNumber')).InnerText = $CssNumber.ToString();
+        $NumberInfo = $Script:AllCssNumbers | Where-Object { $_.Number -eq $CssNumber };
+        if ($NumberInfo -ne $null) {
+            if ($NumberInfo.Colors -inotcontains $ColorInfo.ID) { $NumberInfo.Colors.Add($ColorInfo.ID); }
+        } else {
+            $NumberInfo = New-Object -TypeName 'System.Management.Automation.PSObject' -Property @{
+                Number = $CssNumber;
+                Colors = [System.Collections.ObjectModel.Collection[System.String]]::new();
+            };
+            $NumberInfo.Colors.Add($ColorInfo.ID);
+            $Script:AllCssNumbers.Add($NumberInfo);
         }
     }
     if ($X11Code.Length -gt 0) {
-        if ($ColorXmlElement.SelectSingleNode("x11Code[translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')=`"$($X11Code.ToLower().Replace('"', '&quot;'))`"]") -eq $null) {
-            $ColorXmlElement.AppendChild($Script:ColorsXmlDocument.CreateElement('x11Code')).InnerText = $X11Code;
+        $NameInfo = $Script:AllX11Codes | Where-Object { $_.Name -ieq $X11Code };
+        if ($NameInfo -ne $null) {
+            if ($NameInfo.Colors -inotcontains $ColorInfo.ID) { $NameInfo.Colors.Add($ColorInfo.ID); }
+        } else {
+            $NameInfo = New-Object -TypeName 'System.Management.Automation.PSObject' -Property @{
+                Name = $X11Code;
+                Colors = [System.Collections.ObjectModel.Collection[System.String]]::new();
+            };
+            $NameInfo.Colors.Add($ColorInfo.ID);
+            $Script:AllX11Codes.Add($NameInfo);
         }
     }
     if ($VgaName.Length -gt 0) {
-        if ($ColorXmlElement.SelectSingleNode("vgaName[translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')=`"$($VgaName.ToLower().Replace('"', '&quot;'))`"]") -eq $null) {
-            $ColorXmlElement.AppendChild($Script:ColorsXmlDocument.CreateElement('vgaName')).InnerText = $VgaName;
+        $NameInfo = $Script:AllVGANames | Where-Object { $_.Name -ieq $VgaName };
+        if ($NameInfo -ne $null) {
+            if ($NameInfo.Colors -inotcontains $ColorInfo.ID) { $NameInfo.Colors.Add($ColorInfo.ID); }
+        } else {
+            $NameInfo = New-Object -TypeName 'System.Management.Automation.PSObject' -Property @{
+                Name = $VgaName;
+                Colors = [System.Collections.ObjectModel.Collection[System.String]]::new();
+            };
+            $NameInfo.Colors.Add($ColorInfo.ID);
+            $Script:AllVGANames.Add($NameInfo);
         }
     }
     if ($WindowsName.Length -gt 0) {
-        if ($ColorXmlElement.SelectSingleNode("windowsName[translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')=`"$($WindowsName.ToLower().Replace('"', '&quot;'))`"]") -eq $null) {
-            $ColorXmlElement.AppendChild($Script:ColorsXmlDocument.CreateElement('windowsName')).InnerText = $WindowsName;
+        $NameInfo = $Script:AllWindowsNames | Where-Object { $_.Name -ieq $WindowsName };
+        if ($NameInfo -ne $null) {
+            if ($NameInfo.Colors -inotcontains $ColorInfo.ID) { $NameInfo.Colors.Add($ColorInfo.ID); }
+        } else {
+            $NameInfo = New-Object -TypeName 'System.Management.Automation.PSObject' -Property @{
+                Name = $WindowsName;
+                Colors = [System.Collections.ObjectModel.Collection[System.String]]::new();
+            };
+            $NameInfo.Colors.Add($ColorInfo.ID);
+            $Script:AllWindowsNames.Add($NameInfo);
         }
     }
-    }
+}
 
-                                                                        Function ConvertFrom-CamelCase {
+Function ConvertFrom-CamelCase {
     Param(
         [Parameter(Mandatory = $true)]
         [string]$Name
@@ -160,288 +190,322 @@ if ($Script:ColorsXmlDocument.SelectSingleNode('/colors/color') -eq $null -or $F
             }
         }) -join ' ';
     }
-    }
+}
 
-    foreach ($PropertyInfo in @([System.Drawing.Color].GetProperties() | Where-Object { $_.CanRead -and $_.GetGetMethod().IsStatic })) {
-        [System.Drawing.Color]$Color = $PropertyInfo.GetValue($null);
-        if ($Color.A -eq 0) { continue }
-        $n = $Color.Name;
-        if ($n -eq $null -or $n.Length -eq 0) { $n = $PropertyInfo.Name }
-        Add-ColorInfo -R $Color.R -G $Color.G -B $Color.B -Brightness $Color.GetBrightness() -Saturation $Color.GetSaturation() -Hue $Color.GetHue() -WindowsName $n -Source 'Windows';
-    }
+$Script:AllColorData = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
+$Script:AllCssNames = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
+$Script:AllCssNumbers = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
+$Script:AllCssAliases = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
+$Script:AllX11Codes = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
+$Script:AllVGANames = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
+$Script:AllWindowsNames = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
 
-    $ColorGroupDefs = @(
-        @{ colorGroup = 'pink'; XPath = '//*[@id="x11LeftCol"]/tbody/tr[count(preceding-sibling::tr[@id="redColorStart"])=0]' },
-        @{ colorGroup = 'red'; XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="redColorStart"])=0) and count(preceding-sibling::tr[@id="orangeColorStart"])=0]' },
-        @{ colorGroup = 'orange'; XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="orangeColorStart"])=0) and count(preceding-sibling::tr[@id="yellowColorStart"])=0]' },
-        @{ colorGroup = 'yellow'; XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="yellowColorStart"])=0) and count(preceding-sibling::tr[@id="brownColorStart"])=0]' },
-        @{ colorGroup = 'brown'; XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="brownColorStart"])=0)]' },
-        @{ colorGroup = 'green'; XPath = '//*[@id="x11CenterCol"]/tbody/tr[count(preceding-sibling::tr[@id="cyanColorStart"])=0]' },
-        @{ colorGroup = 'cyan'; XPath = '//*[@id="x11CenterCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="cyanColorStart"])=0) and count(preceding-sibling::tr[@id="blueColorStart"])=0]' },
-        @{ colorGroup = 'blue'; XPath = '//*[@id="x11CenterCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="blueColorStart"])=0)]' },
-        @{ colorGroup = 'purple'; XPath = '//*[@id="x11RightCol"]/tbody/tr[count(preceding-sibling::tr[@id="whiteColorStart"])=0]' },
-        @{ colorGroup = 'white'; XPath = '//*[@id="x11RightCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="whiteColorStart"])=0) and count(preceding-sibling::tr[@id="grayColorStart"])=0]' },
-        @{ colorGroup = 'gray'; XPath = '//*[@id="x11RightCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="grayColorStart"])=0)]' }
-    );
-    $ColorGroupDefs | ForEach-Object {
-        $TableRows = @($WebColorsHtmlDocument.SelectNodes($_.XPath));
-        "$($_.colorGroup): $($TableRows.Count) matches" | Write-Host;
-        for ($RowIndex = 0; $RowIndex -lt $TableRows.Count; $RowIndex++) {
-            $X11Code = '';
-            $XmlElement = $TableRows[$RowIndex].SelectSingleNode('td[1]/code');
-            if ($XmlElement -eq $null) { continue }
-            if ($XmlElement.IsEmpty) {
-                Write-Warning -Message "At $($_.colorGroup), row $RowIndex`: name is nil";
-            } else {
-                $X11Code = $XmlElement.InnerText.Trim();
-                if ($X11Code.Length -eq 0) { Write-Warning -Message "At $($_.colorGroup), row $RowIndex`: name is empty" }
-            }
-            $a = $TableRows[$RowIndex].SelectSingleNode('@style');
-            $CssName = '';
-            if ($a -eq $null) {
-                Write-Warning -Message "At $($_.colorGroup), row $RowIndex`: style attribute not found";
+$Script:ColorsXmlDocument = [System.Xml.XmlDocument]::new();
+$Path = $PSScriptRoot | Join-Path -ChildPath 'WebColors.xml';
+$Script:ColorsXmlDocument.Load($Path);
+
+[System.IO.File]::Copy($Path, ($PSScriptRoot | Join-Path -ChildPath "WebColors-backup$([DateTime]::Now.ToString('yyyyMMddHHmmssffffff')).xml"));
+$WebColorsHtmlDocument = [System.Xml.XmlDocument]::new();
+$originalDataText = $Script:ColorsXmlDocument.SelectSingleNode('/colors/originalData').InnerText;
+$WebColorsHtmlDocument.LoadXml($originalDataText.Replace('&nbsp;', '&#160;'));
+
+$Script:RgbPattern = [System.Text.RegularExpressions.Regex]::new('rgb\(\s*(?<r>\d+)\s*,\s*(?<g>\d+)\s*,\s*(?<b>\d+)\s*\)', ([System.Text.RegularExpressions.RegexOptions]::Compiled -bor [System.Text.RegularExpressions.RegexOptions]::IgnoreCase));
+$Script:HexPattern = [System.Text.RegularExpressions.Regex]::new('\#?((?<r>[a-f\d]{2})\s*(?<g>[a-f\d]{2})\s*(?<b>[a-f\d]{2})|(?<r>[a-f\d])(?<g>[a-f\d])(?<b>[a-f\d]))', ([System.Text.RegularExpressions.RegexOptions]::Compiled -bor [System.Text.RegularExpressions.RegexOptions]::IgnoreCase));
+$Script:NumberNamePattern = [System.Text.RegularExpressions.Regex]::new('(?<n>\d+)(\s*\(\s*(?<v>[^\s\(\)]+(\s+[^\s\(\)]+)*)\s*\))?(\s*;?\s*(?<c>\S+))?', ([System.Text.RegularExpressions.RegexOptions]::Compiled -bor [System.Text.RegularExpressions.RegexOptions]::IgnoreCase));
+$Script:StyleBgColorNamePattern = [System.Text.RegularExpressions.Regex]::new('(^|;)\s*background:\s*(?<n>[^;\#\(\)\s]+)', ([System.Text.RegularExpressions.RegexOptions]::Compiled -bor [System.Text.RegularExpressions.RegexOptions]::IgnoreCase));
+$Script:CamelCasePattern = [System.Text.RegularExpressions.Regex]::new('(^|\G)\s*(?<l>\d+|[A-Z]+|[^\#\s])(?<r>[^A-Z\d\s]+)?', [System.Text.RegularExpressions.RegexOptions]::Compiled);
+
+$Script:ColorsXmlDocument = [System.Xml.XmlDocument]::new();
+$Script:ColorsXmlDocument.AppendChild($Script:ColorsXmlDocument.CreateElement('colors')) | Out-Null;
+
+foreach ($PropertyInfo in @([System.Drawing.Color].GetProperties() | Where-Object { $_.CanRead -and $_.GetGetMethod().IsStatic })) {
+    [System.Drawing.Color]$Color = $PropertyInfo.GetValue($null);
+    if ($Color.A -eq 0) { continue }
+    $n = $Color.Name;
+    if ($n -eq $null -or $n.Length -eq 0) { $n = $PropertyInfo.Name }
+    Add-ColorInfo -R $Color.R -G $Color.G -B $Color.B -Brightness $Color.GetBrightness() -Saturation $Color.GetSaturation() -Hue $Color.GetHue() -WindowsName $n -Source 'Windows';
+}
+
+$ColorGroupDefs = @(
+    @{ colorGroup = 'pink'; Color = [System.Drawing.Color]::Pink; XPath = '//*[@id="x11LeftCol"]/tbody/tr[count(preceding-sibling::tr[@id="redColorStart"])=0]' },
+    @{ colorGroup = 'red'; Color = [System.Drawing.Color]::Red; XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="redColorStart"])=0) and count(preceding-sibling::tr[@id="orangeColorStart"])=0]' },
+    @{ colorGroup = 'orange'; Color = [System.Drawing.Color]::Orange; XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="orangeColorStart"])=0) and count(preceding-sibling::tr[@id="yellowColorStart"])=0]' },
+    @{ colorGroup = 'yellow'; Color = [System.Drawing.Color]::Yellow; XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="yellowColorStart"])=0) and count(preceding-sibling::tr[@id="brownColorStart"])=0]' },
+    @{ colorGroup = 'brown'; Color = [System.Drawing.Color]::Brown; XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="brownColorStart"])=0)]' },
+    @{ colorGroup = 'green'; Color = [System.Drawing.Color]::Green; XPath = '//*[@id="x11CenterCol"]/tbody/tr[count(preceding-sibling::tr[@id="cyanColorStart"])=0]' },
+    @{ colorGroup = 'cyan'; Color = [System.Drawing.Color]::Cyan; XPath = '//*[@id="x11CenterCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="cyanColorStart"])=0) and count(preceding-sibling::tr[@id="blueColorStart"])=0]' },
+    @{ colorGroup = 'blue'; Color = [System.Drawing.Color]::Blue; XPath = '//*[@id="x11CenterCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="blueColorStart"])=0)]' },
+    @{ colorGroup = 'purple'; Color = [System.Drawing.Color]::Purple; XPath = '//*[@id="x11RightCol"]/tbody/tr[count(preceding-sibling::tr[@id="whiteColorStart"])=0]' },
+    @{ colorGroup = 'white'; Color = [System.Drawing.Color]::White; XPath = '//*[@id="x11RightCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="whiteColorStart"])=0) and count(preceding-sibling::tr[@id="grayColorStart"])=0]' },
+    @{ colorGroup = 'gray'; Color = [System.Drawing.Color]::Gray; XPath = '//*[@id="x11RightCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="grayColorStart"])=0)]' }
+);
+$ColorGroupDefs | ForEach-Object {
+    $TableRows = @($WebColorsHtmlDocument.SelectNodes($_.XPath));
+    "$($_.colorGroup): $($TableRows.Count) matches" | Write-Host;
+    for ($RowIndex = 0; $RowIndex -lt $TableRows.Count; $RowIndex++) {
+        $X11Code = '';
+        $XmlElement = $TableRows[$RowIndex].SelectSingleNode('td[1]/code');
+        if ($XmlElement -eq $null) { continue }
+        if ($XmlElement.IsEmpty) {
+            Write-Warning -Message "At $($_.colorGroup), row $RowIndex`: name is nil";
+        } else {
+            $X11Code = $XmlElement.InnerText.Trim();
+            if ($X11Code.Length -eq 0) { Write-Warning -Message "At $($_.colorGroup), row $RowIndex`: name is empty" }
+        }
+        $a = $TableRows[$RowIndex].SelectSingleNode('@style');
+        $CssName = '';
+        if ($a -eq $null) {
+            Write-Warning -Message "At $($_.colorGroup), row $RowIndex`: style attribute not found";
+            if ($X11Code.Length -eq 0) { continue }
+        } else {
+            $M = $Script:StyleBgColorNamePattern.Match($a.Value);
+            if (-not $M.Success) {
+                Write-Warning -Message "At $($_.colorGroup), row $RowIndex`: background color style not found in `"$($a.Value)`"";
                 if ($X11Code.Length -eq 0) { continue }
             } else {
-                $M = $Script:StyleBgColorNamePattern.Match($a.Value);
-                if (-not $M.Success) {
-                    Write-Warning -Message "At $($_.colorGroup), row $RowIndex`: background color style not found in `"$($a.Value)`"";
-                    if ($X11Code.Length -eq 0) { continue }
-                } else {
-                    $CssName = $M.Groups['n'].Value;
-                }
+                $CssName = $M.Groups['n'].Value;
             }
-            $XmlElement = $TableRows[$RowIndex].SelectSingleNode('td[2]/code');
-            if ($XmlElement -eq $null) { continue }
-            if ($XmlElement.IsEmpty) {
-                Write-Warning -Message "At $($_.colorGroup), row $RowIndex`: hex is nil";
-                continue;
-            }
-            $Text = $XmlElement.InnerText.Trim();
-            if ($Text.Length -eq 0) {
-                Write-Warning -Message "At $($_.colorGroup), row $RowIndex`: hex is empty";
-                continue;
-            }
-            $M = $Script:HexPattern.Match($Text);
-            $R = 0; $G = 0; $B = 0;
-            if (-not $M.Success) {
-                Write-Warning -Message "Unable to parse Hex value `"$Text`" at $($_.colorGroup), row $RowIndex";
-                continue;
-            }
-            $t = $M.Groups['r'].Value;
-            if ($t.Length -eq 1) { $t = $t + $t }
-            if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$R)) {
-                Write-Warning -Message "Unable to parse R value for `"$Text`" at $($_.colorGroup), row $RowIndex";
-                continue;
-            }
-            $t = $M.Groups['g'].Value;
-            if ($t.Length -eq 1) { $t = $t + $t }
-            if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$G)) {
-                Write-Warning -Message "Unable to parse G value for `"$Text`" at $($_.colorGroup), row $RowIndex";
-                continue;
-            }
-            $t = $M.Groups['b'].Value;
-            if ($t.Length -eq 1) { $t = $t + $t }
-            if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$B)) {
-                Write-Warning -Message "Unable to parse B value for `"$Text`" at $($_.colorGroup), row $RowIndex";
-                continue;
-            }
-            Add-ColorInfo -R $R -G $G -B $B -Source 'X11' -CssName $CssName -X11Code $X11Code -ColorGroup $_.colorGroup;
         }
-    }
-
-    $XPath = '/html/body/table[@id="htmlColors"]/tbody/tr';
-    $XPath = '//*[@id="htmlColors"]/tbody/tr';
-    $TableRows = @($WebColorsHtmlDocument.SelectNodes($XPath));
-    for ($RowIndex = 0; $RowIndex -lt $TableRows.Count; $RowIndex++) {
-        $XmlElement = $TableRows[$RowIndex].SelectSingleNode('td[1]');
-        if ($XmlElement -eq $null) {
-            Write-Warning -Message "No element found at $XPath[$($RowIndex + 1)]/td[1]";
-            continue;
-        }
+        $XmlElement = $TableRows[$RowIndex].SelectSingleNode('td[2]/code');
+        if ($XmlElement -eq $null) { continue }
         if ($XmlElement.IsEmpty) {
-            Write-Warning -Message "Element is nil at $XPath[$($RowIndex + 1)]/td[1]";
+            Write-Warning -Message "At $($_.colorGroup), row $RowIndex`: hex is nil";
             continue;
         }
         $Text = $XmlElement.InnerText.Trim();
         if ($Text.Length -eq 0) {
-            Write-Warning -Message "Element is empty at $XPath[$($RowIndex + 1)]/td[1]";
+            Write-Warning -Message "At $($_.colorGroup), row $RowIndex`: hex is empty";
             continue;
         }
         $M = $Script:HexPattern.Match($Text);
         $R = 0; $G = 0; $B = 0;
         if (-not $M.Success) {
-            $M = $Script:RgbPattern.Match($Text);
-            if (-not $M.Success) {
-                Write-Warning -Message "Unable to parse Hex or RGB value `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
-                continue;
-            }
-            if (-not [System.Int32]::TryParse($M.Groups['r'].Value, [ref]$R)) {
-                Write-Warning -Message "Unable to parse R value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
-                continue;
-            }
-            if (-not [System.Int32]::TryParse($M.Groups['g'].Value, [ref]$G)) {
-                Write-Warning -Message "Unable to parse G value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
-                continue;
-            }
-            if (-not [System.Int32]::TryParse($M.Groups['b'].Value, [ref]$B)) {
-                Write-Warning -Message "Unable to parse B value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
-                continue;
-            }
-            if ($R -gt 255) {
-                Write-Warning -Message "Invalid R value in `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
-                continue;
-            }
-            if ($G -gt 255) {
-                Write-Warning -Message "Invalid G value in `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
-                continue;
-            }
-            if ($B -gt 255) {
-                Write-Warning -Message "Invalid B value in `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
-                continue;
-            }
-        } else {
-            $t = $M.Groups['r'].Value;
-            if ($t.Length -eq 1) { $t = $t + $t }
-            if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$R)) {
-                Write-Warning -Message "Unable to parse R value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
-                continue;
-            }
-            $t = $M.Groups['g'].Value;
-            if ($t.Length -eq 1) { $t = $t + $t }
-            if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$G)) {
-                Write-Warning -Message "Unable to parse G value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
-                continue;
-            }
-            $t = $M.Groups['b'].Value;
-            if ($t.Length -eq 1) { $t = $t + $t }
-            if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$B)) {
-                Write-Warning -Message "Unable to parse B value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
-                continue;
-            }
-        }
-        $XmlElement = $TableRows[$RowIndex].SelectSingleNode('td[10]');
-        if ($XmlElement -eq $null) {
-            Write-Warning -Message "No element found at $XPath[$($RowIndex + 1)]/td[10]";
+            Write-Warning -Message "Unable to parse Hex value `"$Text`" at $($_.colorGroup), row $RowIndex";
             continue;
         }
-        if ($XmlElement.IsEmpty) {
-            Write-Warning -Message "Element is nil at $XPath[$($RowIndex + 1)]/td[10]";
+        $t = $M.Groups['r'].Value;
+        if ($t.Length -eq 1) { $t = $t + $t }
+        if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$R)) {
+            Write-Warning -Message "Unable to parse R value for `"$Text`" at $($_.colorGroup), row $RowIndex";
             continue;
         }
-        $Text = $XmlElement.InnerText.Trim();
-        if ($Text.Length -eq 0) {
-            Write-Warning -Message "Element is empty at $XPath[$($RowIndex + 1)]/td[10]";
+        $t = $M.Groups['g'].Value;
+        if ($t.Length -eq 1) { $t = $t + $t }
+        if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$G)) {
+            Write-Warning -Message "Unable to parse G value for `"$Text`" at $($_.colorGroup), row $RowIndex";
             continue;
         }
-        $M = $Script:NumberNamePattern.Match($Text);
+        $t = $M.Groups['b'].Value;
+        if ($t.Length -eq 1) { $t = $t + $t }
+        if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$B)) {
+            Write-Warning -Message "Unable to parse B value for `"$Text`" at $($_.colorGroup), row $RowIndex";
+            continue;
+        }
+        Add-ColorInfo -R $R -G $G -B $B -Source 'X11' -CssName $CssName -X11Code $X11Code -ColorGroup $_.colorGroup;
+    }
+}
+
+$XPath = '/html/body/table[@id="htmlColors"]/tbody/tr';
+$XPath = '//*[@id="htmlColors"]/tbody/tr';
+$TableRows = @($WebColorsHtmlDocument.SelectNodes($XPath));
+for ($RowIndex = 0; $RowIndex -lt $TableRows.Count; $RowIndex++) {
+    $XmlElement = $TableRows[$RowIndex].SelectSingleNode('td[1]');
+    if ($XmlElement -eq $null) {
+        Write-Warning -Message "No element found at $XPath[$($RowIndex + 1)]/td[1]";
+        continue;
+    }
+    if ($XmlElement.IsEmpty) {
+        Write-Warning -Message "Element is nil at $XPath[$($RowIndex + 1)]/td[1]";
+        continue;
+    }
+    $Text = $XmlElement.InnerText.Trim();
+    if ($Text.Length -eq 0) {
+        Write-Warning -Message "Element is empty at $XPath[$($RowIndex + 1)]/td[1]";
+        continue;
+    }
+    $M = $Script:HexPattern.Match($Text);
+    $R = 0; $G = 0; $B = 0;
+    if (-not $M.Success) {
+        $M = $Script:RgbPattern.Match($Text);
         if (-not $M.Success) {
-            Write-Warning -Message "Name/Number pattern not found at $XPath[$($RowIndex + 1)]/td[10]";
+            Write-Warning -Message "Unable to parse Hex or RGB value `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
             continue;
         }
-        $CssNumber = 0;
-        if (-not [System.Int32]::TryParse($M.Groups['n'].Value, [ref]$CssNumber)) {
-            Write-Warning -Message "Unable to parse CSS Number at $XPath[$($RowIndex + 1)]/td[10]";
+        if (-not [System.Int32]::TryParse($M.Groups['r'].Value, [ref]$R)) {
+            Write-Warning -Message "Unable to parse R value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
             continue;
         }
-        $VgaName = '';
-        if ($M.Groups['v'].Success) { $VgaName = $M.Groups['v'].Value }
-        $CssAlias = '';
-        if ($M.Groups['c'].Success) { $CssAlias = $M.Groups['c'].Value }
-
-        Add-ColorInfo -R $R -G $G -B $B -Source 'HtmlColor' -CssAlias $CssAlias -CssNumber $CssNumber -VgaName $VgaName;
-    }
-
-    $XPath = '//*[@id="webSafeColors"]/tbody/tr';
-    $TableRows = @($WebColorsHtmlDocument.SelectNodes($XPath));
-    for ($RowIndex = 0; $RowIndex -lt $TableRows.Count; $RowIndex++) {
-        $TableCells = @($TableRows[$RowIndex].SelectNodes('td'));
-        for ($CellIndex = 0; $CellIndex -lt $TableCells.Count; $CellIndex++) {
-            if ($TableCells[$CellIndex].IsEmpty) {
-                Write-Warning -Message "Element is nil at $XPath[$($RowIndex + 1)]/td[$($CellIndex + 1)]";
-                continue;
-            }
-            $Text = $TableCells[$CellIndex].InnerText.Trim();
-            if ($Text.Length -eq 0) {
-                Write-Warning -Message "Element is empty at $XPath[$($RowIndex + 1)]/td[$($CellIndex + 1)]";
-                continue;
-            }
-            $M = $Script:HexPattern.Match($Text);
-            $R = 0; $G = 0; $B = 0;
-            if (-not $M.Success) {
-                Write-Warning -Message "Unable to parse Hex value `"$Text`" at $XPath[$($RowIndex + 1)]/td[$($CellIndex + 1)]";
-                continue;
-            }
-            $t = $M.Groups['r'].Value;
-            if ($t.Length -eq 1) { $t = $t + $t }
-            if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$R)) {
-                Write-Warning -Message "Unable to parse R value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[$($CellIndex + 1)]";
-                continue;
-            }
-            $t = $M.Groups['g'].Value;
-            if ($t.Length -eq 1) { $t = $t + $t }
-            if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$G)) {
-                Write-Warning -Message "Unable to parse G value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[$($CellIndex + 1)]";
-                continue;
-            }
-            $t = $M.Groups['b'].Value;
-            if ($t.Length -eq 1) { $t = $t + $t }
-            if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$B)) {
-                Write-Warning -Message "Unable to parse B value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[$($CellIndex + 1)]";
-                continue;
-            }
-
-            Add-ColorInfo -R $R -G $G -B $B -Source 'WebSafeColor';
+        if (-not [System.Int32]::TryParse($M.Groups['g'].Value, [ref]$G)) {
+            Write-Warning -Message "Unable to parse G value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
+            continue;
+        }
+        if (-not [System.Int32]::TryParse($M.Groups['b'].Value, [ref]$B)) {
+            Write-Warning -Message "Unable to parse B value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
+            continue;
+        }
+        if ($R -gt 255) {
+            Write-Warning -Message "Invalid R value in `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
+            continue;
+        }
+        if ($G -gt 255) {
+            Write-Warning -Message "Invalid G value in `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
+            continue;
+        }
+        if ($B -gt 255) {
+            Write-Warning -Message "Invalid B value in `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
+            continue;
+        }
+    } else {
+        $t = $M.Groups['r'].Value;
+        if ($t.Length -eq 1) { $t = $t + $t }
+        if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$R)) {
+            Write-Warning -Message "Unable to parse R value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
+            continue;
+        }
+        $t = $M.Groups['g'].Value;
+        if ($t.Length -eq 1) { $t = $t + $t }
+        if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$G)) {
+            Write-Warning -Message "Unable to parse G value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
+            continue;
+        }
+        $t = $M.Groups['b'].Value;
+        if ($t.Length -eq 1) { $t = $t + $t }
+        if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$B)) {
+            Write-Warning -Message "Unable to parse B value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[1]";
+            continue;
         }
     }
-
-    @($Script:ColorsXmlDocument.SelectNodes('/colors/color[count(cssName)=0 and not(count(cssAlias)=0)]')) | ForEach-Object {
-        $XmlNodeList = $_.SelectNodes('cssAlias');
-        $SourceElement = @($XmlNodeList)[$XmlNodeList.Count - 1];
-        $XmlElement = $_.AppendChild($Script:ColorsXmlDocument.CreateElement('cssName'));
-        $XmlElement.InnerText = $SourceElement.InnerText;
-        $XmlElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('isHtmlColor')).Value = 'true';
-        $_.RemoveChild($SourceElement) | Out-Null;
+    $XmlElement = $TableRows[$RowIndex].SelectSingleNode('td[10]');
+    if ($XmlElement -eq $null) {
+        Write-Warning -Message "No element found at $XPath[$($RowIndex + 1)]/td[10]";
+        continue;
     }
+    if ($XmlElement.IsEmpty) {
+        Write-Warning -Message "Element is nil at $XPath[$($RowIndex + 1)]/td[10]";
+        continue;
+    }
+    $Text = $XmlElement.InnerText.Trim();
+    if ($Text.Length -eq 0) {
+        Write-Warning -Message "Element is empty at $XPath[$($RowIndex + 1)]/td[10]";
+        continue;
+    }
+    $M = $Script:NumberNamePattern.Match($Text);
+    if (-not $M.Success) {
+        Write-Warning -Message "Name/Number pattern not found at $XPath[$($RowIndex + 1)]/td[10]";
+        continue;
+    }
+    $CssNumber = 0;
+    if (-not [System.Int32]::TryParse($M.Groups['n'].Value, [ref]$CssNumber)) {
+        Write-Warning -Message "Unable to parse CSS Number at $XPath[$($RowIndex + 1)]/td[10]";
+        continue;
+    }
+    $VgaName = '';
+    if ($M.Groups['v'].Success) { $VgaName = $M.Groups['v'].Value }
+    $CssAlias = '';
+    if ($M.Groups['c'].Success) { $CssAlias = $M.Groups['c'].Value }
 
-    $AllColorInfo = @(@($Script:ColorsXmlDocument.SelectNodes('/colors/color')) | ForEach-Object {
-        [float]$brightness = -1.0;
-        [float]$hue = -1.0;
-        [float]$saturation = -1.0;
-        $a = $_.SelectSingleNode('@brightness');
-        if ($a -ne $null) { $brightness = [System.Xml.XmlConvert]::ToSingle($a.Value) }
-        $a = $_.SelectSingleNode('@hue');
-        if ($a -ne $null) { $hue = [System.Xml.XmlConvert]::ToSingle($a.Value) }
-        $a = $_.SelectSingleNode('@saturation');
-        if ($a -ne $null) { $saturation = [System.Xml.XmlConvert]::ToSingle($a.Value) }
-        if ($brightness -lt 0.0 -or $hue -lt 0.0 -or $saturation -lt 0.0) {
-            $Color = [System.Drawing.Color]::FromArgb(255, [System.Int32]::Parse($_.SelectSingleNode('@r').Value),
-                [System.Int32]::Parse($_.SelectSingleNode('@g').Value), [System.Int32]::Parse($_.SelectSingleNode('@b').Value));
-            $brightness = $Color.GetBrightness();
-            $saturation = $Color.GetSaturation();
-            $hue = $Color.GetHue();
-            $_.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('brightness')).Value = [System.Xml.XmlConvert]::ToString($brightness);
-            $_.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('saturation')).Value = [System.Xml.XmlConvert]::ToString($saturation);
-            $_.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('hue')).Value = [System.Xml.XmlConvert]::ToString($hue);
+    Add-ColorInfo -R $R -G $G -B $B -Source 'HtmlColor' -CssAlias $CssAlias -CssNumber $CssNumber -VgaName $VgaName;
+}
+
+$XPath = '//*[@id="webSafeColors"]/tbody/tr';
+$TableRows = @($WebColorsHtmlDocument.SelectNodes($XPath));
+for ($RowIndex = 0; $RowIndex -lt $TableRows.Count; $RowIndex++) {
+    $TableCells = @($TableRows[$RowIndex].SelectNodes('td'));
+    for ($CellIndex = 0; $CellIndex -lt $TableCells.Count; $CellIndex++) {
+        if ($TableCells[$CellIndex].IsEmpty) {
+            Write-Warning -Message "Element is nil at $XPath[$($RowIndex + 1)]/td[$($CellIndex + 1)]";
+            continue;
         }
-        $Properties = @{
-            Brightness = $brightness;
-            Hue = $hue;
-            Saturation = $saturation;
-            SourceElement = $Script:ColorsXmlDocument.DocumentElement.RemoveChild($_);
-        };
-        $XmlNodeList = $_.SelectNodes('group');
-        if ($XmlNodeList.Count -gt 0) { $Properties['Group'] = @($XmlNodeList)[$XmlNodeList.Count -1].InnerText }
-        New-Object -TypeName 'System.Management.Automation.PSObject' -Property $Properties;
-    });
+        $Text = $TableCells[$CellIndex].InnerText.Trim();
+        if ($Text.Length -eq 0) {
+            Write-Warning -Message "Element is empty at $XPath[$($RowIndex + 1)]/td[$($CellIndex + 1)]";
+            continue;
+        }
+        $M = $Script:HexPattern.Match($Text);
+        $R = 0; $G = 0; $B = 0;
+        if (-not $M.Success) {
+            Write-Warning -Message "Unable to parse Hex value `"$Text`" at $XPath[$($RowIndex + 1)]/td[$($CellIndex + 1)]";
+            continue;
+        }
+        $t = $M.Groups['r'].Value;
+        if ($t.Length -eq 1) { $t = $t + $t }
+        if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$R)) {
+            Write-Warning -Message "Unable to parse R value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[$($CellIndex + 1)]";
+            continue;
+        }
+        $t = $M.Groups['g'].Value;
+        if ($t.Length -eq 1) { $t = $t + $t }
+        if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$G)) {
+            Write-Warning -Message "Unable to parse G value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[$($CellIndex + 1)]";
+            continue;
+        }
+        $t = $M.Groups['b'].Value;
+        if ($t.Length -eq 1) { $t = $t + $t }
+        if (-not [System.Int32]::TryParse($t, [System.Globalization.NumberStyles]::HexNumber, $null, [ref]$B)) {
+            Write-Warning -Message "Unable to parse B value for `"$Text`" at $XPath[$($RowIndex + 1)]/td[$($CellIndex + 1)]";
+            continue;
+        }
 
-    $GroupedColors = @($AllColorInfo | Where-Object { $_.Group -ne $null });
-    foreach ($UngroupedItem in @($AllColorInfo | Where-Object { $_.Group -eq $null })) {
+        Add-ColorInfo -R $R -G $G -B $B -Source 'WebSafeColor';
+    }
+}
+
+foreach ($CssAliasInfo in $Script:AllCssAliases) {
+    $NameInfo = $Script:AllCssAliases | Where-Object { $_.Name -ieq $CssAliasInfo.Name };
+    if ($NameInfo -eq $null) {
+        $AllCssNames.Insert(0, $CssAliasInfo);
+    } else {
+        for ($i = $CssAliasInfo.Colors.Count - 1; $i -ge 0; $i--) {
+            if (-not $NameInfo.Colors.Contains($CssAliasInfo.Colors[$i])) { $NameInfo.Colors.Add($CssAliasInfo.Colors[$i]) }
+        }
+    }
+};
+
+$Script:OutputXmlDocument = [System.Xml.XmlDocument]::new();
+$Script:OutputXmlDocument.AppendChild($Script:OutputXmlDocument.CreateElement('colors')) | Out-Null;
+$TextWriter = [System.IO.StreamWriter]::new(($PSScriptRoot | Join-Path -ChildPath 'WebColors.json'), ([System.Text.UTF8Encoding]::new($false)));
+$TextWriter.WriteLine('{');
+$groupNamesElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('groupNames'));
+$CurrentLine = '';
+$ColorGroupDefs | ForEach-Object {
+    $groupNamesElement.AppendChild($Script:OutputXmlDocument.CreateElement('n')).InnerText = $_.colorGroup;
+    if ($CurrentLine.Length -eq 0) {
+        $CurrentLine = "    `"groupNames`": [ `"$($_.colorGroup)`"";
+    } else {
+        if (($CurrentLine.Length + $_.colorGroup.Length + 4) -gt 120) {
+            $TextWriter.WriteLine("$CurrentLine,");
+            $CurrentLine = "        `"$($_.colorGroup)`"";
+        } else {
+            $CurrentLine = "$CurrentLine, `"$($_.colorGroup)`"";
+        }
+    }
+}
+$TextWriter.WriteLine("$CurrentLine ],");
+$TextWriter.WriteLine("    `"colors`": [");
+
+foreach ($ColorInfo in $Script:AllColorData) {
+    if ($ColorInfo.Hue -eq $null) {
+        $Color = [System.Drawing.Color]::FromArgb(255, $ColorInfo.R, $ColorInfo.G, $ColorInfo.B);
+        $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Brightness' -Value $Color.GetBrightness();
+        $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Saturation' -Value $Color.GetSaturation();
+        $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Hue' -Value $Color.GetHue();
+    }
+}
+$Script:AllColorData = @($Script:AllColorData | Sort-Object -Property 'Hue', 'Brightness', 'Saturation', 'ID');
+$CurrentLine = '';
+$GroupedColors = @($Script:AllColorData | Where-Object { $_.Group -ne $null });
+foreach ($ColorInfo in $Script:AllColorData) {
+    if ($CurrentLine.Length -gt 0) {
+        $TextWriter.WriteLine("$CurrentLine,")
+    }
+    $CurrentLine = "        { `"id`": `"$($ColorInfo.ID)`"";
+    if ($ColorInfo.Group -eq $null) {
         $ShortestDistance = [float]::MaxValue;
-        $ClosestItem = $GroupedColors[0];
-        foreach ($GroupedItem in $GroupedColors) {
-            $b = ($UnGroupedItem.Brightness - $GroupedItem.Brightness) * 18.0;
-            $s = ($UnGroupedItem.Saturation - $GroupedItem.Saturation) * 18.0;
-            $h = ($UnGroupedItem.Hue - $GroupedItem.Hue) / 10.0;
+        $ClosestItem = $ColorGroupDefs[0];
+        foreach ($Def in $ColorGroupDefs) {
+            $b = ($ColorInfo.Brightness - $Def.Color.GetBrightness()) * 18.0;
+            $s = ($ColorInfo.Saturation - $Def.Color.GetSaturation()) * 18.0;
+            $h = ($ColorInfo.Hue - $Def.Color.GetHue()) / 10.0;
             if ($h -lt -180.0) {
                 $h += 180.0;
             } else {
@@ -450,278 +514,225 @@ if ($Script:ColorsXmlDocument.SelectSingleNode('/colors/color') -eq $null -or $F
             $d = [System.Math]::Sqrt(($b * $b) + ($s * $s) + ($h * $h));
             if ($d -lt $ShortestDistance) {
                 $ShortestDistance = $d;
-                $ClosestItem = $GroupedItem;
+                $ClosestItem = $Def;
                 if ($d -eq 0.0) { break }
             }
         }
-        $UngroupedItem.SourceElement.AppendChild($Script:ColorsXmlDocument.CreateElement('group')).InnerText = $ClosestItem.Group;
-        $UngroupedItem | Add-Member -MemberType NoteProperty -Name 'Group' -Value $ClosestItem.Group;
+        $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Group' -Value $Def.colorGroup;
     }
-
-    $AllColorInfo = @(@($AllColorInfo | Sort-Object -Property 'Hue', 'Brightness', 'Saturation') | ForEach-Object {
-        $XmlNodeList = $_.SourceElement.SelectNodes('windowsName');
-        $_ | Add-Member -MemberType NoteProperty -Name 'TargetElement' -Value $Script:ColorsXmlDocument.DocumentElement.AppendChild($Script:ColorsXmlDocument.CreateElement('color'));
-        for ($i = $XmlNodeList.Count - 1; $i -ge 0; $i--) {
-            $Name = ConvertFrom-CamelCase -Name $XmlNodeList[$i].InnerText;
-            if (($AllColorInfo | Where-Object { $_.Name -ne $null -and $_.Name -ieq $Name }) -eq $null) {
-                $_.TargetElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('name')).Value = $Name;
-                $_ | Add-Member -MemberType NoteProperty -Name 'Name' -Value $Name;
-                break;
-            }
-        }
-        $_ | Write-Output;
-    });
-
-    @($AllColorInfo | Where-Object { $_.Name -eq $null }) | ForEach-Object {
-        $XmlNodeList = $_.SourceElement.SelectNodes('x11Code');
-        for ($i = $XmlNodeList.Count - 1; $i -ge 0; $i--) {
-            $Name = ConvertFrom-CamelCase -Name $XmlNodeList[$i].InnerText;
-            if (($AllColorInfo | Where-Object { $_.Name -ne $null -and $_.Name -ieq $Name }) -eq $null) {
-                $_.TargetElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('name')).Value = $Name;
-                $_ | Add-Member -MemberType NoteProperty -Name 'Name' -Value $Name;
-                break;
+    $NameInfo = $Script:AllWindowsNames | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | Select-Object -Last 1;
+    if ($NameInfo -eq $null) {
+        $NameInfo = $Script:AllCssNames | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | Select-Object -Last 1;
+        if ($NameInfo -eq $null) {
+            $NameInfo = $Script:AllX11Codes | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | Select-Object -Last 1;
+            if ($NameInfo -eq $null) {
+                $NameInfo = $Script:AllVGANames | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | Select-Object -Last 1;
             }
         }
     }
-    @($AllColorInfo | Where-Object { $_.Name -eq $null }) | ForEach-Object {
-        $XmlNodeList = $_.SourceElement.SelectNodes('cssName');
-        for ($i = $XmlNodeList.Count - 1; $i -ge 0; $i--) {
-            $Name = ConvertFrom-CamelCase -Name $XmlNodeList[$i].InnerText;
-            if (($AllColorInfo | Where-Object { $_.Name -ne $null -and $_.Name -ieq $Name }) -eq $null) {
-                $_.TargetElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('name')).Value = $Name;
-                $_ | Add-Member -MemberType NoteProperty -Name 'Name' -Value $Name;
-                break;
-            }
-        }
-    }
-    @($AllColorInfo | Where-Object { $_.Name -eq $null }) | ForEach-Object {
-        $XmlNodeList = $_.SourceElement.SelectNodes('cssAlias');
-        for ($i = $XmlNodeList.Count - 1; $i -ge 0; $i--) {
-            $Name = ConvertFrom-CamelCase -Name $XmlNodeList[$i].InnerText;
-            if (($AllColorInfo | Where-Object { $_.Name -ne $null -and $_.Name -ieq $Name }) -eq $null) {
-                $_.TargetElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('name')).Value = $Name;
-                $_ | Add-Member -MemberType NoteProperty -Name 'Name' -Value $Name;
-                break;
-            }
-        }
-    }
-    @($AllColorInfo | Where-Object { $_.Name -eq $null }) | ForEach-Object {
-        $XmlNodeList = $_.SourceElement.SelectNodes('vgaName');
-        for ($i = $XmlNodeList.Count - 1; $i -ge 0; $i--) {
-            $Name = ConvertFrom-CamelCase -Name $XmlNodeList[$i].InnerText;
-            if (($AllColorInfo | Where-Object { $_.Name -ne $null -and $_.Name -ieq $Name }) -eq $null) {
-                $_.TargetElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('name')).Value = $Name;
-                $_ | Add-Member -MemberType NoteProperty -Name 'Name' -Value $Name;
-                break;
-            }
-        }
-    }
-
-    @($AllColorInfo | Where-Object { $_.Name -eq $null }) | ForEach-Object {
-        $_.TargetElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('name')).Value = "#$([int]::Parse($_.SourceElement.SelectSingleNode('@r').Value).ToString('x2'))$([int]::Parse($_.SourceElement.SelectSingleNode('@g').Value).ToString('x2'))$([int]::Parse($_.SourceElement.SelectSingleNode('@b').Value).ToString('x2'))";
-        $_ | Add-Member -MemberType NoteProperty -Name 'Name' -Value $Name;
-    }
-
-    $AllColorInfo | ForEach-Object {
-        $TargetElement = $_.TargetElement;
-        $SourceElement = $_.SourceElement;
-        @('r', 'g', 'b', 'brightness', 'saturation', 'hue') | ForEach-Object {
-            $TargetElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute($_)).Value = $SourceElement.SelectSingleNode("@$_").Value;
-        }
-        ('group', 'cssName', 'cssNumber', 'windowsName', 'x11Code', 'vgaName') | ForEach-Object {
-            $XmlNodeList = $SourceElement.SelectNodes($_);
-            if ($XmlNodeList.Count -gt 0) {
-                $XmlElement = @($XmlNodeList)[$XmlNodeList.Count - 1];
-                $TargetElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute($_)).Value = $XmlElement.InnerText;
-                $SourceElement.RemoveChild($XmlElement) | Out-Null;
-            }
-        }
-        ('group', 'cssName', 'cssNumber', 'windowsName', 'x11Code', 'vgaName') | ForEach-Object {
-            $XmlNodeList = $SourceElement.SelectNodes($_);
-            if ($XmlNodeList.Count -gt 0) {
-                $XmlElement = @($XmlNodeList)[$XmlNodeList.Count - 1];
-                if ($TargetElement.SelectSingleNode("@$_").Value -ine $XmlElement.InnerText) {
-                    $TargetElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute("alt$($_.Substring(0, 1).ToUpper())$($_.Substring(1))")).Value = $XmlElement.InnerText;
-                }
-                $SourceElement.RemoveChild($XmlElement) | Out-Null;
-            }
-        }
-        $XmlNodeList = $SourceElement.SelectNodes('cssAlias');
-        if ($XmlNodeList.Count -gt 0) {
-            $XmlElement = @($XmlNodeList)[$XmlNodeList.Count - 1];
-            if ($TargetElement.SelectSingleNode("@cssName").Value -ieq $XmlElement.InnerText) {
-                $SourceElement.RemoveChild($XmlElement) | Out-Null;
-            } else {
-                $a = $TargetElement.SelectSingleNode("@altCssName");
-                if ($a -eq $null) {
-                    $TargetElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute('altCssName')).Value = $XmlElement.InnerText;
-                    $SourceElement.RemoveChild($XmlElement) | Out-Null;
-                }
-            }
-        }
-        @('isWindows', 'isX11', 'isHtmlColor', 'isWebSafeColor') | ForEach-Object {
-            $a = $SourceElement.SelectSingleNode("@$_");
-            if ($q -eq $null) {
-                $TargetElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute($_)).Value = 'false';
-            } else {
-                $TargetElement.Attributes.Append($Script:ColorsXmlDocument.CreateAttribute($_)).Value = $a.Value;
-            }
-        }
-        $SourceElement.SelectNodes('*') | ForEach-Object {
-            $TargetElement.AppendChild($_.CloneNode($true)) | Out-Null;
-        }
-    }
-
-    $Script:OutputXmlDocument = [System.Xml.XmlDocument]::new();
-    $Script:OutputXmlDocument.AppendChild($Script:OutputXmlDocument.CreateElement('colors')) | Out-Null;
-    $groupNamesElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('groupNames'));
-    $ColorGroupDefs | ForEach-Object { $groupNamesElement.AppendChild($Script:OutputXmlDocument.CreateElement('n')).InnerText = $_.colorGroup }
-
-    $allAttributeNames = @('name', 'cssName', 'cssNumber', 'windowsName', 'x11Code');
-    $primaryAttributeNames = @('name', 'vgaName', 'r', 'g', 'b', 'brightness', 'saturation', 'hue', 'group', 'cssNumber', 'isWindows', 'isX11', 'isHtmlColor', 'isWebSafeColor');
-    foreach ($SourceElement in @($Script:ColorsXmlDocument.SelectNodes('/colors/color'))) {
-        $XmlElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('color'));
-        $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('id')).Value = [int]::Parse($SourceElement.SelectSingleNode("@r").Value).ToString('x2') + [int]::Parse($SourceElement.SelectSingleNode("@g").Value).ToString('x2') + [int]::Parse($SourceElement.SelectSingleNode("@b").Value).ToString('x2');
-        $primaryAttributeNames | ForEach-Object {
-            $a = $SourceElement.SelectSingleNode("@$_");
-            if ($a -ne $null -and ($_ -ne 'name' -or -not $a.Value.StartsWith('#'))) {
-                $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute($_)).Value = $a.Value;
-            }
-        }
-    }
-    $allCssNames = @();
-    $allWindowsNames = @();
-    $allX11Codes = @();
-    foreach ($SourceElement in @($Script:ColorsXmlDocument.SelectNodes('/colors/color'))) {
-        $id = [int]::Parse($SourceElement.SelectSingleNode("@r").Value).ToString('x2') + [int]::Parse($SourceElement.SelectSingleNode("@g").Value).ToString('x2') + [int]::Parse($SourceElement.SelectSingleNode("@b").Value).ToString('x2');
-        foreach ($a in $SourceElement.SelectNodes('@cssName|@altCssName')) {
-            $allCssNames += @(New-Object -TypeName 'System.Management.Automation.PSObject' -Property @{ id = $id; value = $a.Value; lc = $a.Value.ToLower() });
-        }
-        foreach ($a in $SourceElement.SelectNodes('@windowsName|@altWindowsName')) {
-            $allWindowsNames += @(New-Object -TypeName 'System.Management.Automation.PSObject' -Property @{ id = $id; value = $a.Value; lc = $a.Value.ToLower() });
-        }
-        foreach ($a in $SourceElement.SelectNodes('@x11Code|@altS11Code')) {
-            $allX11Codes += @(New-Object -TypeName 'System.Management.Automation.PSObject' -Property @{ id = $id; value = $a.Value; lc = $a.Value.ToLower() });
-        }
-    }
-
-    $cssNamesElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('cssNames'));
-    ($allCssNames | Sort-Object -Property 'lc', 'value') | ForEach-Object {
-        $XmlElement = $cssNamesElement.AppendChild($Script:OutputXmlDocument.CreateElement('n'));
-        $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('id')).Value = $_.id;
-        $XmlElement.InnerText = $_.value;
-    }
-    $windowsNamesElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('windowsNames'));
-    ($allWindowsNames | Sort-Object -Property 'lc', 'value') | ForEach-Object {
-        $XmlElement = $windowsNamesElement.AppendChild($Script:OutputXmlDocument.CreateElement('n'));
-        $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('id')).Value = $_.id;
-        $XmlElement.InnerText = $_.value;
-    }
-    $x11CodesElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('x11Codes'));
-    ($allX11Codes | Sort-Object -Property 'lc', 'value') | ForEach-Object {
-        $XmlElement = $x11CodesElement.AppendChild($Script:OutputXmlDocument.CreateElement('n'));
-        $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('id')).Value = $_.id;
-        $XmlElement.InnerText = $_.value;
-    }
-
-    $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('originalData')).AppendChild($Script:OutputXmlDocument.CreateCDataSection($originalDataText)) | Out-Null;
-
-    $XmlWriterSettings = [System.Xml.XmlWriterSettings]::new();
-    $XmlWriterSettings.Indent = $true;
-    $XmlWriterSettings.OmitXmlDeclaration = $true;
-    $XmlWriterSettings.Encoding = [System.Text.UTF8Encoding]::new($false);
-    $XmlWriter = [System.Xml.XmlWriter]::Create($Path, $XmlWriterSettings);
-    $Script:OutputXmlDocument.WriteTo($XmlWriter);
-    $XmlWriter.Flush();
-    $XmlWriter.Close();
-
-    $Script:ColorsXmlDocument = $Script:OutputXmlDocument;
-}
-
-$cssNumberLines = @();
-$attributeNames = @(@{ name = 'id'; isString = $true; isDecimal = $false }, @{ name = 'name'; isString = $true; isDecimal = $false },
-    @{ name = 'vgaName'; isString = $true; isDecimal = $false }, @{ name = 'r'; isString = $false; isDecimal = $false },
-    @{ name = 'g'; isString = $false; isDecimal = $false }, @{ name = 'b'; isString = $false; isDecimal = $false },
-    @{ name = 'brightness'; isString = $false; isDecimal = $true }, @{ name = 'saturation'; isString = $false; isDecimal = $true },
-    @{ name = 'hue'; isString = $false; isDecimal = $true }, @{ name = 'group'; isString = $true; isDecimal = $false }, 
-    @{ name = 'isWindows'; isString = $false; isDecimal = $false }, @{ name = 'isX11'; isString = $false; isDecimal = $false },
-    @{ name = 'isHtmlColor'; isString = $false; isDecimal = $false });
-$TextWriter = [System.IO.StreamWriter]::new(($PSScriptRoot | Join-Path -ChildPath 'WebColors.json'), ([System.Text.UTF8Encoding]::new($false)));
-$TextWriter.WriteLine("{");
-$CurrentLine = "";
-($Script:ColorsXmlDocument.SelectNodes('/colors/groupNames/n')) | ForEach-Object {
-    if ($CurrentLine.Length -eq 0) {
-        $CurrentLine = "    `"groupNames`": [ `"$($_.Value)`"";
+    $JSONPairs = @();
+    if ($NameInfo -ne $null) {
+        $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Name' -Value (ConvertFrom-CamelCase -Name $NameInfo.Name);
+        $JSONPairs += @("`"name`": `"$($ColorInfo.Name)`"");
     } else {
-        $CurrentLine += ",";
-        if (($CurrentLine.Length + $_.Value.Length + 3) -gt 120) {
-            $TextWriter.WriteLine($CurrentLine);
-            $CurrentLine = "        `"$($_.Value)`"";
-        }
+        $JSONPairs += @('"name": null');
     }
-}
-$TextWriter.WriteLine("$CurrentLine ],");
-$TextWriter.WriteLine('    "colors": [');
-$NotFirstColor = $false;
-$cssNumberValues = @();
-$JSONLines = @($Script:ColorsXmlDocument.SelectNodes('/colors/color')) | ForEach-Object {
-    $a = $_.SelectSingleNode('cssNumber');
-    if ($a -ne $null) {
-        $cssNumberValues = @(New-Object -TypeName 'System.Management.Automation.PSObject' -Property @{ n = [int]::Parse($a.Value); id = $_.SelectSingleNode('id').Value });
+    
+    $XmlElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('color'));
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('id')).Value = $ColorInfo.ID;
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('r')).Value = $ColorInfo.R;
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('g')).Value = $ColorInfo.G;
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('b')).Value = $ColorInfo.B;
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('hue')).Value = $ColorInfo.Hue;
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('brightness')).Value = $ColorInfo.Brightness;
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('saturation')).Value = $ColorInfo.Saturation;
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('group')).Value = $ColorInfo.Group;
+    
+    $JSONPairs += @("`"group`": `"$($ColorInfo.Group)`"");
+    $JSONPairs += @("`"r`": $($ColorInfo.R)", "`"g`": $($ColorInfo.G)", "`"b`": $($ColorInfo.B)");
+    $s = $ColorInfo.Hue.ToString();
+    if (-not $s.Contains(".")) { $s = "$s.0" }
+    $JSONPairs += @("`"hue`": $s");
+    $s = $ColorInfo.Brightness.ToString();
+    if (-not $s.Contains(".")) { $s = "$s.0" }
+    $JSONPairs += @("`"brightness`": $s");
+    $s = $ColorInfo.Saturation.ToString();
+    if (-not $s.Contains(".")) { $s = "$s.0" }
+    $JSONPairs += @("`"saturation`": $s");
+    if ($ColorInfo.IsWindows) {
+        $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('isWindows')).Value = 'true';
+        $JSONPairs += @('"isWindows": true');
+    } else {
+        $JSONPairs += @('"isWindows": false');
     }
-    $XmlElement = $_;
-    $CurrentLine = "";
-    $attributeNames | ForEach-Object {
-        $a = $XmlElement.SelectSingleNode("@$($_.name)");
-        $Text = "`"$($_.name)`": ";
-        if ($a -eq $null) {
-            $Text + "null";
+    if ($ColorInfo.IsX11) {
+        $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('isX11')).Value = 'true';
+        $JSONPairs += @('"isX11": true');
+    } else {
+        $JSONPairs += @('"isX11": false');
+    }
+    if ($ColorInfo.IsHtml) {
+        $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('isHtml')).Value = 'true';
+        $JSONPairs += @('"isHtml": true');
+    } else {
+        $JSONPairs += @('"isHtml": false');
+    }
+    if ($ColorInfo.IsWebSafe) {
+        $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('isWebSafe')).Value = 'true';
+        $JSONPairs += @('"isWebSafe": true');
+    } else {
+        $JSONPairs += @('"isWebSafe": false');
+    }
+
+    $JSONPairs | ForEach-Object {
+        if (($CurrentLine.Length + $_.Length + 2) -gt 120) {
+            $TextWriter.WriteLine("$CurrentLine,");
+            $CurrentLine = "            $_";
         } else {
-            if ($_.isString) {
-                $Text + "`"$($a.Value)`"";
-            } else {
-                if ($a.Value.Length -eq 0) {
-                    $Text + "null";
-                } else {
-                    if ($_.isDecimal -and -not $a.Value.Contains('.')) {
-                        $Text + "$($a.Value).0";
-                    } else {
-                        $Text + $a.Value;
-                    }
-                }
-            }
-        }
-        if ($CurrentLine.Length -eq 0) {
-            if ($NotFirstColor) {
-                $TextWriter.WriteLine(",");
-                $NotFirstColor = $true;
-            }
-            $CurrentLine = "        { $Text";
-        } else {
-            $CurrentLine += ",";
-            if (($CurrentLine.Length + $Text.Length + 1) -gt 120) {
-                $TextWriter.WriteLine($CurrentLine);
-                $CurrentLine = "            $Text";
-            }
+            $CurrentLine = "$CurrentLine, $_";
         }
     }
-    $TextWriter.Write("$CurrentLine }");
+
+    $CurrentLine += " }";
 }
-$TextWriter.WriteLine();
+$TextWriter.WriteLine($CurrentLine);
 $TextWriter.WriteLine("    ],");
-$CurrentLine = "";
-($cssNumberValues | Sort-Object -Property 'n') | ForEach-Object {
-    $Text = "{ `"number`": $($_.n), `"id`": `"$($_.id)`" }";
-    if ($CurrentLine.Length -eq 0) {
-        $CurrentLine = "    `"cssNumbers`": [ $Text";
-    } else {
-        $CurrentLine += ",";
-        if (($CurrentLine.Length + $_.Value.Length + 2) -gt 120) {
-            $TextWriter.WriteLine($CurrentLine);
-            $CurrentLine = "        $Text";
-        }
+$TextWriter.WriteLine("    `"cssNumbers`": [");
+
+$BodyElement = $WebColorsHtmlDocument.DocumentElement.SelectSingleNode('body');
+$BodyElement.RemoveAll();
+$TableElement = $BodyElement.AppendChild($WebColorsHtmlDocument.CreateElement('table'));
+$TableRowElement = $TableElement.AppendChild($WebColorsHtmlDocument.CreateElement('tr'));
+$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'ID';
+$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'RGB';
+$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'HSB';
+$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'CSS #';
+$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'CSS name';
+$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'X11 name';
+$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'VGA name';
+$TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('th')).InnerText = 'Windows name';
+
+$CurrentGroup = '';
+foreach ($ColorInfo in @($Script:AllColorData | Sort-Object -Property 'Group', 'Hue', 'Brightness', 'Saturation')) {
+    if ($CurrentGroup -ne $ColorInfo.Group) {
+        $CurrentGroup = $ColorInfo.Group;
+        $TableRowElement = $TableElement.AppendChild($WebColorsHtmlDocument.CreateElement('tr'));
+        $TableDataElement = $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td'));
+        $TableDataElement.Attributes.Append($WebColorsHtmlDocument.CreateAttribute('style')).Value = 'font-weight: bold';
+        $TableDataElement.Attributes.Append($WebColorsHtmlDocument.CreateAttribute('colspan')).Value = '7';
+        $TableDataElement.InnerText = $CurrentGroup;
     }
+    $TableRowElement = $TableElement.AppendChild($WebColorsHtmlDocument.CreateElement('tr'));
+    $TableDataElement = $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td'));
+    $TableDataElement.Attributes.Append($WebColorsHtmlDocument.CreateAttribute('style')).Value = "background-color: #$($ColorInfo.ID)";
+    $TableDataElement.InnerText = $ColorInfo.ID;
+    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = "$($ColorInfo.R), $($ColorInfo.G), $($ColorInfo.B)";
+    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = "$($ColorInfo.Hue), $($ColorInfo.Saturation), $($ColorInfo.Brightness)";
+    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = ($Script:AllCssNumbers | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | ForEach-Object { $_.Number }) -join ", ";
+    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = ($Script:AllCssNames | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | ForEach-Object { $_.Name }) -join ", ";
+    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = ($Script:AllX11Codes | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | ForEach-Object { $_.Name }) -join ", ";
+    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = ($Script:AllVgaNames | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | ForEach-Object { $_.Name }) -join ", ";
+    $TableRowElement.AppendChild($WebColorsHtmlDocument.CreateElement('td')).InnerText = ($Script:AllWindowsNames | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | ForEach-Object { $_.Name }) -join ", ";
 }
-$TextWriter.WriteLine("$CurrentLine ],");
+
+$CssNumbersElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('cssNumbers'));
+$CurrentLine = '';
+($Script:AllCssNumbers | Sort-Object -Property 'Number') | ForEach-Object {
+    $XmlElement = $CssNumbersElement.AppendChild($Script:OutputXmlDocument.CreateElement('number'));
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('value')).Value = $_.Number.ToString();
+    if ($CurrentLine.Length -gt 0) {
+        $TextWriter.WriteLine("$CurrentLine,")
+    }
+    if ($_.Colors.Count -gt 1) { Write-Warning -Message "CSS Number $($_.Number) has $($_.Color.Count) colors." }
+    $CurrentLine = "        { `"number`": $($_.Number), `"id`": `"$($_.Colors[0])`" }";
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('id')).Value = $_.Colors[0];
+}
+$TextWriter.WriteLine($CurrentLine);
+$TextWriter.WriteLine("    ],");
+
+$TextWriter.WriteLine("    `"cssNames`": [");
+$CssNamesElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('cssNames'));
+$CurrentLine = '';
+($Script:AllCssNames | Sort-Object -Property 'Name') | ForEach-Object {
+    $XmlElement = $CssNamesElement.AppendChild($Script:OutputXmlDocument.CreateElement('name'));
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('value')).Value = $_.Name;
+    if ($CurrentLine.Length -gt 0) {
+        $TextWriter.WriteLine("$CurrentLine,")
+    }
+    if ($_.Colors.Count -gt 1) { Write-Warning -Message "CSS Name $($_.Name) has $($_.Color.Count) colors." }
+    $CurrentLine = "        { `"name`": `"$($_.Name)`", `"id`": `"$($_.Colors[0])`" }";
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('id')).Value = $_.Colors[0];
+}
+$TextWriter.WriteLine($CurrentLine);
+$TextWriter.WriteLine("    ],");
+
+$TextWriter.WriteLine("    `"x11Codes`": [");
+$X11NamesElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('x11Codes'));
+$CurrentLine = '';
+($Script:AllX11Codes | Sort-Object -Property 'Name') | ForEach-Object {
+    $XmlElement = $X11NamesElement.AppendChild($Script:OutputXmlDocument.CreateElement('code'));
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('value')).Value = $_.Name;
+    if ($CurrentLine.Length -gt 0) {
+        $TextWriter.WriteLine("$CurrentLine,")
+    }
+    if ($_.Colors.Count -gt 1) { Write-Warning -Message "X11 Name $($_.Name) has $($_.Color.Count) colors." }
+    $CurrentLine = "        { `"code`": `"$($_.Name)`", `"id`": `"$($_.Colors[0])`" }";
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('id')).Value = $_.Colors[0];
+}
+$TextWriter.WriteLine($CurrentLine);
+$TextWriter.WriteLine("    ],");
+
+$TextWriter.WriteLine("    `"vgaNames`": [");
+$VGANamesElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('vgaNames'));
+$CurrentLine = '';
+($Script:AllVGANames | Sort-Object -Property 'Name') | ForEach-Object {
+    $XmlElement = $VGANamesElement.AppendChild($Script:OutputXmlDocument.CreateElement('name'));
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('value')).Value = $_.Name;
+    if ($CurrentLine.Length -gt 0) {
+        $TextWriter.WriteLine("$CurrentLine,")
+    }
+    if ($_.Colors.Count -gt 1) { Write-Warning -Message "VGA Name $($_.Name) has $($_.Color.Count) colors." }
+    $CurrentLine = "        { `"name`": `"$($_.Name)`", `"id`": `"$($_.Colors[0])`" }";
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('id')).Value = $_.Colors[0];
+}
+$TextWriter.WriteLine($CurrentLine);
+$TextWriter.WriteLine("    ],");
+
+$TextWriter.WriteLine("    `"windowsNames`": [");
+$WindowsNamesElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('windowsNames'));
+$CurrentLine = '';
+($Script:AllWindowsNames | Sort-Object -Property 'Name') | ForEach-Object {
+    $XmlElement = $WindowsNamesElement.AppendChild($Script:OutputXmlDocument.CreateElement('name'));
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('value')).Value = $_.Name;
+    if ($CurrentLine.Length -gt 0) {
+        $TextWriter.WriteLine("$CurrentLine,")
+    }
+    if ($_.Colors.Count -gt 1) { Write-Warning -Message "Windows Name $($_.Name) has $($_.Color.Count) colors." }
+    $CurrentLine = "        { `"name`": `"$($_.Name)`", `"id`": `"$($_.Colors[0])`" }";
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('id')).Value = $_.Colors[0];
+}
+$TextWriter.WriteLine($CurrentLine);
+$TextWriter.WriteLine("    ]");
+$TextWriter.WriteLine("}");
+
+$Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('originalData')).AppendChild($Script:OutputXmlDocument.CreateCDataSection($originalDataText)) | Out-Null;
+
+$XmlWriterSettings = [System.Xml.XmlWriterSettings]::new();
+$XmlWriterSettings.Indent = $true;
+$XmlWriterSettings.OmitXmlDeclaration = $true;
+$XmlWriterSettings.Encoding = [System.Text.UTF8Encoding]::new($false);
+$XmlWriter = [System.Xml.XmlWriter]::Create($Path, $XmlWriterSettings);
+$Script:OutputXmlDocument.WriteTo($XmlWriter);
+$XmlWriter.Flush();
+$XmlWriter.Close();
 $TextWriter.Flush();
 $TextWriter.Close();
+
+$MemoryStream = [System.IO.MemoryStream]::new();
+$XmlWriter = [System.Xml.XmlWriter]::Create($MemoryStream, $XmlWriterSettings);
+$WebColorsHtmlDocument.WriteTo($XmlWriter);
+$XmlWriter.Flush();
+#[System.IO.File]::WriteAllText(($PSScriptRoot | Join-Path -ChildPath 'WebColors.html'), $XmlWriterSettings.Encoding.GetString($MemoryStream.ToArray()).Replace('&#160;', '&nbsp;'));
+[System.IO.File]::WriteAllText('C:\Users\Daddy\GitHub\JSCookbook\JSCookbook\Colors\WebColors.html', $XmlWriterSettings.Encoding.GetString($MemoryStream.ToArray()).Replace('&#160;', '&nbsp;'));
+$XmlWriter.Close();
+$MemoryStream.Dispose();
