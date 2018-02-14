@@ -492,7 +492,6 @@ foreach ($ColorInfo in $Script:AllColorData) {
 }
 $Script:AllColorData = @($Script:AllColorData | Sort-Object -Property 'Hue', 'Brightness', 'Saturation', 'ID');
 $CurrentLine = '';
-$GroupedColors = @($Script:AllColorData | Where-Object { $_.Group -ne $null });
 foreach ($ColorInfo in $Script:AllColorData) {
     if ($CurrentLine.Length -gt 0) {
         $TextWriter.WriteLine("$CurrentLine,")
