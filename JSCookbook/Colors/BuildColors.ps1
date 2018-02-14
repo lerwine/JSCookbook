@@ -198,8 +198,20 @@ $Script:AllCssNumbers = [System.Collections.ObjectModel.Collection[System.Manage
 $Script:AllCssAliases = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
 $Script:AllX11Codes = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
 $Script:AllVGANames = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
-$Script:AllWindowsNames = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
-
+256-16
+$Script:ColorGroupDefinitions = @(
+    @{ colorGroup = 'pink'; HueRange = @(316.0, 346.0); BrightnessRange = @(0.01, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 255, 0, 255); XPath = '//*[@id="x11LeftCol"]/tbody/tr[count(preceding-sibling::tr[@id="redColorStart"])=0]' },
+    @{ colorGroup = 'red'; HueRange = @(346.0, 16.0); BrightnessRange = @(0.01, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 255, 0, 0); XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="redColorStart"])=0) and count(preceding-sibling::tr[@id="orangeColorStart"])=0]' },
+    @{ colorGroup = 'orange'; HueRange = @(16.0, 46.0); BrightnessRange = @(0.01, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 255, 95, 0); XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="orangeColorStart"])=0) and count(preceding-sibling::tr[@id="yellowColorStart"])=0]' },
+    @{ colorGroup = 'yellow'; HueRange = @(46.0, 90.0); BrightnessRange = @(0.5, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 255, 255, 0); XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="yellowColorStart"])=0) and count(preceding-sibling::tr[@id="brownColorStart"])=0]' },
+    @{ colorGroup = 'brown'; HueRange = @(46.0, 90.0); BrightnessRange = @(0.01, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 63, 23, 0); XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="brownColorStart"])=0)]' },
+    @{ colorGroup = 'green'; HueRange = @(90.0, 150.0); BrightnessRange = @(0.01, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 0, 255, 0); XPath = '//*[@id="x11CenterCol"]/tbody/tr[count(preceding-sibling::tr[@id="cyanColorStart"])=0]' },
+    @{ colorGroup = 'cyan'; HueRange = @(150.0, 210.0); BrightnessRange = @(0.01, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 0, 255, 255); XPath = '//*[@id="x11CenterCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="cyanColorStart"])=0) and count(preceding-sibling::tr[@id="blueColorStart"])=0]' },
+    @{ colorGroup = 'blue'; HueRange = @(210.0, 270.0); BrightnessRange = @(0.01, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 0, 0, 255); XPath = '//*[@id="x11CenterCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="blueColorStart"])=0)]' },
+    @{ colorGroup = 'purple'; HueRange = @(270.0, 316.0); BrightnessRange = @(0.01, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 127, 0, 255); XPath = '//*[@id="x11RightCol"]/tbody/tr[count(preceding-sibling::tr[@id="whiteColorStart"])=0]' },
+    @{ colorGroup = 'white'; HueRange = @(0.0, 360.0); BrightnessRange = @(1.1, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 255, 255, 255); XPath = '//*[@id="x11RightCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="whiteColorStart"])=0) and count(preceding-sibling::tr[@id="grayColorStart"])=0]' },
+    @{ colorGroup = 'gray'; HueRange = @(0.0, 360.0); BrightnessRange = @(0.0, 0.01); Color = [System.Drawing.Color]::FromArgb(255, 00, 00, 00); XPath = '//*[@id="x11RightCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="grayColorStart"])=0)]' }
+);
 $Script:ColorsXmlDocument = [System.Xml.XmlDocument]::new();
 $Path = $PSScriptRoot | Join-Path -ChildPath 'WebColors.xml';
 $Script:ColorsXmlDocument.Load($Path);
@@ -226,20 +238,7 @@ foreach ($PropertyInfo in @([System.Drawing.Color].GetProperties() | Where-Objec
     Add-ColorInfo -R $Color.R -G $Color.G -B $Color.B -Brightness $Color.GetBrightness() -Saturation $Color.GetSaturation() -Hue $Color.GetHue() -WindowsName $n -Source 'Windows';
 }
 
-$ColorGroupDefs = @(
-    @{ colorGroup = 'pink'; Color = [System.Drawing.Color]::Pink; XPath = '//*[@id="x11LeftCol"]/tbody/tr[count(preceding-sibling::tr[@id="redColorStart"])=0]' },
-    @{ colorGroup = 'red'; Color = [System.Drawing.Color]::Red; XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="redColorStart"])=0) and count(preceding-sibling::tr[@id="orangeColorStart"])=0]' },
-    @{ colorGroup = 'orange'; Color = [System.Drawing.Color]::Orange; XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="orangeColorStart"])=0) and count(preceding-sibling::tr[@id="yellowColorStart"])=0]' },
-    @{ colorGroup = 'yellow'; Color = [System.Drawing.Color]::Yellow; XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="yellowColorStart"])=0) and count(preceding-sibling::tr[@id="brownColorStart"])=0]' },
-    @{ colorGroup = 'brown'; Color = [System.Drawing.Color]::Brown; XPath = '//*[@id="x11LeftCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="brownColorStart"])=0)]' },
-    @{ colorGroup = 'green'; Color = [System.Drawing.Color]::Green; XPath = '//*[@id="x11CenterCol"]/tbody/tr[count(preceding-sibling::tr[@id="cyanColorStart"])=0]' },
-    @{ colorGroup = 'cyan'; Color = [System.Drawing.Color]::Cyan; XPath = '//*[@id="x11CenterCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="cyanColorStart"])=0) and count(preceding-sibling::tr[@id="blueColorStart"])=0]' },
-    @{ colorGroup = 'blue'; Color = [System.Drawing.Color]::Blue; XPath = '//*[@id="x11CenterCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="blueColorStart"])=0)]' },
-    @{ colorGroup = 'purple'; Color = [System.Drawing.Color]::Purple; XPath = '//*[@id="x11RightCol"]/tbody/tr[count(preceding-sibling::tr[@id="whiteColorStart"])=0]' },
-    @{ colorGroup = 'white'; Color = [System.Drawing.Color]::White; XPath = '//*[@id="x11RightCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="whiteColorStart"])=0) and count(preceding-sibling::tr[@id="grayColorStart"])=0]' },
-    @{ colorGroup = 'gray'; Color = [System.Drawing.Color]::Gray; XPath = '//*[@id="x11RightCol"]/tbody/tr[not(count(preceding-sibling::tr[@id="grayColorStart"])=0)]' }
-);
-$ColorGroupDefs | ForEach-Object {
+$Script:ColorGroupDefinitions | ForEach-Object {
     $TableRows = @($WebColorsHtmlDocument.SelectNodes($_.XPath));
     "$($_.colorGroup): $($TableRows.Count) matches" | Write-Host;
     for ($RowIndex = 0; $RowIndex -lt $TableRows.Count; $RowIndex++) {
@@ -467,7 +466,7 @@ $TextWriter = [System.IO.StreamWriter]::new(($PSScriptRoot | Join-Path -ChildPat
 $TextWriter.WriteLine('{');
 $groupNamesElement = $Script:OutputXmlDocument.DocumentElement.AppendChild($Script:OutputXmlDocument.CreateElement('groupNames'));
 $CurrentLine = '';
-$ColorGroupDefs | ForEach-Object {
+$Script:ColorGroupDefinitions | ForEach-Object {
     $groupNamesElement.AppendChild($Script:OutputXmlDocument.CreateElement('n')).InnerText = $_.colorGroup;
     if ($CurrentLine.Length -eq 0) {
         $CurrentLine = "    `"groupNames`": [ `"$($_.colorGroup)`"";
@@ -499,10 +498,40 @@ foreach ($ColorInfo in $Script:AllColorData) {
         $TextWriter.WriteLine("$CurrentLine,")
     }
     $CurrentLine = "        { `"id`": `"$($ColorInfo.ID)`"";
+    
     if ($ColorInfo.Group -eq $null) {
-        $ShortestDistance = [float]::MaxValue;
-        $ClosestItem = $ColorGroupDefs[0];
-        foreach ($Def in $ColorGroupDefs) {
+        $cgd = $null;
+        $v = $ColorInfo.Brightness;
+        if ($ColorInfo.Saturation -lt 0.15) {
+            if ($ColorInfo.Brightness -lt 0.75) {
+                $cgd = $Script:ColorGroupDefinitions | Where-Object { $_.colorGroup -eq 'gray' }
+            } else {
+                $cgd = $Script:ColorGroupDefinitions | Where-Object { $_.colorGroup -eq 'white' }
+            }
+        } else {
+            if ($ColorInfo.Saturation -lt 0.5) {
+                if ($ColorInfo.Brightness -lt 0.15) {
+                    $cgd = $Script:ColorGroupDefinitions | Where-Object { $_.colorGroup -eq 'gray' }
+                } else {
+                    if ($ColorInfo.Brightness -gt 0.95) {
+                        $cgd = $Script:ColorGroupDefinitions | Where-Object { $_.colorGroup -eq 'white' }
+                    }
+                }
+            }
+        }
+        if ($cgd -eq $null) {
+            $cgd = $Script:ColorGroupDefinitions | Where-Object {
+                if ($_.HueRange[0] -gt $_.HueRange[1]) {
+                    if ($ColorInfo.Hue -ge $_.HueRange[1] -and $ColorInfo.Hue -lt $_.HueRange[0]) { return $false }
+                } else {
+                    if ($ColorInfo.Hue -lt $_.HueRange[0] -or $ColorInfo.Hue -ge $_.HueRange[1]) { return $false }
+                }
+                return ($ColorInfo.Brightness -ge $_.BrightnessRange[0] -and $ColorInfo.Brightness -lt $_.BrightnessRange[1]);
+            };
+        }
+        <#$ShortestDistance = [float]::MaxValue;
+        $cgd = $Script:ColorGroupDefinitions[0];
+        foreach ($Def in $Script:ColorGroupDefinitions) {
             $b = ($ColorInfo.Brightness - $Def.Color.GetBrightness()) * 18.0;
             $s = ($ColorInfo.Saturation - $Def.Color.GetSaturation()) * 18.0;
             $h = ($ColorInfo.Hue - $Def.Color.GetHue()) / 10.0;
@@ -514,11 +543,11 @@ foreach ($ColorInfo in $Script:AllColorData) {
             $d = [System.Math]::Sqrt(($b * $b) + ($s * $s) + ($h * $h));
             if ($d -lt $ShortestDistance) {
                 $ShortestDistance = $d;
-                $ClosestItem = $Def;
+                $cgd = $Def;
                 if ($d -eq 0.0) { break }
             }
-        }
-        $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Group' -Value $Def.colorGroup;
+        }#>
+        $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Group' -Value $cgd.colorGroup;
     }
     $NameInfo = $Script:AllWindowsNames | Where-Object { $_.Colors.Contains($ColorInfo.ID) } | Select-Object -Last 1;
     if ($NameInfo -eq $null) {
@@ -732,7 +761,7 @@ $MemoryStream = [System.IO.MemoryStream]::new();
 $XmlWriter = [System.Xml.XmlWriter]::Create($MemoryStream, $XmlWriterSettings);
 $WebColorsHtmlDocument.WriteTo($XmlWriter);
 $XmlWriter.Flush();
-#[System.IO.File]::WriteAllText(($PSScriptRoot | Join-Path -ChildPath 'WebColors.html'), $XmlWriterSettings.Encoding.GetString($MemoryStream.ToArray()).Replace('&#160;', '&nbsp;'));
-[System.IO.File]::WriteAllText('C:\Users\Daddy\GitHub\JSCookbook\JSCookbook\Colors\WebColors.html', $XmlWriterSettings.Encoding.GetString($MemoryStream.ToArray()).Replace('&#160;', '&nbsp;'));
+[System.IO.File]::WriteAllText(($PSScriptRoot | Join-Path -ChildPath 'WebColors.html'), $XmlWriterSettings.Encoding.GetString($MemoryStream.ToArray()).Replace('&#160;', '&nbsp;'));
+#[System.IO.File]::WriteAllText('C:\Users\Daddy\GitHub\JSCookbook\JSCookbook\Colors\WebColors.html', $XmlWriterSettings.Encoding.GetString($MemoryStream.ToArray()).Replace('&#160;', '&nbsp;'));
 $XmlWriter.Close();
 $MemoryStream.Dispose();
