@@ -2912,13 +2912,13 @@ foreach ($ColorInfo in $Script:AllColorData) {
     } else {
         $JSONPairs += @('"isX11": false');
     }
-    if ($ColorInfo.IsHtml) {
+    if ($ColorInfo.IsHtmlColor) {
         $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('isHtml')).Value = 'true';
         $JSONPairs += @('"isHtml": true');
     } else {
         $JSONPairs += @('"isHtml": false');
     }
-    if ($ColorInfo.IsWebSafe) {
+    if ($ColorInfo.IsWebSafeColor) {
         $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('isWebSafe')).Value = 'true';
         $JSONPairs += @('"isWebSafe": true');
     } else {
