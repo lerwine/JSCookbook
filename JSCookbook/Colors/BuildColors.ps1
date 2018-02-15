@@ -192,6 +192,61 @@ Function ConvertFrom-CamelCase {
     }
 }
 
+Function Convert-HsbToRgb {
+    [CmdletBinding()]
+    Param(
+      [Parameter(Mandatory = $true, Position = 0)]
+      [ValidateRange(0.0, 360.0)]
+      [float]$H,
+      
+      [Parameter(Mandatory = $true, Position = 1)]
+      [ValidateRange(0.0, 1.0)]
+      [float]$S,
+      
+      [Parameter(Mandatory = $true, Position = 2)]
+      [ValidateRange(0.0, 1.0)]
+      [Alias('v')]
+      [float]$B
+    )
+   
+    [float]$fMax = 0.0;
+    [float]$fMin = 0.0;
+    if ($B -lt 0.5) {
+        [float]$fMax = $b + ($b * $s);
+        [float]$fMin = $b - ($b * $s);
+    } else {
+        [float]$fMax = $b - ($b * $s) + $s;
+        [float]$fMin = $b + ($b * $s) - $s;
+    }
+
+    [int]$iSextant = [Math]::Floor($h / ([float](60)));
+    if ($H -ge 300.0) {
+        [float]$H -= 360.0;
+    }
+    [float]$H /= 60.0;
+    [float]$H -= 2.0 * [Math]::Floor((($iSextant + 1.0) % 6.0) / 2.0);
+    [float]$fMid = 0.0;
+    if (($iSextant % 2) -eq 0) {
+        [float]$fMid = $H * ($fMax - $fMin) + $fMin;
+    } else {
+        [float]$fMid = $fMin - $H * ($fMax - $fMin);
+    }
+      
+    $iMax = [Convert]::ToInt32($fMax * 255);
+    $iMid = [Convert]::ToInt32($fMid * 255);
+    $iMin = [Convert]::ToInt32($fMin * 255);
+
+    switch ($iSextant) {
+        1 { return @($iMid, $iMax, $iMin) }
+        2 { return @($iMin, $iMax, $iMid) }
+        3 { return @($iMin, $iMid, $iMax) }
+        4 { return @($iMid, $iMin, $iMax) }
+        5 { return @($iMax, $iMin, $iMid) }
+    }
+  
+    return @($iMax, $iMid, $iMin);
+    }
+
 $SourceHtml = @'
 <!DOCTYPE html []>
 <html>
@@ -2456,6 +2511,7 @@ $Script:AllCssNumbers = [System.Collections.ObjectModel.Collection[System.Manage
 $Script:AllCssAliases = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
 $Script:AllX11Codes = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
 $Script:AllVGANames = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
+$Script:AllWindowsNames = [System.Collections.ObjectModel.Collection[System.Management.Automation.PSObject]]::new();
 
 $Script:ColorGroupDefinitions = @(
     @{ colorGroup = 'pink'; HueRange = @(316.0, 346.0); BrightnessRange = @(0.01, 1.1); Color = [System.Drawing.Color]::FromArgb(255, 255, 0, 255); XPath = '//*[@id="x11LeftCol"]/tbody/tr[count(preceding-sibling::tr[@id="redColorStart"])=0]' },
@@ -2749,10 +2805,25 @@ foreach ($ColorInfo in $Script:AllColorData) {
         $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Saturation' -Value $Color.GetSaturation();
         $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Hue' -Value $Color.GetHue();
     }
+    $H = $ColorInfo.Hue + 180.0;
+    if ($H -gt 360.0) { $H -= 360.0 }
+    $B = $ColorInfo.Brightness;
+    if ($ColorInfo.Saturation -lt 0.5) {
+        if ($B -lt 0.5) { $B = 1.0 } else { $B = 0.0 }
+    } else {
+        $B = 1.0 - $B;
+    }
+    $Rgb = Convert-HsbToRgb -H $H -S $ColorInfo.Saturation -B $B;
+    $ColorInfo | Add-Member -MemberType NoteProperty -Name 'Inverse' -Value ($Rgb[0].ToString('x2') + $Rgb[1].ToString('x2') + $Rgb[2].ToString('x2'));
 }
 $Script:AllColorData = @($Script:AllColorData | Sort-Object -Property 'Hue', 'Brightness', 'Saturation', 'ID');
+
 $CurrentLine = '';
 foreach ($ColorInfo in $Script:AllColorData) {
+  $rgb = Convert-HsbToRgb -H $ColorInfo.Hue -S $ColorInfo.Saturation -B $ColorInfo.Brightness;
+  if ($rgb[0] -ne $ColorInfo.R -or $rgb[1] -ne $ColorInfo.G -or $rgb[2] -ne $ColorInfo.B) {
+    Write-Warning -Message "Convert-HsbToRgb failed. Expected ($($ColorInfo.R), $($ColorInfo.G), $($ColorInfo.B)); Actual ($($rgb[0]), $($rgb[1]), $($rgb[2]))";
+  }
     if ($CurrentLine.Length -gt 0) {
         $TextWriter.WriteLine("$CurrentLine,")
     }
@@ -2816,6 +2887,7 @@ foreach ($ColorInfo in $Script:AllColorData) {
     $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('brightness')).Value = $ColorInfo.Brightness;
     $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('saturation')).Value = $ColorInfo.Saturation;
     $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('group')).Value = $ColorInfo.Group;
+    $XmlElement.Attributes.Append($Script:OutputXmlDocument.CreateAttribute('inverse')).Value = $ColorInfo.Inverse;
     
     $JSONPairs += @("`"group`": `"$($ColorInfo.Group)`"");
     $JSONPairs += @("`"r`": $($ColorInfo.R)", "`"g`": $($ColorInfo.G)", "`"b`": $($ColorInfo.B)");
@@ -2852,7 +2924,7 @@ foreach ($ColorInfo in $Script:AllColorData) {
     } else {
         $JSONPairs += @('"isWebSafe": false');
     }
-
+    $JSONPairs += @("`"inverse`": `"$($ColorInfo.Inverse)`"");
     $JSONPairs | ForEach-Object {
         if (($CurrentLine.Length + $_.Length + 2) -gt 120) {
             $TextWriter.WriteLine("$CurrentLine,");
