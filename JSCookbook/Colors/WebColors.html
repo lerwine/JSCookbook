@@ -23,12 +23,6 @@ $(document).ready(function() {
         colorInfo.displayText = colorInfo.name;
       else
         colorInfo.displayText = "#" + colorInfo.id;
-      var b = (colorInfo.brightness < 0.5) ? 1.0 : 0.0;
-      var h = colorInfo.hue + 180.0;
-      if (h >= 360.0)
-        h -= 360.0;
-      var c = $.Color(h, colorInfo.saturation, b, 255);
-      colorInfo.inverse = intToHex(c.red(), 2) + intToHex(c.green(), 2) + intToHex(c.blue(), 2);
     }
     webColors = data;
     var table = $("<table />");
@@ -61,7 +55,7 @@ $(document).ready(function() {
                             }
                         }
                         $(cell).css("background-color", bgColor);
-                        $(cell).css("color", rowData.inverse);
+                        $(cell).css("color", "#" + rowData.inverse);
                     } },
                 { title: "Name", data: function(row, type, set, meta) {
                   if (type === "set") {

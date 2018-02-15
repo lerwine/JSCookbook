@@ -2808,7 +2808,7 @@ foreach ($ColorInfo in $Script:AllColorData) {
     $H = $ColorInfo.Hue + 180.0;
     if ($H -gt 360.0) { $H -= 360.0 }
     $B = $ColorInfo.Brightness;
-    if ($ColorInfo.Saturation -lt 0.5) {
+    if ($ColorInfo.Saturation -lt 0.5 -or ($B -gt 0.25 -and $B -lt 0.75)) {
         if ($B -lt 0.5) { $B = 1.0 } else { $B = 0.0 }
     } else {
         $B = 1.0 - $B;

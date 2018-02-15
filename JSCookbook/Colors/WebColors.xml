@@ -16,29 +16,29 @@
   <color id="330000" r="51" g="0" b="0" hue="0" brightness="0.1" saturation="1" group="red" inverse="ccffff" />
   <color id="333333" r="51" g="51" b="51" hue="0" brightness="0.2" saturation="0" group="gray" inverse="ffffff" />
   <color id="660000" r="102" g="0" b="0" hue="0" brightness="0.2" saturation="1" group="red" inverse="99ffff" />
-  <color id="800000" r="128" g="0" b="0" hue="0" brightness="0.2509804" saturation="1" group="brown" inverse="7fffff" isWindows="true" isX11="true" />
-  <color id="8b0000" r="139" g="0" b="0" hue="0" brightness="0.272549" saturation="1" group="red" inverse="74ffff" isWindows="true" isX11="true" />
+  <color id="800000" r="128" g="0" b="0" hue="0" brightness="0.2509804" saturation="1" group="brown" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="8b0000" r="139" g="0" b="0" hue="0" brightness="0.272549" saturation="1" group="red" inverse="ffffff" isWindows="true" isX11="true" />
   <color id="663333" r="102" g="51" b="51" hue="0" brightness="0.3" saturation="0.3333333" group="red" inverse="ffffff" />
-  <color id="990000" r="153" g="0" b="0" hue="0" brightness="0.3" saturation="1" group="red" inverse="66ffff" />
+  <color id="990000" r="153" g="0" b="0" hue="0" brightness="0.3" saturation="1" group="red" inverse="ffffff" />
   <color id="666666" r="102" g="102" b="102" hue="0" brightness="0.4" saturation="0" group="gray" inverse="ffffff" />
-  <color id="993333" r="153" g="51" b="51" hue="0" brightness="0.4" saturation="0.5000001" group="red" inverse="66cccc" />
-  <color id="cc0000" r="204" g="0" b="0" hue="0" brightness="0.4" saturation="1" group="red" inverse="33ffff" />
-  <color id="a52a2a" r="165" g="42" b="42" hue="0" brightness="0.4058824" saturation="0.5942029" group="brown" inverse="5ad5d5" isWindows="true" isX11="true" />
+  <color id="993333" r="153" g="51" b="51" hue="0" brightness="0.4" saturation="0.5000001" group="red" inverse="ffffff" />
+  <color id="cc0000" r="204" g="0" b="0" hue="0" brightness="0.4" saturation="1" group="red" inverse="ffffff" />
+  <color id="a52a2a" r="165" g="42" b="42" hue="0" brightness="0.4058824" saturation="0.5942029" group="brown" inverse="ffffff" isWindows="true" isX11="true" />
   <color id="696969" r="105" g="105" b="105" hue="0" brightness="0.4117647" saturation="0" group="gray" inverse="ffffff" isWindows="true" isX11="true" />
-  <color id="b22222" r="178" g="34" b="34" hue="0" brightness="0.4156863" saturation="0.6792453" group="red" inverse="4ddddd" isWindows="true" isX11="true" />
+  <color id="b22222" r="178" g="34" b="34" hue="0" brightness="0.4156863" saturation="0.6792453" group="red" inverse="ffffff" isWindows="true" isX11="true" />
   <color id="996666" r="153" g="102" b="102" hue="0" brightness="0.5" saturation="0.2" group="red" inverse="000000" />
-  <color id="cc3333" r="204" g="51" b="51" hue="0" brightness="0.5" saturation="0.6" group="red" inverse="33cccc" />
-  <color id="ff0000" r="255" g="0" b="0" hue="0" brightness="0.5" saturation="1" group="red" inverse="00ffff" isWindows="true" isX11="true" />
+  <color id="cc3333" r="204" g="51" b="51" hue="0" brightness="0.5" saturation="0.6" group="red" inverse="000000" />
+  <color id="ff0000" r="255" g="0" b="0" hue="0" brightness="0.5" saturation="1" group="red" inverse="000000" isWindows="true" isX11="true" />
   <color id="808080" r="128" g="128" b="128" hue="0" brightness="0.5019608" saturation="0" group="gray" inverse="000000" isWindows="true" isX11="true" />
-  <color id="cd5c5c" r="205" g="92" b="92" hue="0" brightness="0.5823529" saturation="0.5305164" group="red" inverse="32a3a3" isWindows="true" isX11="true" />
+  <color id="cd5c5c" r="205" g="92" b="92" hue="0" brightness="0.5823529" saturation="0.5305164" group="red" inverse="000000" isWindows="true" isX11="true" />
   <color id="999999" r="153" g="153" b="153" hue="0" brightness="0.6" saturation="0" group="gray" inverse="000000" />
   <color id="cc6666" r="204" g="102" b="102" hue="0" brightness="0.6" saturation="0.5" group="red" inverse="000000" />
-  <color id="ff3333" r="255" g="51" b="51" hue="0" brightness="0.6" saturation="1" group="red" inverse="00cccc" />
+  <color id="ff3333" r="255" g="51" b="51" hue="0" brightness="0.6" saturation="1" group="red" inverse="000000" />
   <color id="bc8f8f" r="188" g="143" b="143" hue="0" brightness="0.6490196" saturation="0.2513966" group="brown" inverse="000000" isWindows="true" isX11="true" />
   <color id="a9a9a9" r="169" g="169" b="169" hue="0" brightness="0.6627451" saturation="0" group="gray" inverse="000000" isWindows="true" isX11="true" />
-  <color id="ff6666" r="255" g="102" b="102" hue="0" brightness="0.7" saturation="1" group="red" inverse="009999" />
+  <color id="ff6666" r="255" g="102" b="102" hue="0" brightness="0.7" saturation="1" group="red" inverse="000000" />
   <color id="cc9999" r="204" g="153" b="153" hue="0" brightness="0.7" saturation="0.3333333" group="red" inverse="000000" />
-  <color id="f08080" r="240" g="128" b="128" hue="0" brightness="0.7215686" saturation="0.7887323" group="red" inverse="0f7f7f" isWindows="true" isX11="true" />
+  <color id="f08080" r="240" g="128" b="128" hue="0" brightness="0.7215686" saturation="0.7887323" group="red" inverse="000000" isWindows="true" isX11="true" />
   <color id="c0c0c0" r="192" g="192" b="192" hue="0" brightness="0.7529412" saturation="0" group="gray" inverse="000000" isWindows="true" isX11="true" />
   <color id="cccccc" r="204" g="204" b="204" hue="0" brightness="0.8" saturation="0" group="white" inverse="000000" />
   <color id="ff9999" r="255" g="153" b="153" hue="0" brightness="0.8" saturation="1" group="red" inverse="006666" />
@@ -49,74 +49,74 @@
   <color id="fffafa" r="255" g="250" b="250" hue="0" brightness="0.9901961" saturation="1" group="white" inverse="000505" isWindows="true" isX11="true" />
   <color id="ffffff" r="255" g="255" b="255" hue="0" brightness="1" saturation="0" group="white" inverse="000000" isWindows="true" isX11="true" />
   <color id="ffe4e1" r="255" g="228" b="225" hue="6" brightness="0.9411765" saturation="1" group="white" inverse="001b1e" isWindows="true" isX11="true" />
-  <color id="fa8072" r="250" g="128" b="114" hue="6.176474" brightness="0.7137255" saturation="0.9315069" group="red" inverse="057f8d" isWindows="true" isX11="true" />
-  <color id="ff6347" r="255" g="99" b="71" hue="9.130434" brightness="0.6392157" saturation="1" group="orange" inverse="009cb8" isWindows="true" isX11="true" />
-  <color id="ff3300" r="255" g="51" b="0" hue="12" brightness="0.5" saturation="1" group="red" inverse="00ccff" />
-  <color id="cc3300" r="204" g="51" b="0" hue="15" brightness="0.4" saturation="1" group="red" inverse="33ccff" />
-  <color id="ff6633" r="255" g="102" b="51" hue="15" brightness="0.6" saturation="1" group="red" inverse="0099cc" />
-  <color id="e9967a" r="233" g="150" b="122" hue="15.13514" brightness="0.6960784" saturation="0.716129" group="red" inverse="166985" isWindows="true" isX11="true" />
-  <color id="ff7f50" r="255" g="127" b="80" hue="16.11428" brightness="0.6568627" saturation="1" group="orange" inverse="0080af" isWindows="true" isX11="true" />
-  <color id="ff4500" r="255" g="69" b="0" hue="16.23529" brightness="0.5" saturation="1" group="orange" inverse="00baff" isWindows="true" isX11="true" />
-  <color id="ffa07a" r="255" g="160" b="122" hue="17.14286" brightness="0.7392157" saturation="1" group="red" inverse="005f85" isWindows="true" isX11="true" />
-  <color id="a0522d" r="160" g="82" b="45" hue="19.30435" brightness="0.4019608" saturation="0.5609757" group="brown" inverse="5fadd2" isWindows="true" isX11="true" />
-  <color id="993300" r="153" g="51" b="0" hue="20" brightness="0.3" saturation="1" group="orange" inverse="66ccff" />
-  <color id="cc6633" r="204" g="102" b="51" hue="20" brightness="0.5" saturation="0.6" group="orange" inverse="3399cc" />
-  <color id="ff9966" r="255" g="153" b="102" hue="20" brightness="0.7" saturation="1" group="orange" inverse="006699" />
-  <color id="ff6600" r="255" g="102" b="0" hue="24" brightness="0.5" saturation="1" group="orange" inverse="0099ff" />
+  <color id="fa8072" r="250" g="128" b="114" hue="6.176474" brightness="0.7137255" saturation="0.9315069" group="red" inverse="000000" isWindows="true" isX11="true" />
+  <color id="ff6347" r="255" g="99" b="71" hue="9.130434" brightness="0.6392157" saturation="1" group="orange" inverse="000000" isWindows="true" isX11="true" />
+  <color id="ff3300" r="255" g="51" b="0" hue="12" brightness="0.5" saturation="1" group="red" inverse="000000" />
+  <color id="cc3300" r="204" g="51" b="0" hue="15" brightness="0.4" saturation="1" group="red" inverse="ffffff" />
+  <color id="ff6633" r="255" g="102" b="51" hue="15" brightness="0.6" saturation="1" group="red" inverse="000000" />
+  <color id="e9967a" r="233" g="150" b="122" hue="15.13514" brightness="0.6960784" saturation="0.716129" group="red" inverse="000000" isWindows="true" isX11="true" />
+  <color id="ff7f50" r="255" g="127" b="80" hue="16.11428" brightness="0.6568627" saturation="1" group="orange" inverse="000000" isWindows="true" isX11="true" />
+  <color id="ff4500" r="255" g="69" b="0" hue="16.23529" brightness="0.5" saturation="1" group="orange" inverse="000000" isWindows="true" isX11="true" />
+  <color id="ffa07a" r="255" g="160" b="122" hue="17.14286" brightness="0.7392157" saturation="1" group="red" inverse="000000" isWindows="true" isX11="true" />
+  <color id="a0522d" r="160" g="82" b="45" hue="19.30435" brightness="0.4019608" saturation="0.5609757" group="brown" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="993300" r="153" g="51" b="0" hue="20" brightness="0.3" saturation="1" group="orange" inverse="ffffff" />
+  <color id="cc6633" r="204" g="102" b="51" hue="20" brightness="0.5" saturation="0.6" group="orange" inverse="000000" />
+  <color id="ff9966" r="255" g="153" b="102" hue="20" brightness="0.7" saturation="1" group="orange" inverse="000000" />
+  <color id="ff6600" r="255" g="102" b="0" hue="24" brightness="0.5" saturation="1" group="orange" inverse="000000" />
   <color id="fff5ee" r="255" g="245" b="238" hue="24.70588" brightness="0.9666667" saturation="1" group="white" inverse="000a11" isWindows="true" isX11="true" />
-  <color id="8b4513" r="139" g="69" b="19" hue="25" brightness="0.3098039" saturation="0.7594937" group="brown" inverse="74baec" isWindows="true" isX11="true" />
-  <color id="d2691e" r="210" g="105" b="30" hue="25" brightness="0.4705882" saturation="0.75" group="brown" inverse="2d96e1" isWindows="true" isX11="true" />
-  <color id="f4a460" r="244" g="164" b="96" hue="27.56757" brightness="0.6666667" saturation="0.8705881" group="brown" inverse="0b5b9f" isWindows="true" isX11="true" />
+  <color id="8b4513" r="139" g="69" b="19" hue="25" brightness="0.3098039" saturation="0.7594937" group="brown" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="d2691e" r="210" g="105" b="30" hue="25" brightness="0.4705882" saturation="0.75" group="brown" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="f4a460" r="244" g="164" b="96" hue="27.56757" brightness="0.6666667" saturation="0.8705881" group="brown" inverse="000000" isWindows="true" isX11="true" />
   <color id="ffdab9" r="255" g="218" b="185" hue="28.28572" brightness="0.8627451" saturation="1" group="yellow" inverse="002546" isWindows="true" isX11="true" />
-  <color id="cd853f" r="205" g="133" b="63" hue="29.57747" brightness="0.5254902" saturation="0.5867769" group="brown" inverse="327ac0" isWindows="true" isX11="true" />
-  <color id="996633" r="153" g="102" b="51" hue="30" brightness="0.4" saturation="0.5000001" group="orange" inverse="6699cc" />
+  <color id="cd853f" r="205" g="133" b="63" hue="29.57747" brightness="0.5254902" saturation="0.5867769" group="brown" inverse="000000" isWindows="true" isX11="true" />
+  <color id="996633" r="153" g="102" b="51" hue="30" brightness="0.4" saturation="0.5000001" group="orange" inverse="ffffff" />
   <color id="663300" r="102" g="51" b="0" hue="30" brightness="0.2" saturation="1" group="orange" inverse="99ccff" />
-  <color id="cc6600" r="204" g="102" b="0" hue="30" brightness="0.4" saturation="1" group="orange" inverse="3399ff" />
+  <color id="cc6600" r="204" g="102" b="0" hue="30" brightness="0.4" saturation="1" group="orange" inverse="ffffff" />
   <color id="ffcc99" r="255" g="204" b="153" hue="30" brightness="0.8" saturation="1" group="orange" inverse="003366" />
   <color id="faf0e6" r="250" g="240" b="230" hue="30" brightness="0.9411765" saturation="0.666667" group="white" inverse="050f19" isWindows="true" isX11="true" />
   <color id="cc9966" r="204" g="153" b="102" hue="30" brightness="0.6" saturation="0.5" group="orange" inverse="000000" />
-  <color id="ff9933" r="255" g="153" b="51" hue="30" brightness="0.6" saturation="1" group="orange" inverse="0066cc" />
+  <color id="ff9933" r="255" g="153" b="51" hue="30" brightness="0.6" saturation="1" group="orange" inverse="000000" />
   <color id="ffe4c4" r="255" g="228" b="196" hue="32.54237" brightness="0.8843137" saturation="1" group="brown" inverse="001b3b" isWindows="true" isX11="true" />
-  <color id="ff8c00" r="255" g="140" b="0" hue="32.94118" brightness="0.5" saturation="1" group="orange" inverse="0073ff" isWindows="true" isX11="true" />
-  <color id="deb887" r="222" g="184" b="135" hue="33.79311" brightness="0.7" saturation="0.5686275" group="brown" inverse="214778" isWindows="true" isX11="true" />
+  <color id="ff8c00" r="255" g="140" b="0" hue="32.94118" brightness="0.5" saturation="1" group="orange" inverse="000000" isWindows="true" isX11="true" />
+  <color id="deb887" r="222" g="184" b="135" hue="33.79311" brightness="0.7" saturation="0.5686275" group="brown" inverse="000000" isWindows="true" isX11="true" />
   <color id="d2b48c" r="210" g="180" b="140" hue="34.28572" brightness="0.6862745" saturation="0.4375" group="brown" inverse="000000" isWindows="true" isX11="true" />
   <color id="faebd7" r="250" g="235" b="215" hue="34.28572" brightness="0.9117647" saturation="0.777778" group="white" inverse="051428" isWindows="true" isX11="true" />
   <color id="ffdead" r="255" g="222" b="173" hue="35.85366" brightness="0.8392157" saturation="1" group="brown" inverse="002152" isWindows="true" isX11="true" />
-  <color id="ff9900" r="255" g="153" b="0" hue="36" brightness="0.5" saturation="1" group="orange" inverse="0066ff" />
+  <color id="ff9900" r="255" g="153" b="0" hue="36" brightness="0.5" saturation="1" group="orange" inverse="000000" />
   <color id="ffebcd" r="255" g="235" b="205" hue="36" brightness="0.9019608" saturation="1" group="brown" inverse="001432" isWindows="true" isX11="true" />
   <color id="ffefd5" r="255" g="239" b="213" hue="37.14286" brightness="0.9176471" saturation="1" group="yellow" inverse="00102a" isWindows="true" isX11="true" />
   <color id="ffe4b5" r="255" g="228" b="181" hue="38.10811" brightness="0.854902" saturation="1" group="yellow" inverse="001b4a" isWindows="true" isX11="true" />
-  <color id="ffa500" r="255" g="165" b="0" hue="38.82353" brightness="0.5" saturation="1" group="orange" inverse="005aff" isWindows="true" isX11="true" />
+  <color id="ffa500" r="255" g="165" b="0" hue="38.82353" brightness="0.5" saturation="1" group="orange" inverse="000000" isWindows="true" isX11="true" />
   <color id="f5deb3" r="245" g="222" b="179" hue="39.09091" brightness="0.8313726" saturation="0.7674419" group="brown" inverse="0a214c" isWindows="true" isX11="true" />
   <color id="fdf5e6" r="253" g="245" b="230" hue="39.13044" brightness="0.9470588" saturation="0.8518519" group="white" inverse="020a19" isWindows="true" isX11="true" />
-  <color id="996600" r="153" g="102" b="0" hue="40" brightness="0.3" saturation="1" group="orange" inverse="6699ff" />
-  <color id="ffcc66" r="255" g="204" b="102" hue="40" brightness="0.7" saturation="1" group="orange" inverse="003399" />
-  <color id="cc9933" r="204" g="153" b="51" hue="40" brightness="0.5" saturation="0.6" group="orange" inverse="3366cc" />
+  <color id="996600" r="153" g="102" b="0" hue="40" brightness="0.3" saturation="1" group="orange" inverse="ffffff" />
+  <color id="ffcc66" r="255" g="204" b="102" hue="40" brightness="0.7" saturation="1" group="orange" inverse="000000" />
+  <color id="cc9933" r="204" g="153" b="51" hue="40" brightness="0.5" saturation="0.6" group="orange" inverse="000000" />
   <color id="fffaf0" r="255" g="250" b="240" hue="40" brightness="0.9705882" saturation="1" group="white" inverse="00050f" isWindows="true" isX11="true" />
-  <color id="b8860b" r="184" g="134" b="11" hue="42.65896" brightness="0.3823529" saturation="0.8871795" group="brown" inverse="4779f4" isWindows="true" isX11="true" />
-  <color id="daa520" r="218" g="165" b="32" hue="42.90323" brightness="0.4901961" saturation="0.744" group="brown" inverse="255adf" isWindows="true" isX11="true" />
-  <color id="cc9900" r="204" g="153" b="0" hue="45" brightness="0.4" saturation="1" group="orange" inverse="3366ff" />
-  <color id="ffcc33" r="255" g="204" b="51" hue="45" brightness="0.6" saturation="1" group="orange" inverse="0033cc" />
-  <color id="ffcc00" r="255" g="204" b="0" hue="48" brightness="0.5" saturation="1" group="yellow brown" inverse="0033ff" />
+  <color id="b8860b" r="184" g="134" b="11" hue="42.65896" brightness="0.3823529" saturation="0.8871795" group="brown" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="daa520" r="218" g="165" b="32" hue="42.90323" brightness="0.4901961" saturation="0.744" group="brown" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="cc9900" r="204" g="153" b="0" hue="45" brightness="0.4" saturation="1" group="orange" inverse="ffffff" />
+  <color id="ffcc33" r="255" g="204" b="51" hue="45" brightness="0.6" saturation="1" group="orange" inverse="000000" />
+  <color id="ffcc00" r="255" g="204" b="0" hue="48" brightness="0.5" saturation="1" group="yellow brown" inverse="000000" />
   <color id="fff8dc" r="255" g="248" b="220" hue="48" brightness="0.9313725" saturation="1" group="brown" inverse="000723" isWindows="true" isX11="true" />
-  <color id="ffd700" r="255" g="215" b="0" hue="50.58823" brightness="0.5" saturation="1" group="yellow" inverse="0028ff" isWindows="true" isX11="true" />
-  <color id="f0e68c" r="240" g="230" b="140" hue="54" brightness="0.7450981" saturation="0.7692307" group="yellow" inverse="0f1973" isWindows="true" isX11="true" />
+  <color id="ffd700" r="255" g="215" b="0" hue="50.58823" brightness="0.5" saturation="1" group="yellow" inverse="000000" isWindows="true" isX11="true" />
+  <color id="f0e68c" r="240" g="230" b="140" hue="54" brightness="0.7450981" saturation="0.7692307" group="yellow" inverse="000000" isWindows="true" isX11="true" />
   <color id="fffacd" r="255" g="250" b="205" hue="54" brightness="0.9019608" saturation="1" group="yellow" inverse="000532" isWindows="true" isX11="true" />
   <color id="eee8aa" r="238" g="232" b="170" hue="54.70588" brightness="0.8" saturation="0.6666667" group="yellow" inverse="111755" isWindows="true" isX11="true" />
   <color id="bdb76b" r="189" g="183" b="107" hue="55.60976" brightness="0.5803922" saturation="0.3831776" group="yellow" inverse="000000" isWindows="true" isX11="true" />
   <color id="333300" r="51" g="51" b="0" hue="60" brightness="0.1" saturation="1" group="brown" inverse="ccccff" />
   <color id="666600" r="102" g="102" b="0" hue="60" brightness="0.2" saturation="1" group="brown" inverse="9999ff" />
-  <color id="808000" r="128" g="128" b="0" hue="60" brightness="0.2509804" saturation="1" group="green" inverse="7f7fff" isWindows="true" isX11="true" />
+  <color id="808000" r="128" g="128" b="0" hue="60" brightness="0.2509804" saturation="1" group="green" inverse="ffffff" isWindows="true" isX11="true" />
   <color id="666633" r="102" g="102" b="51" hue="60" brightness="0.3" saturation="0.3333333" group="brown" inverse="ffffff" />
-  <color id="999900" r="153" g="153" b="0" hue="60" brightness="0.3" saturation="1" group="brown" inverse="6666ff" />
-  <color id="999933" r="153" g="153" b="51" hue="60" brightness="0.4" saturation="0.5000001" group="brown" inverse="6666cc" />
-  <color id="cccc00" r="204" g="204" b="0" hue="60" brightness="0.4" saturation="1" group="brown" inverse="3333ff" />
+  <color id="999900" r="153" g="153" b="0" hue="60" brightness="0.3" saturation="1" group="brown" inverse="ffffff" />
+  <color id="999933" r="153" g="153" b="51" hue="60" brightness="0.4" saturation="0.5000001" group="brown" inverse="ffffff" />
+  <color id="cccc00" r="204" g="204" b="0" hue="60" brightness="0.4" saturation="1" group="brown" inverse="ffffff" />
   <color id="999966" r="153" g="153" b="102" hue="60" brightness="0.5" saturation="0.2" group="yellow brown" inverse="000000" />
-  <color id="cccc33" r="204" g="204" b="51" hue="60" brightness="0.5" saturation="0.6" group="yellow brown" inverse="3333cc" />
-  <color id="ffff00" r="255" g="255" b="0" hue="60" brightness="0.5" saturation="1" group="yellow" inverse="0000ff" isWindows="true" isX11="true" />
+  <color id="cccc33" r="204" g="204" b="51" hue="60" brightness="0.5" saturation="0.6" group="yellow brown" inverse="000000" />
+  <color id="ffff00" r="255" g="255" b="0" hue="60" brightness="0.5" saturation="1" group="yellow" inverse="000000" isWindows="true" isX11="true" />
   <color id="cccc66" r="204" g="204" b="102" hue="60" brightness="0.6" saturation="0.5" group="yellow brown" inverse="000000" />
-  <color id="ffff33" r="255" g="255" b="51" hue="60" brightness="0.6" saturation="1" group="yellow brown" inverse="0000cc" />
-  <color id="ffff66" r="255" g="255" b="102" hue="60" brightness="0.7" saturation="1" group="yellow brown" inverse="000099" />
+  <color id="ffff33" r="255" g="255" b="51" hue="60" brightness="0.6" saturation="1" group="yellow brown" inverse="000000" />
+  <color id="ffff66" r="255" g="255" b="102" hue="60" brightness="0.7" saturation="1" group="yellow brown" inverse="000000" />
   <color id="cccc99" r="204" g="204" b="153" hue="60" brightness="0.7" saturation="0.3333333" group="yellow brown" inverse="000000" />
   <color id="ffff99" r="255" g="255" b="153" hue="60" brightness="0.8" saturation="1" group="yellow brown" inverse="000066" />
   <color id="ffffcc" r="255" g="255" b="204" hue="60" brightness="0.9" saturation="1" group="yellow brown" inverse="000033" />
@@ -124,239 +124,239 @@
   <color id="f5f5dc" r="245" g="245" b="220" hue="60" brightness="0.9117647" saturation="0.5555556" group="white" inverse="0a0a23" isWindows="true" isX11="true" />
   <color id="ffffe0" r="255" g="255" b="224" hue="60" brightness="0.9392157" saturation="1" group="yellow" inverse="00001f" isWindows="true" isX11="true" />
   <color id="fffff0" r="255" g="255" b="240" hue="60" brightness="0.9705882" saturation="1" group="white" inverse="00000f" isWindows="true" isX11="true" />
-  <color id="ccff00" r="204" g="255" b="0" hue="72" brightness="0.5" saturation="1" group="yellow brown" inverse="3300ff" />
-  <color id="99cc00" r="153" g="204" b="0" hue="75" brightness="0.4" saturation="1" group="brown" inverse="6633ff" />
-  <color id="ccff33" r="204" g="255" b="51" hue="75" brightness="0.6" saturation="1" group="yellow brown" inverse="3300cc" />
-  <color id="6b8e23" r="107" g="142" b="35" hue="79.62617" brightness="0.3470588" saturation="0.6045198" group="green" inverse="9471dc" isWindows="true" isX11="true" />
-  <color id="9acd32" r="154" g="205" b="50" hue="79.74193" brightness="0.5" saturation="0.6078432" group="green" inverse="6532cd" isWindows="true" isX11="true" />
-  <color id="99cc33" r="153" g="204" b="51" hue="79.99999" brightness="0.5" saturation="0.6" group="yellow brown" inverse="6633cc" />
-  <color id="669900" r="102" g="153" b="0" hue="80" brightness="0.3" saturation="1" group="brown" inverse="9966ff" />
-  <color id="ccff66" r="204" g="255" b="102" hue="80" brightness="0.7" saturation="1" group="yellow brown" inverse="330099" />
+  <color id="ccff00" r="204" g="255" b="0" hue="72" brightness="0.5" saturation="1" group="yellow brown" inverse="000000" />
+  <color id="99cc00" r="153" g="204" b="0" hue="75" brightness="0.4" saturation="1" group="brown" inverse="ffffff" />
+  <color id="ccff33" r="204" g="255" b="51" hue="75" brightness="0.6" saturation="1" group="yellow brown" inverse="000000" />
+  <color id="6b8e23" r="107" g="142" b="35" hue="79.62617" brightness="0.3470588" saturation="0.6045198" group="green" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="9acd32" r="154" g="205" b="50" hue="79.74193" brightness="0.5" saturation="0.6078432" group="green" inverse="000000" isWindows="true" isX11="true" />
+  <color id="99cc33" r="153" g="204" b="51" hue="79.99999" brightness="0.5" saturation="0.6" group="yellow brown" inverse="000000" />
+  <color id="669900" r="102" g="153" b="0" hue="80" brightness="0.3" saturation="1" group="brown" inverse="ffffff" />
+  <color id="ccff66" r="204" g="255" b="102" hue="80" brightness="0.7" saturation="1" group="yellow brown" inverse="000000" />
   <color id="556b2f" r="85" g="107" b="47" hue="81.99999" brightness="0.3019608" saturation="0.3896104" group="green" inverse="ffffff" isWindows="true" isX11="true" />
-  <color id="adff2f" r="173" g="255" b="47" hue="83.65385" brightness="0.5921569" saturation="1" group="green" inverse="5200d0" isWindows="true" isX11="true" />
-  <color id="99ff00" r="153" g="255" b="0" hue="84" brightness="0.5" saturation="1" group="yellow brown" inverse="6600ff" />
+  <color id="adff2f" r="173" g="255" b="47" hue="83.65385" brightness="0.5921569" saturation="1" group="green" inverse="000000" isWindows="true" isX11="true" />
+  <color id="99ff00" r="153" g="255" b="0" hue="84" brightness="0.5" saturation="1" group="yellow brown" inverse="000000" />
   <color id="336600" r="51" g="102" b="0" hue="90" brightness="0.2" saturation="1" group="green" inverse="cc99ff" />
-  <color id="669933" r="102" g="153" b="51" hue="90" brightness="0.4" saturation="0.5000001" group="green" inverse="9966cc" />
-  <color id="66cc00" r="102" g="204" b="0" hue="90" brightness="0.4" saturation="1" group="green" inverse="9933ff" />
+  <color id="669933" r="102" g="153" b="51" hue="90" brightness="0.4" saturation="0.5000001" group="green" inverse="ffffff" />
+  <color id="66cc00" r="102" g="204" b="0" hue="90" brightness="0.4" saturation="1" group="green" inverse="ffffff" />
   <color id="99cc66" r="153" g="204" b="102" hue="90" brightness="0.6" saturation="0.5" group="green" inverse="000000" />
-  <color id="99ff33" r="153" g="255" b="51" hue="90" brightness="0.6" saturation="1" group="green" inverse="6600cc" />
+  <color id="99ff33" r="153" g="255" b="51" hue="90" brightness="0.6" saturation="1" group="green" inverse="000000" />
   <color id="ccff99" r="204" g="255" b="153" hue="90" brightness="0.8" saturation="1" group="green" inverse="330066" />
-  <color id="7fff00" r="127" g="255" b="0" hue="90.11765" brightness="0.5" saturation="1" group="green" inverse="8000ff" isWindows="true" isX11="true" />
-  <color id="7cfc00" r="124" g="252" b="0" hue="90.47619" brightness="0.4941176" saturation="1" group="green" inverse="8303ff" isWindows="true" isX11="true" />
-  <color id="66ff00" r="102" g="255" b="0" hue="96" brightness="0.5" saturation="1" group="green" inverse="9900ff" />
-  <color id="99ff66" r="153" g="255" b="102" hue="100" brightness="0.7" saturation="1" group="green" inverse="660099" />
-  <color id="339900" r="51" g="153" b="0" hue="100" brightness="0.3" saturation="1" group="green" inverse="cc66ff" />
-  <color id="66cc33" r="102" g="204" b="51" hue="100" brightness="0.5" saturation="0.6" group="green" inverse="9933cc" />
-  <color id="33cc00" r="51" g="204" b="0" hue="105" brightness="0.4" saturation="1" group="green" inverse="cc33ff" />
-  <color id="66ff33" r="102" g="255" b="51" hue="105" brightness="0.6" saturation="1" group="green" inverse="9900cc" />
-  <color id="33ff00" r="51" g="255" b="0" hue="108" brightness="0.5" saturation="1" group="green" inverse="cc00ff" />
+  <color id="7fff00" r="127" g="255" b="0" hue="90.11765" brightness="0.5" saturation="1" group="green" inverse="000000" isWindows="true" isX11="true" />
+  <color id="7cfc00" r="124" g="252" b="0" hue="90.47619" brightness="0.4941176" saturation="1" group="green" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="66ff00" r="102" g="255" b="0" hue="96" brightness="0.5" saturation="1" group="green" inverse="000000" />
+  <color id="99ff66" r="153" g="255" b="102" hue="100" brightness="0.7" saturation="1" group="green" inverse="000000" />
+  <color id="339900" r="51" g="153" b="0" hue="100" brightness="0.3" saturation="1" group="green" inverse="ffffff" />
+  <color id="66cc33" r="102" g="204" b="51" hue="100" brightness="0.5" saturation="0.6" group="green" inverse="000000" />
+  <color id="33cc00" r="51" g="204" b="0" hue="105" brightness="0.4" saturation="1" group="green" inverse="ffffff" />
+  <color id="66ff33" r="102" g="255" b="51" hue="105" brightness="0.6" saturation="1" group="green" inverse="000000" />
+  <color id="33ff00" r="51" g="255" b="0" hue="108" brightness="0.5" saturation="1" group="green" inverse="000000" />
   <color id="8fbc8b" r="143" g="188" b="139" hue="115.102" brightness="0.6411765" saturation="0.2677595" group="green" inverse="000000" isWindows="true" />
   <color id="003300" r="0" g="51" b="0" hue="120" brightness="0.1" saturation="1" group="green" inverse="ffccff" />
   <color id="006400" r="0" g="100" b="0" hue="120" brightness="0.1960784" saturation="1" group="green" inverse="ff9bff" isWindows="true" isX11="true" />
   <color id="006600" r="0" g="102" b="0" hue="120" brightness="0.2" saturation="1" group="green" inverse="ff99ff" />
-  <color id="008000" r="0" g="128" b="0" hue="120" brightness="0.2509804" saturation="1" group="green" inverse="ff7fff" isWindows="true" isX11="true" />
+  <color id="008000" r="0" g="128" b="0" hue="120" brightness="0.2509804" saturation="1" group="green" inverse="ffffff" isWindows="true" isX11="true" />
   <color id="336633" r="51" g="102" b="51" hue="120" brightness="0.3" saturation="0.3333333" group="green" inverse="ffffff" />
-  <color id="009900" r="0" g="153" b="0" hue="120" brightness="0.3" saturation="1" group="green" inverse="ff66ff" />
-  <color id="228b22" r="34" g="139" b="34" hue="120" brightness="0.3392157" saturation="0.6069365" group="green" inverse="dd74dd" isWindows="true" isX11="true" />
-  <color id="339933" r="51" g="153" b="51" hue="120" brightness="0.4" saturation="0.5000001" group="green" inverse="cc66cc" />
-  <color id="00cc00" r="0" g="204" b="0" hue="120" brightness="0.4" saturation="1" group="green" inverse="ff33ff" />
+  <color id="009900" r="0" g="153" b="0" hue="120" brightness="0.3" saturation="1" group="green" inverse="ffffff" />
+  <color id="228b22" r="34" g="139" b="34" hue="120" brightness="0.3392157" saturation="0.6069365" group="green" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="339933" r="51" g="153" b="51" hue="120" brightness="0.4" saturation="0.5000001" group="green" inverse="ffffff" />
+  <color id="00cc00" r="0" g="204" b="0" hue="120" brightness="0.4" saturation="1" group="green" inverse="ffffff" />
   <color id="669966" r="102" g="153" b="102" hue="120" brightness="0.5" saturation="0.2" group="green" inverse="000000" />
-  <color id="33cc33" r="51" g="204" b="51" hue="120" brightness="0.5" saturation="0.6" group="green" inverse="cc33cc" />
-  <color id="32cd32" r="50" g="205" b="50" hue="120" brightness="0.5" saturation="0.6078432" group="green" inverse="cd32cd" isWindows="true" isX11="true" />
-  <color id="00ff00" r="0" g="255" b="0" hue="120" brightness="0.5" saturation="1" group="green" inverse="ff00ff" isWindows="true" isX11="true" />
+  <color id="33cc33" r="51" g="204" b="51" hue="120" brightness="0.5" saturation="0.6" group="green" inverse="000000" />
+  <color id="32cd32" r="50" g="205" b="50" hue="120" brightness="0.5" saturation="0.6078432" group="green" inverse="000000" isWindows="true" isX11="true" />
+  <color id="00ff00" r="0" g="255" b="0" hue="120" brightness="0.5" saturation="1" group="green" inverse="000000" isWindows="true" isX11="true" />
   <color id="66cc66" r="102" g="204" b="102" hue="120" brightness="0.6" saturation="0.5" group="green" inverse="000000" />
-  <color id="33ff33" r="51" g="255" b="51" hue="120" brightness="0.6" saturation="1" group="green" inverse="cc00cc" />
+  <color id="33ff33" r="51" g="255" b="51" hue="120" brightness="0.6" saturation="1" group="green" inverse="000000" />
   <color id="8fbc8f" r="143" g="188" b="143" hue="120" brightness="0.6490196" saturation="0.2513966" group="green" inverse="000000" isX11="true" />
-  <color id="66ff66" r="102" g="255" b="102" hue="120" brightness="0.7" saturation="1" group="green" inverse="990099" />
+  <color id="66ff66" r="102" g="255" b="102" hue="120" brightness="0.7" saturation="1" group="green" inverse="000000" />
   <color id="99cc99" r="153" g="204" b="153" hue="120" brightness="0.7" saturation="0.3333333" group="green" inverse="000000" />
-  <color id="90ee90" r="144" g="238" b="144" hue="120" brightness="0.7490196" saturation="0.7343751" group="green" inverse="6f116f" isWindows="true" isX11="true" />
+  <color id="90ee90" r="144" g="238" b="144" hue="120" brightness="0.7490196" saturation="0.7343751" group="green" inverse="000000" isWindows="true" isX11="true" />
   <color id="98fb98" r="152" g="251" b="152" hue="120" brightness="0.7901961" saturation="0.9252337" group="green" inverse="670467" isWindows="true" isX11="true" />
   <color id="99ff99" r="153" g="255" b="153" hue="120" brightness="0.8" saturation="1" group="green" inverse="660066" />
   <color id="ccffcc" r="204" g="255" b="204" hue="120" brightness="0.9" saturation="1" group="green" inverse="330033" />
   <color id="f0fff0" r="240" g="255" b="240" hue="120" brightness="0.9705882" saturation="1" group="white" inverse="0f000f" isWindows="true" isX11="true" />
-  <color id="00ff33" r="0" g="255" b="51" hue="132" brightness="0.5" saturation="1" group="green" inverse="ff00cc" />
-  <color id="00cc33" r="0" g="204" b="51" hue="135" brightness="0.4" saturation="1" group="green" inverse="ff33cc" />
-  <color id="33ff66" r="51" g="255" b="102" hue="135" brightness="0.6" saturation="1" group="green" inverse="cc0099" />
-  <color id="009933" r="0" g="153" b="51" hue="140" brightness="0.3" saturation="1" group="green" inverse="ff66cc" />
-  <color id="33cc66" r="51" g="204" b="102" hue="140" brightness="0.5" saturation="0.6" group="green" inverse="cc3399" />
-  <color id="66ff99" r="102" g="255" b="153" hue="140" brightness="0.7" saturation="1" group="green" inverse="990066" />
-  <color id="00ff66" r="0" g="255" b="102" hue="144" brightness="0.5" saturation="1" group="green" inverse="ff0099" />
-  <color id="2e8b57" r="46" g="139" b="87" hue="146.4516" brightness="0.3627451" saturation="0.5027028" group="green" inverse="d174a8" isWindows="true" isX11="true" />
+  <color id="00ff33" r="0" g="255" b="51" hue="132" brightness="0.5" saturation="1" group="green" inverse="000000" />
+  <color id="00cc33" r="0" g="204" b="51" hue="135" brightness="0.4" saturation="1" group="green" inverse="ffffff" />
+  <color id="33ff66" r="51" g="255" b="102" hue="135" brightness="0.6" saturation="1" group="green" inverse="000000" />
+  <color id="009933" r="0" g="153" b="51" hue="140" brightness="0.3" saturation="1" group="green" inverse="ffffff" />
+  <color id="33cc66" r="51" g="204" b="102" hue="140" brightness="0.5" saturation="0.6" group="green" inverse="000000" />
+  <color id="66ff99" r="102" g="255" b="153" hue="140" brightness="0.7" saturation="1" group="green" inverse="000000" />
+  <color id="00ff66" r="0" g="255" b="102" hue="144" brightness="0.5" saturation="1" group="green" inverse="000000" />
+  <color id="2e8b57" r="46" g="139" b="87" hue="146.4516" brightness="0.3627451" saturation="0.5027028" group="green" inverse="ffffff" isWindows="true" isX11="true" />
   <color id="3cb371" r="60" g="179" b="113" hue="146.7227" brightness="0.4686275" saturation="0.497908" group="green" inverse="ffffff" isWindows="true" isX11="true" />
-  <color id="00ff7f" r="0" g="255" b="127" hue="149.8824" brightness="0.5" saturation="1" group="green" inverse="ff0080" isWindows="true" isX11="true" />
+  <color id="00ff7f" r="0" g="255" b="127" hue="149.8824" brightness="0.5" saturation="1" group="green" inverse="000000" isWindows="true" isX11="true" />
   <color id="006633" r="0" g="102" b="51" hue="150" brightness="0.2" saturation="1" group="cyan" inverse="ff99cc" />
-  <color id="339966" r="51" g="153" b="102" hue="150" brightness="0.4" saturation="0.5000001" group="cyan" inverse="cc6699" />
-  <color id="00cc66" r="0" g="204" b="102" hue="150" brightness="0.4" saturation="1" group="cyan" inverse="ff3399" />
+  <color id="339966" r="51" g="153" b="102" hue="150" brightness="0.4" saturation="0.5000001" group="cyan" inverse="ffffff" />
+  <color id="00cc66" r="0" g="204" b="102" hue="150" brightness="0.4" saturation="1" group="cyan" inverse="ffffff" />
   <color id="66cc99" r="102" g="204" b="153" hue="150" brightness="0.6" saturation="0.5" group="cyan" inverse="000000" />
-  <color id="33ff99" r="51" g="255" b="153" hue="150" brightness="0.6" saturation="1" group="cyan" inverse="cc0066" />
+  <color id="33ff99" r="51" g="255" b="153" hue="150" brightness="0.6" saturation="1" group="cyan" inverse="000000" />
   <color id="99ffcc" r="153" g="255" b="204" hue="150" brightness="0.8" saturation="1" group="cyan" inverse="660033" />
   <color id="f5fffa" r="245" g="255" b="250" hue="150" brightness="0.9803922" saturation="1" group="white" inverse="0a0005" isWindows="true" isX11="true" />
-  <color id="00ff99" r="0" g="255" b="153" hue="156" brightness="0.5" saturation="1" group="cyan" inverse="ff0066" />
-  <color id="00fa9a" r="0" g="250" b="154" hue="156.96" brightness="0.4901961" saturation="1" group="green" inverse="ff0565" isWindows="true" isX11="true" />
-  <color id="66cdaa" r="102" g="205" b="170" hue="159.6116" brightness="0.6019608" saturation="0.5073892" group="green" inverse="993255" isWindows="true" isX11="true" />
-  <color id="7fffd4" r="127" g="255" b="212" hue="159.8438" brightness="0.7490196" saturation="1" group="cyan" inverse="80002b" isWindows="true" isX11="true" />
-  <color id="009966" r="0" g="153" b="102" hue="160" brightness="0.3" saturation="1" group="cyan" inverse="ff6699" />
-  <color id="66ffcc" r="102" g="255" b="204" hue="160" brightness="0.7" saturation="1" group="cyan" inverse="990033" />
-  <color id="33cc99" r="51" g="204" b="153" hue="160" brightness="0.5" saturation="0.6" group="cyan" inverse="cc3366" />
-  <color id="00cc99" r="0" g="204" b="153" hue="165" brightness="0.4" saturation="1" group="cyan" inverse="ff3366" />
-  <color id="33ffcc" r="51" g="255" b="204" hue="165" brightness="0.6" saturation="1" group="cyan" inverse="cc0033" />
-  <color id="00ffcc" r="0" g="255" b="204" hue="168" brightness="0.5" saturation="1" group="cyan" inverse="ff0033" />
-  <color id="40e0d0" r="64" g="224" b="208" hue="174" brightness="0.5647059" saturation="0.7207206" group="cyan" inverse="bf1f2f" isWindows="true" isX11="true" />
-  <color id="20b2aa" r="32" g="178" b="170" hue="176.7123" brightness="0.4117647" saturation="0.6952381" group="cyan" inverse="df4d55" isWindows="true" isX11="true" />
-  <color id="48d1cc" r="72" g="209" b="204" hue="177.8102" brightness="0.5509804" saturation="0.5982533" group="cyan" inverse="b72e33" isWindows="true" isX11="true" />
+  <color id="00ff99" r="0" g="255" b="153" hue="156" brightness="0.5" saturation="1" group="cyan" inverse="000000" />
+  <color id="00fa9a" r="0" g="250" b="154" hue="156.96" brightness="0.4901961" saturation="1" group="green" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="66cdaa" r="102" g="205" b="170" hue="159.6116" brightness="0.6019608" saturation="0.5073892" group="green" inverse="000000" isWindows="true" isX11="true" />
+  <color id="7fffd4" r="127" g="255" b="212" hue="159.8438" brightness="0.7490196" saturation="1" group="cyan" inverse="000000" isWindows="true" isX11="true" />
+  <color id="009966" r="0" g="153" b="102" hue="160" brightness="0.3" saturation="1" group="cyan" inverse="ffffff" />
+  <color id="66ffcc" r="102" g="255" b="204" hue="160" brightness="0.7" saturation="1" group="cyan" inverse="000000" />
+  <color id="33cc99" r="51" g="204" b="153" hue="160" brightness="0.5" saturation="0.6" group="cyan" inverse="000000" />
+  <color id="00cc99" r="0" g="204" b="153" hue="165" brightness="0.4" saturation="1" group="cyan" inverse="ffffff" />
+  <color id="33ffcc" r="51" g="255" b="204" hue="165" brightness="0.6" saturation="1" group="cyan" inverse="000000" />
+  <color id="00ffcc" r="0" g="255" b="204" hue="168" brightness="0.5" saturation="1" group="cyan" inverse="000000" />
+  <color id="40e0d0" r="64" g="224" b="208" hue="174" brightness="0.5647059" saturation="0.7207206" group="cyan" inverse="000000" isWindows="true" isX11="true" />
+  <color id="20b2aa" r="32" g="178" b="170" hue="176.7123" brightness="0.4117647" saturation="0.6952381" group="cyan" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="48d1cc" r="72" g="209" b="204" hue="177.8102" brightness="0.5509804" saturation="0.5982533" group="cyan" inverse="000000" isWindows="true" isX11="true" />
   <color id="003333" r="0" g="51" b="51" hue="180" brightness="0.1" saturation="1" group="cyan" inverse="ffcccc" />
   <color id="006666" r="0" g="102" b="102" hue="180" brightness="0.2" saturation="1" group="cyan" inverse="ff9999" />
   <color id="2f4f4f" r="47" g="79" b="79" hue="180" brightness="0.2470588" saturation="0.2539682" group="gray" inverse="ffffff" isWindows="true" isX11="true" />
-  <color id="008080" r="0" g="128" b="128" hue="180" brightness="0.2509804" saturation="1" group="cyan" inverse="ff7f7f" isWindows="true" isX11="true" />
-  <color id="008b8b" r="0" g="139" b="139" hue="180" brightness="0.272549" saturation="1" group="cyan" inverse="ff7474" isWindows="true" isX11="true" />
+  <color id="008080" r="0" g="128" b="128" hue="180" brightness="0.2509804" saturation="1" group="cyan" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="008b8b" r="0" g="139" b="139" hue="180" brightness="0.272549" saturation="1" group="cyan" inverse="ffffff" isWindows="true" isX11="true" />
   <color id="336666" r="51" g="102" b="102" hue="180" brightness="0.3" saturation="0.3333333" group="cyan" inverse="ffffff" />
-  <color id="009999" r="0" g="153" b="153" hue="180" brightness="0.3" saturation="1" group="cyan" inverse="ff6666" />
-  <color id="339999" r="51" g="153" b="153" hue="180" brightness="0.4" saturation="0.5000001" group="cyan" inverse="cc6666" />
-  <color id="00cccc" r="0" g="204" b="204" hue="180" brightness="0.4" saturation="1" group="cyan" inverse="ff3333" />
+  <color id="009999" r="0" g="153" b="153" hue="180" brightness="0.3" saturation="1" group="cyan" inverse="ffffff" />
+  <color id="339999" r="51" g="153" b="153" hue="180" brightness="0.4" saturation="0.5000001" group="cyan" inverse="ffffff" />
+  <color id="00cccc" r="0" g="204" b="204" hue="180" brightness="0.4" saturation="1" group="cyan" inverse="ffffff" />
   <color id="669999" r="102" g="153" b="153" hue="180" brightness="0.5" saturation="0.2" group="cyan" inverse="000000" />
-  <color id="33cccc" r="51" g="204" b="204" hue="180" brightness="0.5" saturation="0.6" group="cyan" inverse="cc3333" />
-  <color id="00ffff" r="0" g="255" b="255" hue="180" brightness="0.5" saturation="1" group="cyan" inverse="ff0000" isWindows="true" isX11="true" />
+  <color id="33cccc" r="51" g="204" b="204" hue="180" brightness="0.5" saturation="0.6" group="cyan" inverse="000000" />
+  <color id="00ffff" r="0" g="255" b="255" hue="180" brightness="0.5" saturation="1" group="cyan" inverse="000000" isWindows="true" isX11="true" />
   <color id="66cccc" r="102" g="204" b="204" hue="180" brightness="0.6" saturation="0.5" group="cyan" inverse="000000" />
-  <color id="33ffff" r="51" g="255" b="255" hue="180" brightness="0.6" saturation="1" group="cyan" inverse="cc0000" />
-  <color id="66ffff" r="102" g="255" b="255" hue="180" brightness="0.7" saturation="1" group="cyan" inverse="990000" />
+  <color id="33ffff" r="51" g="255" b="255" hue="180" brightness="0.6" saturation="1" group="cyan" inverse="000000" />
+  <color id="66ffff" r="102" g="255" b="255" hue="180" brightness="0.7" saturation="1" group="cyan" inverse="000000" />
   <color id="99cccc" r="153" g="204" b="204" hue="180" brightness="0.7" saturation="0.3333333" group="cyan" inverse="000000" />
   <color id="99ffff" r="153" g="255" b="255" hue="180" brightness="0.8" saturation="1" group="cyan" inverse="660000" />
   <color id="afeeee" r="175" g="238" b="238" hue="180" brightness="0.809804" saturation="0.6494846" group="cyan" inverse="501111" isWindows="true" isX11="true" />
   <color id="ccffff" r="204" g="255" b="255" hue="180" brightness="0.9" saturation="1" group="cyan" inverse="330000" />
   <color id="e0ffff" r="224" g="255" b="255" hue="180" brightness="0.9392157" saturation="1" group="cyan" inverse="1f0000" isWindows="true" isX11="true" />
   <color id="f0ffff" r="240" g="255" b="255" hue="180" brightness="0.9705882" saturation="1" group="white" inverse="0f0000" isWindows="true" isX11="true" />
-  <color id="00ced1" r="0" g="206" b="209" hue="180.8612" brightness="0.4098039" saturation="1" group="cyan" inverse="ff312e" isWindows="true" isX11="true" />
+  <color id="00ced1" r="0" g="206" b="209" hue="180.8612" brightness="0.4098039" saturation="1" group="cyan" inverse="ffffff" isWindows="true" isX11="true" />
   <color id="5f9ea0" r="95" g="158" b="160" hue="181.8462" brightness="0.5" saturation="0.254902" group="cyan" inverse="000000" isWindows="true" isX11="true" />
   <color id="b0e0e6" r="176" g="224" b="230" hue="186.6667" brightness="0.7960784" saturation="0.5192308" group="blue" inverse="4f1f19" isWindows="true" isX11="true" />
-  <color id="00ccff" r="0" g="204" b="255" hue="192" brightness="0.5" saturation="1" group="cyan" inverse="ff3300" />
+  <color id="00ccff" r="0" g="204" b="255" hue="192" brightness="0.5" saturation="1" group="cyan" inverse="000000" />
   <color id="add8e6" r="173" g="216" b="230" hue="194.7368" brightness="0.7901961" saturation="0.5327104" group="blue" inverse="522719" isWindows="true" isX11="true" />
-  <color id="0099cc" r="0" g="153" b="204" hue="195" brightness="0.4" saturation="1" group="cyan" inverse="ff6633" />
-  <color id="33ccff" r="51" g="204" b="255" hue="195" brightness="0.6" saturation="1" group="cyan" inverse="cc3300" />
-  <color id="00bfff" r="0" g="191" b="255" hue="195.0588" brightness="0.5" saturation="1" group="blue" inverse="ff4000" isWindows="true" isX11="true" />
-  <color id="87ceeb" r="135" g="206" b="235" hue="197.4" brightness="0.7254902" saturation="0.7142857" group="blue" inverse="783114" isWindows="true" isX11="true" />
-  <color id="3399cc" r="51" g="153" b="204" hue="200" brightness="0.5" saturation="0.6" group="cyan" inverse="cc6633" />
-  <color id="006699" r="0" g="102" b="153" hue="200" brightness="0.3" saturation="1" group="cyan" inverse="ff9966" />
-  <color id="66ccff" r="102" g="204" b="255" hue="200" brightness="0.7" saturation="1" group="cyan" inverse="993300" />
+  <color id="0099cc" r="0" g="153" b="204" hue="195" brightness="0.4" saturation="1" group="cyan" inverse="ffffff" />
+  <color id="33ccff" r="51" g="204" b="255" hue="195" brightness="0.6" saturation="1" group="cyan" inverse="000000" />
+  <color id="00bfff" r="0" g="191" b="255" hue="195.0588" brightness="0.5" saturation="1" group="blue" inverse="000000" isWindows="true" isX11="true" />
+  <color id="87ceeb" r="135" g="206" b="235" hue="197.4" brightness="0.7254902" saturation="0.7142857" group="blue" inverse="000000" isWindows="true" isX11="true" />
+  <color id="3399cc" r="51" g="153" b="204" hue="200" brightness="0.5" saturation="0.6" group="cyan" inverse="000000" />
+  <color id="006699" r="0" g="102" b="153" hue="200" brightness="0.3" saturation="1" group="cyan" inverse="ffffff" />
+  <color id="66ccff" r="102" g="204" b="255" hue="200" brightness="0.7" saturation="1" group="cyan" inverse="000000" />
   <color id="87cefa" r="135" g="206" b="250" hue="202.9565" brightness="0.754902" saturation="0.9200001" group="blue" inverse="783105" isWindows="true" isX11="true" />
-  <color id="0099ff" r="0" g="153" b="255" hue="204" brightness="0.5" saturation="1" group="cyan" inverse="ff6600" />
+  <color id="0099ff" r="0" g="153" b="255" hue="204" brightness="0.5" saturation="1" group="cyan" inverse="000000" />
   <color id="4682b4" r="70" g="130" b="180" hue="207.2727" brightness="0.4901961" saturation="0.44" group="blue" inverse="ffffff" isWindows="true" isX11="true" />
   <color id="f0f8ff" r="240" g="248" b="255" hue="208" brightness="0.9705882" saturation="1" group="white" inverse="0f0700" isWindows="true" isX11="true" />
-  <color id="1e90ff" r="30" g="144" b="255" hue="209.6" brightness="0.5588235" saturation="1" group="blue" inverse="e16f00" isWindows="true" isX11="true" />
+  <color id="1e90ff" r="30" g="144" b="255" hue="209.6" brightness="0.5588235" saturation="1" group="blue" inverse="000000" isWindows="true" isX11="true" />
   <color id="003366" r="0" g="51" b="102" hue="210" brightness="0.2" saturation="1" group="blue" inverse="ffcc99" />
-  <color id="336699" r="51" g="102" b="153" hue="210" brightness="0.4" saturation="0.5000001" group="blue" inverse="cc9966" />
-  <color id="0066cc" r="0" g="102" b="204" hue="210" brightness="0.4" saturation="1" group="blue" inverse="ff9933" />
+  <color id="336699" r="51" g="102" b="153" hue="210" brightness="0.4" saturation="0.5000001" group="blue" inverse="ffffff" />
+  <color id="0066cc" r="0" g="102" b="204" hue="210" brightness="0.4" saturation="1" group="blue" inverse="ffffff" />
   <color id="708090" r="112" g="128" b="144" hue="210" brightness="0.5019608" saturation="0.1259843" group="gray" inverse="000000" isWindows="true" isX11="true" />
   <color id="778899" r="119" g="136" b="153" hue="210" brightness="0.5333334" saturation="0.1428572" group="gray" inverse="000000" isWindows="true" isX11="true" />
   <color id="6699cc" r="102" g="153" b="204" hue="210" brightness="0.6" saturation="0.5" group="blue" inverse="000000" />
-  <color id="3399ff" r="51" g="153" b="255" hue="210" brightness="0.6" saturation="1" group="blue" inverse="cc6600" />
+  <color id="3399ff" r="51" g="153" b="255" hue="210" brightness="0.6" saturation="1" group="blue" inverse="000000" />
   <color id="99ccff" r="153" g="204" b="255" hue="210" brightness="0.8" saturation="1" group="blue" inverse="663300" />
   <color id="b0c4de" r="176" g="196" b="222" hue="213.9131" brightness="0.7803922" saturation="0.4107143" group="blue" inverse="000000" isWindows="true" isX11="true" />
-  <color id="0066ff" r="0" g="102" b="255" hue="216" brightness="0.5" saturation="1" group="blue" inverse="ff9900" />
-  <color id="6495ed" r="100" g="149" b="237" hue="218.5401" brightness="0.6607843" saturation="0.7919075" group="blue" inverse="9b6a12" isWindows="true" isX11="true" />
-  <color id="003399" r="0" g="51" b="153" hue="220" brightness="0.3" saturation="1" group="blue" inverse="ffcc66" />
-  <color id="3366cc" r="51" g="102" b="204" hue="220" brightness="0.5" saturation="0.6" group="blue" inverse="cc9933" />
-  <color id="6699ff" r="102" g="153" b="255" hue="220" brightness="0.7" saturation="1" group="blue" inverse="996600" />
-  <color id="0033cc" r="0" g="51" b="204" hue="225" brightness="0.4" saturation="1" group="blue" inverse="ffcc33" />
-  <color id="4169e1" r="65" g="105" b="225" hue="225" brightness="0.5686275" saturation="0.7272727" group="blue" inverse="be961e" isWindows="true" isX11="true" />
-  <color id="3366ff" r="51" g="102" b="255" hue="225" brightness="0.6" saturation="1" group="blue" inverse="cc9900" />
-  <color id="0033ff" r="0" g="51" b="255" hue="228" brightness="0.5" saturation="1" group="blue" inverse="ffcc00" />
+  <color id="0066ff" r="0" g="102" b="255" hue="216" brightness="0.5" saturation="1" group="blue" inverse="000000" />
+  <color id="6495ed" r="100" g="149" b="237" hue="218.5401" brightness="0.6607843" saturation="0.7919075" group="blue" inverse="000000" isWindows="true" isX11="true" />
+  <color id="003399" r="0" g="51" b="153" hue="220" brightness="0.3" saturation="1" group="blue" inverse="ffffff" />
+  <color id="3366cc" r="51" g="102" b="204" hue="220" brightness="0.5" saturation="0.6" group="blue" inverse="000000" />
+  <color id="6699ff" r="102" g="153" b="255" hue="220" brightness="0.7" saturation="1" group="blue" inverse="000000" />
+  <color id="0033cc" r="0" g="51" b="204" hue="225" brightness="0.4" saturation="1" group="blue" inverse="ffffff" />
+  <color id="4169e1" r="65" g="105" b="225" hue="225" brightness="0.5686275" saturation="0.7272727" group="blue" inverse="000000" isWindows="true" isX11="true" />
+  <color id="3366ff" r="51" g="102" b="255" hue="225" brightness="0.6" saturation="1" group="blue" inverse="000000" />
+  <color id="0033ff" r="0" g="51" b="255" hue="228" brightness="0.5" saturation="1" group="blue" inverse="000000" />
   <color id="000033" r="0" g="0" b="51" hue="240" brightness="0.1" saturation="1" group="blue" inverse="ffffcc" />
   <color id="000066" r="0" g="0" b="102" hue="240" brightness="0.2" saturation="1" group="blue" inverse="ffff99" />
-  <color id="000080" r="0" g="0" b="128" hue="240" brightness="0.2509804" saturation="1" group="blue" inverse="ffff7f" isWindows="true" isX11="true" />
-  <color id="191970" r="25" g="25" b="112" hue="240" brightness="0.2686275" saturation="0.6350365" group="blue" inverse="e6e68f" isWindows="true" isX11="true" />
-  <color id="00008b" r="0" g="0" b="139" hue="240" brightness="0.272549" saturation="1" group="blue" inverse="ffff74" isWindows="true" isX11="true" />
+  <color id="000080" r="0" g="0" b="128" hue="240" brightness="0.2509804" saturation="1" group="blue" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="191970" r="25" g="25" b="112" hue="240" brightness="0.2686275" saturation="0.6350365" group="blue" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="00008b" r="0" g="0" b="139" hue="240" brightness="0.272549" saturation="1" group="blue" inverse="ffffff" isWindows="true" isX11="true" />
   <color id="333366" r="51" g="51" b="102" hue="240" brightness="0.3" saturation="0.3333333" group="blue" inverse="ffffff" />
-  <color id="000099" r="0" g="0" b="153" hue="240" brightness="0.3" saturation="1" group="blue" inverse="ffff66" />
-  <color id="333399" r="51" g="51" b="153" hue="240" brightness="0.4" saturation="0.5000001" group="blue" inverse="cccc66" />
-  <color id="0000cc" r="0" g="0" b="204" hue="240" brightness="0.4" saturation="1" group="blue" inverse="ffff33" />
-  <color id="0000cd" r="0" g="0" b="205" hue="240" brightness="0.4019608" saturation="1" group="blue" inverse="ffff32" isWindows="true" isX11="true" />
+  <color id="000099" r="0" g="0" b="153" hue="240" brightness="0.3" saturation="1" group="blue" inverse="ffffff" />
+  <color id="333399" r="51" g="51" b="153" hue="240" brightness="0.4" saturation="0.5000001" group="blue" inverse="ffffff" />
+  <color id="0000cc" r="0" g="0" b="204" hue="240" brightness="0.4" saturation="1" group="blue" inverse="ffffff" />
+  <color id="0000cd" r="0" g="0" b="205" hue="240" brightness="0.4019608" saturation="1" group="blue" inverse="ffffff" isWindows="true" isX11="true" />
   <color id="666699" r="102" g="102" b="153" hue="240" brightness="0.5" saturation="0.2" group="blue" inverse="000000" />
-  <color id="3333cc" r="51" g="51" b="204" hue="240" brightness="0.5" saturation="0.6" group="blue" inverse="cccc33" />
-  <color id="0000ff" r="0" g="0" b="255" hue="240" brightness="0.5" saturation="1" group="blue" inverse="ffff00" isWindows="true" isX11="true" />
+  <color id="3333cc" r="51" g="51" b="204" hue="240" brightness="0.5" saturation="0.6" group="blue" inverse="000000" />
+  <color id="0000ff" r="0" g="0" b="255" hue="240" brightness="0.5" saturation="1" group="blue" inverse="000000" isWindows="true" isX11="true" />
   <color id="6666cc" r="102" g="102" b="204" hue="240" brightness="0.6" saturation="0.5" group="blue" inverse="000000" />
-  <color id="3333ff" r="51" g="51" b="255" hue="240" brightness="0.6" saturation="1" group="blue" inverse="cccc00" />
-  <color id="6666ff" r="102" g="102" b="255" hue="240" brightness="0.7" saturation="1" group="blue" inverse="999900" />
+  <color id="3333ff" r="51" g="51" b="255" hue="240" brightness="0.6" saturation="1" group="blue" inverse="000000" />
+  <color id="6666ff" r="102" g="102" b="255" hue="240" brightness="0.7" saturation="1" group="blue" inverse="000000" />
   <color id="9999cc" r="153" g="153" b="204" hue="240" brightness="0.7" saturation="0.3333333" group="blue" inverse="000000" />
   <color id="9999ff" r="153" g="153" b="255" hue="240" brightness="0.8" saturation="1" group="blue" inverse="666600" />
   <color id="ccccff" r="204" g="204" b="255" hue="240" brightness="0.9" saturation="1" group="blue" inverse="333300" />
   <color id="e6e6fa" r="230" g="230" b="250" hue="240" brightness="0.9411765" saturation="0.666667" group="purple" inverse="191905" isWindows="true" isX11="true" />
   <color id="f8f8ff" r="248" g="248" b="255" hue="240" brightness="0.9862745" saturation="1" group="white" inverse="070700" isWindows="true" isX11="true" />
-  <color id="6a5acd" r="106" g="90" b="205" hue="248.3478" brightness="0.5784314" saturation="0.5348837" group="purple" inverse="95a532" isWindows="true" isX11="true" />
+  <color id="6a5acd" r="106" g="90" b="205" hue="248.3478" brightness="0.5784314" saturation="0.5348837" group="purple" inverse="000000" isWindows="true" isX11="true" />
   <color id="483d8b" r="72" g="61" b="139" hue="248.4615" brightness="0.3921569" saturation="0.39" group="purple" inverse="ffffff" isWindows="true" isX11="true" />
-  <color id="7b68ee" r="123" g="104" b="238" hue="248.5074" brightness="0.6705883" saturation="0.797619" group="purple" inverse="849711" isWindows="true" isX11="true" />
-  <color id="3300ff" r="51" g="0" b="255" hue="252" brightness="0.5" saturation="1" group="blue" inverse="ccff00" />
-  <color id="3300cc" r="51" g="0" b="204" hue="255" brightness="0.4" saturation="1" group="blue" inverse="ccff33" />
-  <color id="6633ff" r="102" g="51" b="255" hue="255" brightness="0.6" saturation="1" group="blue" inverse="99cc00" />
-  <color id="9370db" r="147" g="112" b="219" hue="259.6262" brightness="0.6490196" saturation="0.5977653" group="purple" inverse="6c8f24" isWindows="true" isX11="true" />
-  <color id="330099" r="51" g="0" b="153" hue="260" brightness="0.3" saturation="1" group="blue" inverse="ccff66" />
-  <color id="6633cc" r="102" g="51" b="204" hue="260" brightness="0.5" saturation="0.6" group="blue" inverse="99cc33" />
-  <color id="9966ff" r="153" g="102" b="255" hue="260" brightness="0.7" saturation="1" group="blue" inverse="669900" />
-  <color id="6600ff" r="102" g="0" b="255" hue="264" brightness="0.5" saturation="1" group="blue" inverse="99ff00" />
+  <color id="7b68ee" r="123" g="104" b="238" hue="248.5074" brightness="0.6705883" saturation="0.797619" group="purple" inverse="000000" isWindows="true" isX11="true" />
+  <color id="3300ff" r="51" g="0" b="255" hue="252" brightness="0.5" saturation="1" group="blue" inverse="000000" />
+  <color id="3300cc" r="51" g="0" b="204" hue="255" brightness="0.4" saturation="1" group="blue" inverse="ffffff" />
+  <color id="6633ff" r="102" g="51" b="255" hue="255" brightness="0.6" saturation="1" group="blue" inverse="000000" />
+  <color id="9370db" r="147" g="112" b="219" hue="259.6262" brightness="0.6490196" saturation="0.5977653" group="purple" inverse="000000" isWindows="true" isX11="true" />
+  <color id="330099" r="51" g="0" b="153" hue="260" brightness="0.3" saturation="1" group="blue" inverse="ffffff" />
+  <color id="6633cc" r="102" g="51" b="204" hue="260" brightness="0.5" saturation="0.6" group="blue" inverse="000000" />
+  <color id="9966ff" r="153" g="102" b="255" hue="260" brightness="0.7" saturation="1" group="blue" inverse="000000" />
+  <color id="6600ff" r="102" g="0" b="255" hue="264" brightness="0.5" saturation="1" group="blue" inverse="000000" />
   <color id="330066" r="51" g="0" b="102" hue="270" brightness="0.2" saturation="1" group="purple" inverse="ccff99" />
-  <color id="663399" r="102" g="51" b="153" hue="270" brightness="0.4" saturation="0.5000001" group="purple" inverse="99cc66" />
-  <color id="6600cc" r="102" g="0" b="204" hue="270" brightness="0.4" saturation="1" group="purple" inverse="99ff33" />
+  <color id="663399" r="102" g="51" b="153" hue="270" brightness="0.4" saturation="0.5000001" group="purple" inverse="ffffff" />
+  <color id="6600cc" r="102" g="0" b="204" hue="270" brightness="0.4" saturation="1" group="purple" inverse="ffffff" />
   <color id="9966cc" r="153" g="102" b="204" hue="270" brightness="0.6" saturation="0.5" group="purple" inverse="000000" />
-  <color id="9933ff" r="153" g="51" b="255" hue="270" brightness="0.6" saturation="1" group="purple" inverse="66cc00" />
+  <color id="9933ff" r="153" g="51" b="255" hue="270" brightness="0.6" saturation="1" group="purple" inverse="000000" />
   <color id="cc99ff" r="204" g="153" b="255" hue="270" brightness="0.8" saturation="1" group="purple" inverse="336600" />
-  <color id="8a2be2" r="138" g="43" b="226" hue="271.1476" brightness="0.527451" saturation="0.7593362" group="purple" inverse="75d41d" isWindows="true" isX11="true" />
-  <color id="4b0082" r="75" g="0" b="130" hue="274.6154" brightness="0.254902" saturation="1" group="purple" inverse="b4ff7d" isWindows="true" isX11="true" />
-  <color id="9900ff" r="153" g="0" b="255" hue="276" brightness="0.5" saturation="1" group="purple" inverse="66ff00" />
-  <color id="660099" r="102" g="0" b="153" hue="280" brightness="0.3" saturation="1" group="purple" inverse="99ff66" />
-  <color id="9933cc" r="153" g="51" b="204" hue="280" brightness="0.5" saturation="0.6" group="purple" inverse="66cc33" />
-  <color id="cc66ff" r="204" g="102" b="255" hue="280" brightness="0.7" saturation="1" group="purple" inverse="339900" />
-  <color id="9932cc" r="153" g="50" b="204" hue="280.1299" brightness="0.4980392" saturation="0.6062992" group="purple" inverse="66cd33" isWindows="true" isX11="true" />
-  <color id="9400d3" r="148" g="0" b="211" hue="282.0853" brightness="0.4137255" saturation="1" group="purple" inverse="6bff2c" isWindows="true" isX11="true" />
-  <color id="9900cc" r="153" g="0" b="204" hue="285" brightness="0.4" saturation="1" group="purple" inverse="66ff33" />
-  <color id="cc33ff" r="204" g="51" b="255" hue="285" brightness="0.6" saturation="1" group="purple" inverse="33cc00" />
-  <color id="cc00ff" r="204" g="0" b="255" hue="288" brightness="0.5" saturation="1" group="purple" inverse="33ff00" />
-  <color id="ba55d3" r="186" g="85" b="211" hue="288.0952" brightness="0.5803922" saturation="0.5887851" group="purple" inverse="45aa2c" isWindows="true" isX11="true" />
+  <color id="8a2be2" r="138" g="43" b="226" hue="271.1476" brightness="0.527451" saturation="0.7593362" group="purple" inverse="000000" isWindows="true" isX11="true" />
+  <color id="4b0082" r="75" g="0" b="130" hue="274.6154" brightness="0.254902" saturation="1" group="purple" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="9900ff" r="153" g="0" b="255" hue="276" brightness="0.5" saturation="1" group="purple" inverse="000000" />
+  <color id="660099" r="102" g="0" b="153" hue="280" brightness="0.3" saturation="1" group="purple" inverse="ffffff" />
+  <color id="9933cc" r="153" g="51" b="204" hue="280" brightness="0.5" saturation="0.6" group="purple" inverse="000000" />
+  <color id="cc66ff" r="204" g="102" b="255" hue="280" brightness="0.7" saturation="1" group="purple" inverse="000000" />
+  <color id="9932cc" r="153" g="50" b="204" hue="280.1299" brightness="0.4980392" saturation="0.6062992" group="purple" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="9400d3" r="148" g="0" b="211" hue="282.0853" brightness="0.4137255" saturation="1" group="purple" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="9900cc" r="153" g="0" b="204" hue="285" brightness="0.4" saturation="1" group="purple" inverse="ffffff" />
+  <color id="cc33ff" r="204" g="51" b="255" hue="285" brightness="0.6" saturation="1" group="purple" inverse="000000" />
+  <color id="cc00ff" r="204" g="0" b="255" hue="288" brightness="0.5" saturation="1" group="purple" inverse="000000" />
+  <color id="ba55d3" r="186" g="85" b="211" hue="288.0952" brightness="0.5803922" saturation="0.5887851" group="purple" inverse="000000" isWindows="true" isX11="true" />
   <color id="330033" r="51" g="0" b="51" hue="300" brightness="0.1" saturation="1" group="purple" inverse="ccffcc" />
   <color id="660066" r="102" g="0" b="102" hue="300" brightness="0.2" saturation="1" group="purple" inverse="99ff99" />
-  <color id="800080" r="128" g="0" b="128" hue="300" brightness="0.2509804" saturation="1" group="purple" inverse="7fff7f" isWindows="true" isX11="true" />
-  <color id="8b008b" r="139" g="0" b="139" hue="300" brightness="0.272549" saturation="1" group="purple" inverse="74ff74" isWindows="true" isX11="true" />
+  <color id="800080" r="128" g="0" b="128" hue="300" brightness="0.2509804" saturation="1" group="purple" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="8b008b" r="139" g="0" b="139" hue="300" brightness="0.272549" saturation="1" group="purple" inverse="ffffff" isWindows="true" isX11="true" />
   <color id="663366" r="102" g="51" b="102" hue="300" brightness="0.3" saturation="0.3333333" group="purple" inverse="ffffff" />
-  <color id="990099" r="153" g="0" b="153" hue="300" brightness="0.3" saturation="1" group="purple" inverse="66ff66" />
-  <color id="993399" r="153" g="51" b="153" hue="300" brightness="0.4" saturation="0.5000001" group="purple" inverse="66cc66" />
-  <color id="cc00cc" r="204" g="0" b="204" hue="300" brightness="0.4" saturation="1" group="purple" inverse="33ff33" />
+  <color id="990099" r="153" g="0" b="153" hue="300" brightness="0.3" saturation="1" group="purple" inverse="ffffff" />
+  <color id="993399" r="153" g="51" b="153" hue="300" brightness="0.4" saturation="0.5000001" group="purple" inverse="ffffff" />
+  <color id="cc00cc" r="204" g="0" b="204" hue="300" brightness="0.4" saturation="1" group="purple" inverse="ffffff" />
   <color id="996699" r="153" g="102" b="153" hue="300" brightness="0.5" saturation="0.2" group="purple" inverse="000000" />
-  <color id="cc33cc" r="204" g="51" b="204" hue="300" brightness="0.5" saturation="0.6" group="purple" inverse="33cc33" />
-  <color id="ff00ff" r="255" g="0" b="255" hue="300" brightness="0.5" saturation="1" group="purple" inverse="00ff00" isWindows="true" isX11="true" />
+  <color id="cc33cc" r="204" g="51" b="204" hue="300" brightness="0.5" saturation="0.6" group="purple" inverse="000000" />
+  <color id="ff00ff" r="255" g="0" b="255" hue="300" brightness="0.5" saturation="1" group="purple" inverse="000000" isWindows="true" isX11="true" />
   <color id="cc66cc" r="204" g="102" b="204" hue="300" brightness="0.6" saturation="0.5" group="purple" inverse="000000" />
-  <color id="ff33ff" r="255" g="51" b="255" hue="300" brightness="0.6" saturation="1" group="purple" inverse="00cc00" />
-  <color id="ff66ff" r="255" g="102" b="255" hue="300" brightness="0.7" saturation="1" group="purple" inverse="009900" />
+  <color id="ff33ff" r="255" g="51" b="255" hue="300" brightness="0.6" saturation="1" group="purple" inverse="000000" />
+  <color id="ff66ff" r="255" g="102" b="255" hue="300" brightness="0.7" saturation="1" group="purple" inverse="000000" />
   <color id="cc99cc" r="204" g="153" b="204" hue="300" brightness="0.7" saturation="0.3333333" group="purple" inverse="000000" />
-  <color id="ee82ee" r="238" g="130" b="238" hue="300" brightness="0.7215686" saturation="0.7605634" group="purple" inverse="117d11" isWindows="true" isX11="true" />
+  <color id="ee82ee" r="238" g="130" b="238" hue="300" brightness="0.7215686" saturation="0.7605634" group="purple" inverse="000000" isWindows="true" isX11="true" />
   <color id="dda0dd" r="221" g="160" b="221" hue="300" brightness="0.7470589" saturation="0.4728682" group="purple" inverse="000000" isWindows="true" isX11="true" />
   <color id="d8bfd8" r="216" g="191" b="216" hue="300" brightness="0.7980392" saturation="0.2427184" group="purple" inverse="000000" isWindows="true" isX11="true" />
   <color id="ff99ff" r="255" g="153" b="255" hue="300" brightness="0.8" saturation="1" group="purple" inverse="006600" />
   <color id="ffccff" r="255" g="204" b="255" hue="300" brightness="0.9" saturation="1" group="purple" inverse="003300" />
-  <color id="da70d6" r="218" g="112" b="214" hue="302.2642" brightness="0.6470588" saturation="0.5888889" group="purple" inverse="258f29" isWindows="true" isX11="true" />
-  <color id="ff00cc" r="255" g="0" b="204" hue="312" brightness="0.5" saturation="1" group="purple" inverse="00ff33" />
-  <color id="cc0099" r="204" g="0" b="153" hue="315" brightness="0.4" saturation="1" group="purple" inverse="33ff66" />
-  <color id="ff33cc" r="255" g="51" b="204" hue="315" brightness="0.6" saturation="1" group="purple" inverse="00cc33" />
-  <color id="990066" r="153" g="0" b="102" hue="320" brightness="0.3" saturation="1" group="pink" inverse="66ff99" />
-  <color id="cc3399" r="204" g="51" b="153" hue="320" brightness="0.5" saturation="0.6" group="pink" inverse="33cc66" />
-  <color id="ff66cc" r="255" g="102" b="204" hue="320" brightness="0.7" saturation="1" group="pink" inverse="009933" />
-  <color id="c71585" r="199" g="21" b="133" hue="322.2472" brightness="0.4313726" saturation="0.8090909" group="pink" inverse="38ea7a" isWindows="true" isX11="true" />
-  <color id="ff0099" r="255" g="0" b="153" hue="324" brightness="0.5" saturation="1" group="pink" inverse="00ff66" />
-  <color id="ff1493" r="255" g="20" b="147" hue="327.5745" brightness="0.5392157" saturation="1" group="pink" inverse="00eb6c" isWindows="true" isX11="true" />
+  <color id="da70d6" r="218" g="112" b="214" hue="302.2642" brightness="0.6470588" saturation="0.5888889" group="purple" inverse="000000" isWindows="true" isX11="true" />
+  <color id="ff00cc" r="255" g="0" b="204" hue="312" brightness="0.5" saturation="1" group="purple" inverse="000000" />
+  <color id="cc0099" r="204" g="0" b="153" hue="315" brightness="0.4" saturation="1" group="purple" inverse="ffffff" />
+  <color id="ff33cc" r="255" g="51" b="204" hue="315" brightness="0.6" saturation="1" group="purple" inverse="000000" />
+  <color id="990066" r="153" g="0" b="102" hue="320" brightness="0.3" saturation="1" group="pink" inverse="ffffff" />
+  <color id="cc3399" r="204" g="51" b="153" hue="320" brightness="0.5" saturation="0.6" group="pink" inverse="000000" />
+  <color id="ff66cc" r="255" g="102" b="204" hue="320" brightness="0.7" saturation="1" group="pink" inverse="000000" />
+  <color id="c71585" r="199" g="21" b="133" hue="322.2472" brightness="0.4313726" saturation="0.8090909" group="pink" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="ff0099" r="255" g="0" b="153" hue="324" brightness="0.5" saturation="1" group="pink" inverse="000000" />
+  <color id="ff1493" r="255" g="20" b="147" hue="327.5745" brightness="0.5392157" saturation="1" group="pink" inverse="000000" isWindows="true" isX11="true" />
   <color id="660033" r="102" g="0" b="51" hue="330" brightness="0.2" saturation="1" group="pink" inverse="99ffcc" />
-  <color id="993366" r="153" g="51" b="102" hue="330" brightness="0.4" saturation="0.5000001" group="pink" inverse="66cc99" />
-  <color id="cc0066" r="204" g="0" b="102" hue="330" brightness="0.4" saturation="1" group="pink" inverse="33ff99" />
+  <color id="993366" r="153" g="51" b="102" hue="330" brightness="0.4" saturation="0.5000001" group="pink" inverse="ffffff" />
+  <color id="cc0066" r="204" g="0" b="102" hue="330" brightness="0.4" saturation="1" group="pink" inverse="ffffff" />
   <color id="cc6699" r="204" g="102" b="153" hue="330" brightness="0.6" saturation="0.5" group="pink" inverse="000000" />
-  <color id="ff3399" r="255" g="51" b="153" hue="330" brightness="0.6" saturation="1" group="pink" inverse="00cc66" />
-  <color id="ff69b4" r="255" g="105" b="180" hue="330" brightness="0.7058824" saturation="1" group="pink" inverse="00964b" isWindows="true" isX11="true" />
+  <color id="ff3399" r="255" g="51" b="153" hue="330" brightness="0.6" saturation="1" group="pink" inverse="000000" />
+  <color id="ff69b4" r="255" g="105" b="180" hue="330" brightness="0.7058824" saturation="1" group="pink" inverse="000000" isWindows="true" isX11="true" />
   <color id="ff99cc" r="255" g="153" b="204" hue="330" brightness="0.8" saturation="1" group="pink" inverse="006633" />
-  <color id="ff0066" r="255" g="0" b="102" hue="336" brightness="0.5" saturation="1" group="pink" inverse="00ff99" />
-  <color id="990033" r="153" g="0" b="51" hue="340" brightness="0.3" saturation="1" group="pink" inverse="66ffcc" />
-  <color id="cc3366" r="204" g="51" b="102" hue="340" brightness="0.5" saturation="0.6" group="pink" inverse="33cc99" />
-  <color id="ff6699" r="255" g="102" b="153" hue="340" brightness="0.7" saturation="1" group="pink" inverse="009966" />
+  <color id="ff0066" r="255" g="0" b="102" hue="336" brightness="0.5" saturation="1" group="pink" inverse="000000" />
+  <color id="990033" r="153" g="0" b="51" hue="340" brightness="0.3" saturation="1" group="pink" inverse="ffffff" />
+  <color id="cc3366" r="204" g="51" b="102" hue="340" brightness="0.5" saturation="0.6" group="pink" inverse="000000" />
+  <color id="ff6699" r="255" g="102" b="153" hue="340" brightness="0.7" saturation="1" group="pink" inverse="000000" />
   <color id="fff0f5" r="255" g="240" b="245" hue="340" brightness="0.9705882" saturation="1" group="white" inverse="000f0a" isWindows="true" isX11="true" />
-  <color id="db7093" r="219" g="112" b="147" hue="340.3738" brightness="0.6490196" saturation="0.5977653" group="pink" inverse="248f6c" isWindows="true" isX11="true" />
-  <color id="cc0033" r="204" g="0" b="51" hue="345" brightness="0.4" saturation="1" group="pink" inverse="33ffcc" />
-  <color id="ff3366" r="255" g="51" b="102" hue="345" brightness="0.6" saturation="1" group="pink" inverse="00cc99" />
-  <color id="dc143c" r="220" g="20" b="60" hue="348" brightness="0.4705882" saturation="0.8333334" group="red" inverse="23ebc3" isWindows="true" isX11="true" />
-  <color id="ff0033" r="255" g="0" b="51" hue="348" brightness="0.5" saturation="1" group="red" inverse="00ffcc" />
+  <color id="db7093" r="219" g="112" b="147" hue="340.3738" brightness="0.6490196" saturation="0.5977653" group="pink" inverse="000000" isWindows="true" isX11="true" />
+  <color id="cc0033" r="204" g="0" b="51" hue="345" brightness="0.4" saturation="1" group="pink" inverse="ffffff" />
+  <color id="ff3366" r="255" g="51" b="102" hue="345" brightness="0.6" saturation="1" group="pink" inverse="000000" />
+  <color id="dc143c" r="220" g="20" b="60" hue="348" brightness="0.4705882" saturation="0.8333334" group="red" inverse="ffffff" isWindows="true" isX11="true" />
+  <color id="ff0033" r="255" g="0" b="51" hue="348" brightness="0.5" saturation="1" group="red" inverse="000000" />
   <color id="ffc0cb" r="255" g="192" b="203" hue="349.5238" brightness="0.8764706" saturation="1" group="pink" inverse="003f34" isWindows="true" isX11="true" />
   <color id="ffb6c1" r="255" g="182" b="193" hue="350.9589" brightness="0.8568628" saturation="1" group="pink" inverse="00493e" isWindows="true" isX11="true" />
   <cssNumbers>
