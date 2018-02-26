@@ -1,7 +1,7 @@
 JsUnitTesting.Assert = (function(Utility, AssertionError, TypeSpec) {
 	function Assert(unitTest, testCollection) {
 		if (Utility.isNil(unitTest))
-			throw "JsUnitTesting.UnitTest object must be provided.";
+			throw "JsUnitTesting.UnitTest object must be provided...";
 		if (!(unitTest instanceof JsUnitTesting.UnitTest))
 			throw "The unit test object must be an instance of JsUnitTesting.UnitTest";
 		if (!Utility.isNil(testCollection)) {

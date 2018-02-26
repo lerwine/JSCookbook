@@ -1,15 +1,48 @@
+/**
+ * Namespace for unit testing
+ */
 var JsUnitTesting = JsUnitTesting || {};
 
+/**
+ * Contains utility functions used by other unit testing classes.
+ * @namespace
+ */
 JsUnitTesting.Utility = function(Utility) {
     Utility = Utility || {};
+    /**
+	 * Determines if a value is undefined or null.
+	 * @param {*} value - Value to test.
+	 * @returns {boolean} true if value is undefined or null; otherwise, false.
+	 */
     Utility.isNil = function(value) {
         return typeof value === "undefined" || value === null;
     };
+    /**
+	 * Ensures that a value is an array.
+	 * @param {*} value - Value to be converted to an array.
+	 * @returns {Array} - if value is undefined, an empty array is returned. If value was alread an array, then the value is simply returned. Otherwise, an array with a single element containing the value is returned.
+	 */
     Utility.toArray = function(value) {
         if (typeof value === "undefined") return [];
         if (value !== null && value instanceof Array) return value;
         return [ value ];
     };
+    /**
+	 * Callback function for array element mapping.
+	 * @callback arrayMapCallback
+	 * @param {*} currentValue - The array element for the current iteration.
+	 * @param {number} index - The index of the current iteration.
+	 * @param {Array} array - The array being iterated.
+	 * @returns {*} Value to add to the result array.
+	 */
+    /**
+	 * This method is provided in order to provide consistency with platforms that may not implement Array.map,
+	 * or may implement it differently. Maps the value of each element of an array, returning the mapped values as an array.
+	 * @param {Array} array - Array of values to be mapped.
+	 * @param {arrayMapCallback} callback - Function which maps each element of the array.
+	 * @param {*=} thisArg - The object which will be the "this" object when the callback function is called.
+	 * @returns {Array} The array of values, mapped from the source array.
+	 */
     Utility.mapArray = function(array, callback, thisArg) {
         var result = [];
         array = Utility.toArray();
@@ -26,6 +59,22 @@ JsUnitTesting.Utility = function(Utility) {
         for (var i = 0; i < array.length; i++) result.push(invokeCb(i));
         return result;
     };
+    /**
+	 * Callback predicate function for array filtering.
+	 * @callback arrayFilterPredicateCallback
+	 * @param {*} currentValue - The array element for the current iteration.
+	 * @param {number} index - The index of the current iteration.
+	 * @param {Array} array - The array being iterated.
+	 * @returns {boolean} True if the current element should be added to the result array; otherwise, false.
+	 */
+    /**
+	 * This method is provided in order to provide consistency with platforms that may not implement Array.filter, 
+	 * or may implement it differently. Filters the values of an array, returning the confirmed values as an array.
+	 * @param {Array} array - Array of values to be mapped.
+	 * @param {arrayMapCallback} callback - function which is called for each element, to determine if it will be in the result array.
+	 * @param {*=} thisArg - The object which will be the "this" object when the callback function is called.
+	 * @returns {Array} The array of filtered values mapped from the source array.
+	 */
     Utility.filterArray = function(array, callback, thisArg) {
         var result = [];
         array = Utility.toArray();
@@ -44,6 +93,25 @@ JsUnitTesting.Utility = function(Utility) {
         }
         return result;
     };
+    /**
+	 * Callback accumulator function for array iteration.
+	 * @callback arrayReduceCallback
+	 * @param {*} accumulate - The accumulated value which was returned from the callback function in the previous iteration.
+	 * @param {*} currentValue - The array element for the current iteration.
+	 * @param {number} index - The index of the current iteration.
+	 * @param {Array} array - The array being iterated.
+	 * @returns {*} Result of current element combined with the accumulate.
+	 */
+    /**
+	 * This method is as an alternative to Array.reduce, mainly for the capability of having a "this" object
+	 * for tne callback function. Combines each element in an array with the accumulated value of the previous
+	 * iteration (left to right), reducing it to a single value.
+	 * @param {Array} array - Array of values to be mapped.
+	 * @param {arrayMapCallback} callback - function which is called for each element, to determine if it will be in the result array.
+	 * @param {*=} initialValue - The value to use as the initial seed for the accumulated value. If this is not provided, then the value of the last element will be used.
+	 * @param {*=} thisArg - The object which will be the "this" object when the callback function is called.
+	 * @returns {*} The accumulated value of the array elements.
+	 */
     Utility.reduceArray = function(array, callback, initialValue, thisArg) {
         array = Utility.toArray();
         var invokeCb;
@@ -61,6 +129,12 @@ JsUnitTesting.Utility = function(Utility) {
         for (var i = 0; i < array.length; i++) result = invokeCb(result, i);
         return result;
     };
+    /**
+	 * Ensures a value is a string, converting it, if necessary.
+	 * @param {*} value - The value to convert to a string.
+	 * @param {string=} defaultValue - The default value to return if the value is undefined or null.
+	 * @returns {string} - The value converted to a string.
+	 */
     Utility.convertToString = function(value, defaultValue) {
         if (Utility.isNil(value)) {
             if (typeof defaultValue === "undefined") return value;
@@ -76,6 +150,12 @@ JsUnitTesting.Utility = function(Utility) {
         }
         return JSON.stringify(value);
     };
+    /**
+	 * Ensures that a value is a number, converting it, if necessary.
+	 * @param {*} value - The value to convert to a number.
+	 * @param {number=} defaultValue - The default value to return if the value could not be converted to a number.
+	 * @returns {number} The value converted to a number, or Number.NaN if it could not be converted and the default value was not provided.
+	 */
     Utility.convertToNumber = function(value, defaultValue) {
         if (Utility.isNil(value)) {
             if (typeof defaultValue === "undefined") return value;
@@ -112,6 +192,11 @@ JsUnitTesting.Utility = function(Utility) {
         if (defaultValue === null) return defaultValue;
         return Utility.convertToNumber(defaultValue);
     };
+    /**
+	 * Searches the function and any prototypes for a name.
+	 * @param {function} func - A function from which to extract the name.
+	 * @returns {string} The function name or undefined if a name could not be found.
+	 */
     Utility.getFunctionName = function(func) {
         if (typeof func !== "undefined" && func !== null) {
             if (typeof func === "function" && typeof func.name === "string" && func.name.length > 0) return func.name;
@@ -128,9 +213,7 @@ JsUnitTesting.Utility = function(Utility) {
         }
         return "";
     };
-}(JsUnitTesting.Utility);
-
-JsUnitTesting.TypeSpec = function(Utility) {
+}(JsUnitTesting.Utility);JsUnitTesting.TypeSpec = function(Utility) {
     function TypeSpec(value) {
         this.prototypeChain = [];
         this.is = function(other) {
@@ -196,9 +279,7 @@ JsUnitTesting.TypeSpec = function(Utility) {
         return new TypeSpec(actual).is(new TypeSpec(expected));
     };
     return TypeSpec;
-}(JsUnitTesting.Utility);
-
-JsUnitTesting.TestResult = function(Utility, TypeSpec) {
+}(JsUnitTesting.Utility);JsUnitTesting.TestResult = function(Utility, TypeSpec) {
     function TestResult(evaluator, assertion, unitTest, testCollection, testId, stateInfo) {
         var cb = function(evaluator, args) {
             var assert = new Assert(unitTest, testCollection);
@@ -255,9 +336,33 @@ JsUnitTesting.TestResult = function(Utility, TypeSpec) {
         this.message = thisObj.message;
     }
     return TestResult;
-}(JsUnitTesting.Utility, JsUnitTesting.TypeSpec);
-
-JsUnitTesting.UnitTest = function(Utility, TestResult) {
+}(JsUnitTesting.Utility, JsUnitTesting.TypeSpec);JsUnitTesting.UnitTest = function(Utility, TestResult) {
+    /**
+	 * This gets executed to perform a unit test.
+	 * @callback evaluatorCallback
+	 * @param {...*} arguments -	Arguments passed to the test evaluation, which were pass to the unit test constructor.
+	 * @throws {Error} If the evaluator performs its own assertions, then an error can be thrown.
+	 * @return {*} Return value to be passed to assertionCallback.
+	 * @this {TestContext}	This is an object which contains information about the current test. 
+	 * @description	When this is executed, 
+	 */
+    /**
+	 * This asserts a result value from a unit test.
+	 *
+	 * @callback assertionCallback
+	 * @param {*} evaluationResult -	The value returned from the unit test.
+	 * @throws {Error} If the result value does not indicate a success, then an error should be thrown.
+	 */
+    /**
+	 * @classDescription	A single unit test to be performed
+	 * @param {evaluatorCallback} evaluator -	Function to be executed which performs the test.
+	 * @param {string=} name -	User-friendly name of unit test.
+	 * @param {Array=[]} args -	Arguments to pass to evaluatorCallback.
+	 * @param {string=} description -	Description of unit test.
+	 * @param {assertionCallback=} assertion -	Asserts the result value from the unit test.
+	 * @description	When evaluator is called, args will be passed to the evaluator with a JsUnitTesting.TestContext object as "this", which describes the test being executed.
+	 * @constructor
+	 */
     function UnitTest(evaluator, args, name, description, id, assertion) {
         if (typeof evaluator !== "function") {
             if (typeof evaluator === "undefined") throw "testFunc must be defined";
@@ -293,9 +398,14 @@ JsUnitTesting.UnitTest = function(Utility, TestResult) {
         };
     }
     return UnitTest;
-}(JsUnitTesting.Utility, JsUnitTesting.TestResult);
-
-JsUnitTesting.TestCollection = function(Utility, UnitTest) {
+}(JsUnitTesting.Utility, JsUnitTesting.TestResult);JsUnitTesting.TestCollection = function(Utility, UnitTest) {
+    /**
+	 * @classDescription	A collection of unit tests to be performed.
+	 * @param {Array=} tests -	Tests to initialy add.
+	 * @param {string=} name -	Name of unit test collection.
+	 * @param {number=} id -	Unique ID of unit test collection.
+	 * @constructor
+	 */
     function TestCollection(tests, name, id) {
         this.notRun = [];
         this.__resultInfo = [];
@@ -512,9 +622,19 @@ JsUnitTesting.TestCollection = function(Utility, UnitTest) {
         this.add(tests);
     }
     return TestCollection;
-}(JsUnitTesting.Utility, JsUnitTesting.UnitTest);
-
-JsUnitTesting.AssertionError = function(Utility, UnitTest, TypeSpec) {
+}(JsUnitTesting.Utility, JsUnitTesting.UnitTest);JsUnitTesting.AssertionError = function(Utility, UnitTest, TypeSpec) {
+    /**
+	 * @classDescription	Represents an error with an optional inner error
+	 * @param {number=} number -	An error number.
+	 * @param {string=} message -	Text describing error.
+	 * @param {JsUnitTesting.UnitTest=} unitTest -	Test during which error occurred.
+	 * @param {JsUnitTesting.TestCollection=} testCollection -	Test collection being iterated when error occurred.
+	 * @param {*=} innerError -	Inner error
+	 * @param {JsUnitTesting.TypeSpec=} expected -	Specifies value that was expected.
+	 * @param {JsUnitTesting.TypeSpec=} actual -	Specifies actual value that was returned.
+	 * @param {string=} condition -	Specifies the test condition that failed.
+	 * @constructor
+	 */
     function AssertionError(number, message, unitTest, testCollection, innerError, expected, actual, condition) {
         message = Utility.convertToString(message);
         number = Utility.convertToNumber(number, null);
@@ -546,11 +666,9 @@ JsUnitTesting.AssertionError = function(Utility, UnitTest, TypeSpec) {
     AssertionError.prototype = Error.prototype;
     AssertionError.prototype.constructor = AssertionError;
     return AssertionError;
-}(JsUnitTesting.Utility, JsUnitTesting.UnitTest, JsUnitTesting.TypeSpec);
-
-JsUnitTesting.Assert = function(Utility, AssertionError, TypeSpec) {
+}(JsUnitTesting.Utility, JsUnitTesting.UnitTest, JsUnitTesting.TypeSpec);JsUnitTesting.Assert = function(Utility, AssertionError, TypeSpec) {
     function Assert(unitTest, testCollection) {
-        if (Utility.isNil(unitTest)) throw "JsUnitTesting.UnitTest object must be provided.";
+        if (Utility.isNil(unitTest)) throw "JsUnitTesting.UnitTest object must be provided...";
         if (!(unitTest instanceof JsUnitTesting.UnitTest)) throw "The unit test object must be an instance of JsUnitTesting.UnitTest";
         if (!Utility.isNil(testCollection)) {
             if (!(testCollection instanceof JsUnitTesting.TestCollection)) throw "If test collection is provided, it must be an instance of JsUnitTesting.TestCollection";
