@@ -13,6 +13,7 @@ console.log("Loading " + path);
 importScripts([path]);
 function TestResults() {
     var resultArr = [];
+    var failCount = 0;
     function asArray(obj) {
         if (typeof(obj) == "undefined")
             return [];
@@ -20,6 +21,10 @@ function TestResults() {
             return obj;
         return [obj];
     }
+    this.clear = function() {
+        resultArr = [];
+        failCount = 0;
+    };
     this._invoke = function(name, func, args) {
         var result = {
             isDefined: function(value) { return (typeof(value) != "undefined"); },
@@ -59,6 +64,7 @@ function TestResults() {
         var a = asArray(args);
         try { result.output = func.call(result, a); }
         catch (err) { result.error = err; }
+        result.args = a;
         result.name = name;
         return result;
     };
@@ -74,6 +80,8 @@ function TestResults() {
                 result.message = (s.length == 0) ? "Failed" : s;
             }
         }
+        if (!result.success)
+            failCount++;
         resultArr.push(result);
     };
     this.isType = function(name, type, func, args) {
@@ -98,6 +106,33 @@ function TestResults() {
         }
         this._add(result);
         return result.success;
+    };
+    this.getSuccessCount = function() { return resultArr.length - failCount; };
+    this.getFailCount = function() { return failCount; };
+    this.getTotalCount = function() { return resultArr.length; };
+    this.succeeded = function(index) {
+        if (index >= 0 && index < resultArr.length)
+            return resultArr[index].success;
+    };
+    this.getMessage = function(index) {
+        if (index >= 0 && index < resultArr.length)
+            return resultArr[index].message;
+    };
+    this.getName = function(index) {
+        if (index >= 0 && index < resultArr.length)
+            return resultArr[index].name;
+    };
+    this.getOutput = function(index) {
+        if (index >= 0 && index < resultArr.length)
+            return resultArr[index].output;
+    };
+    this.getArgs = function(index) {
+        if (index >= 0 && index < resultArr.length)
+            return resultArr[index].args;
+    };
+    this.getError = function(index) {
+        if (index >= 0 && index < resultArr.length)
+            return resultArr[index].error;
     };
 }
 var testResults = new TestResults();
@@ -212,36 +247,21 @@ if (testResults.isObject("JsUnitTesting", function() { return JsUnitTesting; }))
     }
 }
 
-var results = staticObjects.map(function(nameAndType) {
-    var message = "";
-    try {
-        var result = eval(nameAndType.name);
-        var expectedType = nameAndType.type;
-        var actualType = (result === null) ? "null" : typeof(result);
-        if (expectedType != actualType)
-            message = "Type mismatch - Expected: " + expectedType + "; Actual: " + actualType;
-        else {
-            var test = nameAndType.test;
-            if (typeof(test) === "function") {
-                var m = test();
-                
-            } else if (typeof(test) != "undefined" && test !== null) {
-                if (test !== result)
-                    message = "Type mismatch - Expected: " + JSON.stringify(test) + "; Actual: " + JSON.stringify(result);
-            }
-        }
-    } catch (err) {
-        message = "Exception caught: " + error.message + "\n" + JSON.stringify(err);
+var total = testResults.getTotalCount();
+for (var i = 0; i < total; i++) {
+    if (testResults.succeeded(i))
+        console.log(testResults.getName(i) + " Succeeded");
+    else {
+        var m = testResults.getName(i) + " Failed - " + testResults.getMessage();
+        var e = testResults.getError(i);
+        if (typeof(e) != "undefined" && e !== null)
+            m += (OS.EOL + "\t" + JSON.stringify(e));
+        console.error(m);
     }
-    var success = (message.length == 0);
-    if (success) {
-        message = "Passed.";
-        console.log(nameAndType.name + " getValue: Passed!");
-    } else
-        console.error(nameAndType.name + " getValue: Failed - " + message);
-    return { success: success, message: message, name: nameAndType.name };
-});
-var succeeded = results.filter(function(r) { return r.success; });
-var failed = results.filter(function(r) { return !r.success; });
-if (failed.length == 0)
-    console.log("All " + succeeded + " static object tests passed.")
+}
+if (testResults.getFailCount() == 0)
+    console.log("All " + total + " tests passed.");
+else if (testResults.getSuccessCount() == 0)
+    console.error("All " + total + " tests failed.");
+else
+    console.warn(testResults.getSuccessCount() + " test(s) passed, " + testResults.getFailCount() + " failed.");
