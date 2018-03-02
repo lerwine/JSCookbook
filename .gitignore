@@ -1,5 +1,12 @@
-JSCookbook/JSCookbook.csproj.user
-JSCookbook/obj/*
-JSCookbook/bin/*
-JSCookbook/obj/MCD/Debug/JSCookbook.csproj.CoreCompileInputs.cache
-JSCookbook.v12.suo
+node_modules/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+[Xx]64/
+[Xx]86/
+[Bb]uild/
+bld/
+[Bb]in/
+[Oo]bj/
+
