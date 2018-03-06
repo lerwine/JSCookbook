@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSCookbook", "JSCookbook\JSCookbook.csproj", "{19D5A35F-6DE7-4003-BCA2-C3693996D2A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSCookbook_old", "JSCookbook_old\JSCookbook_old.csproj", "{19D5A35F-6DE7-4003-BCA2-C3693996D2A9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CC9F9D7A-5243-4187-93F9-97A7161C43F9}"
 	ProjectSection(SolutionItems) = preProject
@@ -10,16 +10,107 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "JSCookbook", "src\", "{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/JSCookbook"
+		Debug.AspNetCompiler.PhysicalPath = "src\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\JSCookbook\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/JSCookbook"
+		Release.AspNetCompiler.PhysicalPath = "src\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\JSCookbook\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "6728"
+		SlnRelativePath = "src\"
+	EndProjectSection
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "node_modules", "node_modules\", "{BC6C9FC9-FFB5-4BBE-B5A1-373A3EDD8265}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/node_modules"
+		Debug.AspNetCompiler.PhysicalPath = "node_modules\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\node_modules\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/node_modules"
+		Release.AspNetCompiler.PhysicalPath = "node_modules\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\node_modules\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "6728"
+		SlnRelativePath = "node_modules\"
+	EndProjectSection
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Dist", "Dist\", "{7F2EDB0D-2B28-452C-ADB1-BEAF2218BD20}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/Dist"
+		Debug.AspNetCompiler.PhysicalPath = "Dist\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\Dist\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/Dist"
+		Release.AspNetCompiler.PhysicalPath = "Dist\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\Dist\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "6728"
+		SlnRelativePath = "Dist\"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{19D5A35F-6DE7-4003-BCA2-C3693996D2A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{19D5A35F-6DE7-4003-BCA2-C3693996D2A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19D5A35F-6DE7-4003-BCA2-C3693996D2A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19D5A35F-6DE7-4003-BCA2-C3693996D2A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC29C0D3-57CE-41B9-8F63-6B3F66271F63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC29C0D3-57CE-41B9-8F63-6B3F66271F63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC29C0D3-57CE-41B9-8F63-6B3F66271F63}.Debug|x64.ActiveCfg = Debug|x64
+		{CC29C0D3-57CE-41B9-8F63-6B3F66271F63}.Debug|x64.Build.0 = Debug|x64
+		{CC29C0D3-57CE-41B9-8F63-6B3F66271F63}.Debug|x86.ActiveCfg = Debug|x86
+		{CC29C0D3-57CE-41B9-8F63-6B3F66271F63}.Debug|x86.Build.0 = Debug|x86
+		{CC29C0D3-57CE-41B9-8F63-6B3F66271F63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC29C0D3-57CE-41B9-8F63-6B3F66271F63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC29C0D3-57CE-41B9-8F63-6B3F66271F63}.Release|x64.ActiveCfg = Release|x64
+		{CC29C0D3-57CE-41B9-8F63-6B3F66271F63}.Release|x64.Build.0 = Release|x64
+		{CC29C0D3-57CE-41B9-8F63-6B3F66271F63}.Release|x86.ActiveCfg = Release|x86
+		{CC29C0D3-57CE-41B9-8F63-6B3F66271F63}.Release|x86.Build.0 = Release|x86
+		{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}.Debug|x64.ActiveCfg = Debug|x64
+		{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}.Debug|x64.Build.0 = Debug|x64
+		{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}.Debug|x86.ActiveCfg = Debug|x86
+		{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}.Debug|x86.Build.0 = Debug|x86
+		{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}.Release|x64.ActiveCfg = Release|x64
+		{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}.Release|x64.Build.0 = Release|x64
+		{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}.Release|x86.ActiveCfg = Release|x86
+		{20F3BC9D-E65D-4E6A-87AD-01A194C358C6}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,9 @@
+[
+    {
+        "groupName": "",
+        "tests": [
+            { "name": "", "description": "", "script": "", "disabled": false, "runIfSucceeded": [] }
+        ],
+        "runIfSucceeded": []
+    }
+]
