@@ -1,3 +1,8 @@
+var FS = require("fs");
+var PATH = require("path");
+
+eval.apply(global, [FS.readFileSync(PATH.join(__dirname, "ColorInfo.js")).toString()]);
+
 var testData = [
     { name: "Transparent", red: 255, green: 255, blue: 255,
         hue: 0, saturation: 0, brightness: 100 },
@@ -281,89 +286,204 @@ var testData = [
         hue: 60, saturation: 100, brightness: 50 },
     { name: "YellowGreen", red: 154, green: 205, blue: 50,
         hue: 79.74193, saturation: 60.7843160629272, brightness: 50 }
-];
+].map(function(d) {
+    return { name: d.name, red8Bit: d.red, green8Bit: d.green, blue8Bit: d.blue, hue: d.hue, saturation: d.saturation, brightness: d.brightness,
+        red: d.red / 2.55, green: d.green / 2.55, blue: d.blue / 2.55
+    };
+});
+
+var failCount = 0;
+for (var i = 0; i < testData.length; i++) {
+    var text = [testData[i].red8Bit, testData[i].green8Bit, testData[i].blue8Bit].map(function(v) {
+        return (v < 16) ? "0" + v.toString(16) : v.toString(16);
+    }).join("");
+    var baseInfo = ColorInfo.parseColorString(text);
+    var bt = typeof(baseInfo);
+    if (bt != "object") {
+        console.warn("ColorInfo.parseColorString(\"" + text + "\") returned " + bt + " value.");
+        failCount++;
+    } else if (baseInfo === null) {
+        console.warn("ColorInfo.parseColorString(\"" + text + "\") returned a null value.");
+        failCount++;
+    } else if (typeof(baseInfo.red) !== "number") {
+        console.warn("ColorInfo.parseColorString(\"" + text + "\") returned " + ((baseInfo.red === null) ? "null" : bt) + " red value.");
+        failCount++;
+    } else if (typeof(baseInfo.green) !== "number") {
+        console.warn("ColorInfo.parseColorString(\"" + text + "\") returned " + ((baseInfo.green === null) ? "null" : bt) + " green value.");
+        failCount++;
+    } else if (typeof(baseInfo.blue) !== "number") {
+        console.warn("ColorInfo.parseColorString(\"" + text + "\") returned " + ((baseInfo.blue === null) ? "null" : bt) + " blue value.");
+        failCount++;
+    } else if (baseInfo.red != testData[i].red8Bit || baseInfo.green != testData[i].green8Bit || baseInfo.blue != testData[i].blue8Bit) {
+        console.warn("ColorInfo.parseColorString(\"" + text + "\") expected values (" + testData[i].red8Bit + "," + testData[i].green8Bit + "," + testData[i].blue8Bit + "); actual: (" + baseInfo.red + "," + baseInfo.green + "," + baseInfo.blue + ")");
+        failCount++;
+    } else if (baseInfo.colorSpace != "rgb") {
+        console.warn("ColorInfo.parseColorString(\"" + text + "\") expected colorSpace \"rgb\"; actual: " + baseInfo.colorSpace);
+        failCount++;
+    } else if (baseInfo.valueType != "8bit"){
+        console.warn("ColorInfo.parseColorString(\"" + text + "\") expected valueType \"8bit\"; actual: " + baseInfo.valueType);
+        failCount++;
+    }
+    var rgbValues = ColorInfo.parseHexString(text);
+    var bt = typeof(rgbValues);
+    if (bt != "object") {
+        console.warn("ColorInfo.parseHexString(\"" + text + "\") returned " + bt + " value.");
+        failCount++;
+    } else if (rgbValues === null) {
+        console.warn("ColorInfo.parseHexString(\"" + text + "\") returned a null value.");
+        failCount++;
+    } else if (!Array.isArray(rgbValues)) {
+        console.warn("ColorInfo.parseHexString(\"" + text + "\") did not return an array.");
+        failCount++;
+    } else if (rgbValues.length != 3) {
+        console.warn("ColorInfo.parseHexString(\"" + text + "\") expected 3 elements; actual: " + rgbValues.length);
+        failCount++;
+    } else if (typeof(rgbValues[0]) !== "number") {
+        console.warn("ColorInfo.parseHexString(\"" + text + "\") returned " + ((rgbValues[0] === null) ? "null" : bt) + " red value.");
+        failCount++;
+    } else if (typeof(rgbValues[1]) !== "number") {
+        console.warn("ColorInfo.parseHexString(\"" + text + "\") returned " + ((rgbValues[1] === null) ? "null" : bt) + " green value.");
+        failCount++;
+    } else if (typeof(rgbValues[2]) !== "number") {
+        console.warn("ColorInfo.parseHexString(\"" + text + "\") returned " + ((rgbValues[2] === null) ? "null" : bt) + " blue value.");
+        failCount++;
+    } else if (rgbValues[0] != testData[i].red8Bit || rgbValues[1] != testData[i].green8Bit || rgbValues[2] != testData[i].blue8Bit) {
+        console.warn("ColorInfo.parseHexString(\"" + text + "\") expected values (" + testData[i].red8Bit + "," + testData[i].green8Bit + "," + testData[i].blue8Bit + "); actual: (" + rgbValues.join(",") + ")");
+        failCount++;
+    }
+}
+
+if (failCount > 0) {
+    console.warn(failCount + " pre-tests failed. Cannot continue.");
+    return;
+}
+else
+    console.info("Pre-tests succeeded.");
+
+var defaultDelta = 0.5;
+function notInRange(x, y, delta) {
+    var diff = (x > y) ? x - y : y - x;
+    return diff > ((typeof(delta) == "number") ? delta : defaultDelta);
+}
 
 var testCount = 0;
+var failCount = 0;
 for (var i = 0; i < testData.length; i++) {
+    var lastFailCount = failCount;
     testCount++;
     try {
         var hsb = ColorInfo.rgbToHsb(testData[i].red, testData[i].green, testData[i].blue);
         var actual = hsb.map(function(v) { return Math.round(v * 100) / 100.0; });
         var expected = [testData[i].hue, testData[i].saturation, testData[i].brightness].map(function(v) { return Math.round(v * 100) / 100.0; });
-        if (actual[0] !== expected[0] || actual[1] !== expected[1] || actual[2] !== expected[2])
-            console.warn("%s RGB(%d,%d,%d) expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, testData[i].red,
+        if (notInRange(actual[0], expected[0]) || notInRange(actual[1], expected[1]) || notInRange(actual[2], expected[2])) {
+            console.warn("%s rgbToHsb(%d,%d,%d) expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, testData[i].red,
                 testData[i].green, testData[i].blue, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2]);
+            failCount++;
+        }
     }
     catch (e) {
         console.error(e);
-        console.warn("rgbToHsb %s failed with exception %s", testData[i].name, e.message);
+        console.warn("%s rgbToHsb(%d,%d,%d) failed with exception %s", testData[i].name, testData[i].red,
+            testData[i].green, testData[i].blue, e.message);
     }
+    if (lastFailCount < failCount)
+        continue;
     try {
         var actual = ColorInfo.hsbToRgb(testData[i].hue, testData[i].saturation, testData[i].brightness);
-        if (actual[0] !== testData[i].red || actual[1] !== testData[i].green || actual[2] !== testData[i].blue)
-            console.warn("%s HSB(%f,%f,%f) expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, testData[i].hue,
+        if (actual[0] !== testData[i].red || actual[1] !== testData[i].green || actual[2] !== testData[i].blue) {
+            console.warn("%s hsbToRgb(%f,%f,%f) expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, testData[i].hue,
                 testData[i].saturation, testData[i].brightness, testData[i].red, testData[i].green, testData[i].blue,
                 actual[0], actual[1], actual[2]);
+            failCount++;
+        }
     }
     catch (e) {
         console.error(e);
-        console.warn("hsbToRgb %s failed with exception %s", testData[i].name, e.message);
+        console.warn("%s hsbToRgb(%f,%f,%f) failed with exception %s", testData[i].name, testData[i].hue,
+            testData[i].saturation, testData[i].brightness, e.message);
     }
+    if (lastFailCount < failCount)
+        continue;
     try {
         var colorInfo = new ColorInfo({ r: testData[i].red, g: testData[i].green, b: testData[i].blue });
-        var actual = [colorInfo.hue(), colorInfo.saturation(), colorInfo.brightness()].map(function(v) { return Math.round(v * 100) / 100.0; });
-        var expected = [testData[i].hue, testData[i].saturation, testData[i].brightness].map(function(v) { return Math.round(v * 100) / 100.0; });
-        if (actual[0] !== expected[0] || actual[1] !== expected[1] || actual[2] !== expected[2])
+        var actual = [colorInfo.hue(), colorInfo.saturation(), colorInfo.brightness()];
+        var expected = [testData[i].hue, testData[i].saturation, testData[i].brightness];
+        if (notInRange(actual[0], expected[0]) || notInRange(actual[1], expected[1]) || notInRange(actual[2], expected[2])) {
             console.warn("%s new ColorInfo(%d,%d,%d) expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, testData[i].red,
                 testData[i].green, testData[i].blue, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2]);
-        if (colorInfo.red() !== testData[i].red || colorInfo.green() !== testData[i].green || colorInfo.blue() !== testData[i].blue)
+            failCount++;
+        }
+        if (colorInfo.red() !== testData[i].red || colorInfo.green() !== testData[i].green || colorInfo.blue() !== testData[i].blue) {
             console.warn("%s new ColorInfo(%d,%d,%d) expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, testData[i].red,
                 testData[i].green, testData[i].blue, testData[i].red, testData[i].green, testData[i].blue, colorInfo.red(), colorInfo.green(), colorInfo.blue());
+            failCount++;
+        }
     }
     catch (e) {
         console.error(e);
-        console.warn("rgbToHsb %s failed with exception %s", testData[i].name, e.message);
+        console.warn("%s new ColorInfo(%d,%d,%d) failed with exception %s", testData[i].name, testData[i].red,
+            testData[i].green, testData[i].blue, e.message);
     }
+    if (lastFailCount < failCount)
+        continue;
     try {
         var colorInfo = new ColorInfo({ h: testData[i].hue, s: testData[i].saturation, b: testData[i].brightness });
-        if (colorInfo.red() !== testData[i].red || colorInfo.green() !== testData[i].green || colorInfo.blue() !== testData[i].blue)
+        if (colorInfo.red() !== testData[i].red || colorInfo.green() !== testData[i].green || colorInfo.blue() !== testData[i].blue) {
             console.warn("%s new ColorInfo(%f,%f,%f) expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, testData[i].hue,
                 testData[i].saturation, testData[i].brightness, testData[i].red, testData[i].green, testData[i].blue, colorInfo.red(), colorInfo.green(), colorInfo.blue());
-        var actual = [colorInfo.hue(), colorInfo.saturation(), colorInfo.brightness()].map(function(v) { return Math.round(v * 100) / 100.0; });
-        var expected = [testData[i].hue, testData[i].saturation, testData[i].brightness].map(function(v) { return Math.round(v * 100) / 100.0; });
-        if (actual[0] !== expected[0] || actual[1] !== expected[1] || actual[2] !== expected[2])
+            failCount++;
+        }
+        var actual = [colorInfo.hue(), colorInfo.saturation(), colorInfo.brightness()];
+        var expected = [testData[i].hue, testData[i].saturation, testData[i].brightness];
+        if (notInRange(actual[0], expected[0]) || notInRange(actual[1], expected[1]) || notInRange(actual[2], expected[2])) {
             console.warn("%s new ColorInfo(%f,%f,%f) expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, testData[i].hue,
-            testData[i].saturation, testData[i].brightness, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2]);
+                testData[i].saturation, testData[i].brightness, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2]);
+            failCount++;
+        }
     }
     catch (e) {
         console.error(e);
-        console.warn("hsbToRgb %s failed with exception %s", testData[i].name, e.message);
+        console.warn("%s new ColorInfo(%f,%f,%f) failed with exception %s", testData[i].name, testData[i].hue,
+            testData[i].saturation, testData[i].brightness, e.message);
     }
+    if (lastFailCount < failCount)
+        continue;
     try {
-        var rgbStr = [testData[i].red, testData[i].green, testData[i].blue].map(function(v) {
+        var rgbStr = [testData[i].red8Bit, testData[i].green8Bit, testData[i].blue8Bit].map(function(v) {
             if (v < 16)
                 return "0" + v.toString(16);
             return v.toString(16);
         }).join("");
         var colorInfo = new ColorInfo(rgbStr);
-        if (colorInfo.red() !== testData[i].red || colorInfo.green() !== testData[i].green || colorInfo.blue() !== testData[i].blue)
-            console.warn("%s new ColorInfo(\"%s\") expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, rgbStr, testData[i].red, testData[i].green, testData[i].blue, colorInfo.red(), colorInfo.green(), colorInfo.blue());
-        var actual = [colorInfo.hue(), colorInfo.saturation(), colorInfo.brightness()].map(function(v) { return Math.round(v * 100) / 100.0; });
-        var expected = [testData[i].hue, testData[i].saturation, testData[i].brightness].map(function(v) { return Math.round(v * 100) / 100.0; });
-        if (actual[0] !== expected[0] || actual[1] !== expected[1] || actual[2] !== expected[2])
-            console.warn("%s new ColorInfo(\"%s\") expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, rgbStr, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2]);
+        if (colorInfo.red() !== testData[i].red || colorInfo.green() !== testData[i].green || colorInfo.blue() !== testData[i].blue) {
+            console.warn("%s new ColorInfo(\"%s\") expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, rgbStr, testData[i].red, testData[i].green, testData[i].blue,
+                colorInfo.red(), colorInfo.green(), colorInfo.blue());
+            failCount++;
+        }
+        var actual = [colorInfo.hue(), colorInfo.saturation(), colorInfo.brightness()];
+        var expected = [testData[i].hue, testData[i].saturation, testData[i].brightness];
+        if (notInRange(actual[0], expected[0]) || notInRange(actual[1], expected[1]) || notInRange(actual[2], expected[2])) {
+            console.warn("%s new ColorInfo(\"%s\") expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, rgbStr, expected[0], expected[1], expected[2],
+                actual[0], actual[1], actual[2]);
+            failCount++;
+        }
         rgbStr = "#" + rgbStr;
         colorInfo = new ColorInfo(rgbStr);
-        if (colorInfo.red() !== testData[i].red || colorInfo.green() !== testData[i].green || colorInfo.blue() !== testData[i].blue)
-            console.warn("%s new ColorInfo(\"%s\") expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, rgbStr, testData[i].red, testData[i].green, testData[i].blue, colorInfo.red(), colorInfo.green(), colorInfo.blue());
-        actual = [colorInfo.hue(), colorInfo.saturation(), colorInfo.brightness()].map(function(v) { return Math.round(v * 100) / 100.0; });
-        expected = [testData[i].hue, testData[i].saturation, testData[i].brightness].map(function(v) { return Math.round(v * 100) / 100.0; });
-        if (actual[0] !== expected[0] || actual[1] !== expected[1] || actual[2] !== expected[2])
-            console.warn("%s new ColorInfo(\"%s\") expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, rgbStr, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2]);
+        if (colorInfo.red() !== testData[i].red || colorInfo.green() !== testData[i].green || colorInfo.blue() !== testData[i].blue) {
+            console.warn("%s new ColorInfo(\"%s\") expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, rgbStr, testData[i].red, testData[i].green, testData[i].blue, colorInfo.red(),
+                colorInfo.green(), colorInfo.blue());
+            failCount++;
+        }
+        actual = [colorInfo.hue(), colorInfo.saturation(), colorInfo.brightness()];
+        expected = [testData[i].hue, testData[i].saturation, testData[i].brightness];
+        if (notInRange(actual[0], expected[0]) || notInRange(actual[1], expected[1]) || notInRange(actual[2], expected[2])) {
+            console.warn("%s new ColorInfo(\"%s\") expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, rgbStr, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2])
+            failCount++;
+        }
     }
     catch (e) {
         console.error(e);
-        console.warn("hsbToRgb %s failed with exception %s", testData[i].name, e.message);
+        console.warn("%s new ColorInfo(\"%s\") failed with exception %s", testData[i].name, rgbStr, e.message);
     }
 }
 console.log("%d tests completed", testCount);
