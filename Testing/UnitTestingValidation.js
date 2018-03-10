@@ -68,96 +68,230 @@ if (fullPaths.filter(function(p) {
 
 /**
  * Writes a formatted message to the console.
- * @param {string|string[]} message Message(s) to emit.
- * @param {number=2} severity Severity of error: -1=inconclusive,0=Debug,1=verbose,2=pass,3=warning,4=fail,5=error
+ * @param {string|string[]=} message Message(s) to emit.
+ * @param {number=2} severity Severity of error: -1=inconclusive,0=Debug,1=info,2=pass,3=warning,4=fail,5=error
  * @param {string=} file Name of file associated with message. 
  * @param {number=} line Line number (1-based) associated with message.
  * @param {number=} column Column number (1-based) associated with message.
  */
-function emitResult(message, severity, file, line, column) {
-    if (typeof(severity) !== "number")
-        severity = (typeof(severity) == "undefined" || severity === null) ? Number.NaN : parseInt(severity);
-    if (isNaN(severity))
-        severity = 2;
-    else if (severity < -1)
-        severity = -1;
-    else if (severity > 5)
-        severity = 5;
-    if (typeof(message) == "undefined" || message === null)
-        message = "";
-    else {
-        var re = /\r\n?|\n/g;
-        var nonBlankFilter = function(s) { return s.length > 0; };
-        if (typeof(message) == "object" && Array.isArray(message)) {
-                var arr = [];
-                message.forEach(function(s) {
-                    arr = arr.concat(((typeof(s) == "string") ? s : ((typeof(s) == "undefined" || s === null) ? "" : s+"")).split(re));
-                });
-                message = arr;
-        } else
-            message = ((typeof(message) == "string") ? message : ((typeof(message) == "undefined" || message === null) ? "" : message+"")).split(re)
-        message = message.map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
-        if (message.length == 0)
-            message = "";
-        else
-            message = (message.length == 1) ? message[0] : message.join("\n\t");
-    }
-    if (message.length > 0)
-        message = " " + message;
-    if (typeof(line) !== "number")
-        line = (typeof(line) == "undefined" || line === null) ? Number.NaN : parseInt(line);
-    if (typeof(column) !== "number")
-        column = (typeof(column) == "undefined" || column === null) ? Number.NaN : parseInt(column);
-    var logLine;
-    switch (severity) {
-        case 0:
-            logLine = "DEBUG";
-            break;
-        case 1:
-            logLine = "VERBOSE";
-            break;
-        case 2:
-            logLine = "PASS";
-            break;
-        case 3:
-            logLine = "WARNING";
-            break;
-        case 4:
-            logLine = "FAIL";
-            break;
-        case 5:
-            logLine = "ERROR";
-            break;
-        default:
-            logLine = "INCONCLUSIVE";
-            break;
-    }
-    logLine += " [" + severity;
-    if (isNaN(line) || line < 1) {
-        if (!isNaN(column) && column > 0)
-            logLine += "@," + column;
-    } else {
-        logLine += "@" + line;
-        if (!isNaN(column) && column > 0)
-            logLine += "," + column;
-    }
-    if (typeof(file) != "undefined" && file !== null) {
-        file = ((typeof(file) == "string") ? file : file+"").trim();
+function TestResult(message, severity, file, line, column) {
+    this.message = message;
+    this.severity = severity;
+    this.file = file;
+    this.line = line;
+    this.column = column;
+
+    this.getMessage = function() {
+        if (typeof(this.message) == "undefined" || this.message === null)
+            this.message = "";
+        else if (typeof(this.message) == "object" && Array.isArray(this.message)) {
+            for (var i = 0; i < this.message.length; i++) {
+                if (typeof(this.message[i]) == "string")
+                    continue;
+                if (this.message[i] == "undefined" || this.message[i] === null)
+                    this.message[i] = "";
+                else
+                    this.message[i] = ""+this.message[i];
+            }
+        } else if (typeof(this.message) != "string")
+            this.message = "" + this.message;
+        return this.message;
+    };
+
+    this.getSeverity = function() {
+        if (typeof(this.severity) !== "number")
+            this.severity = (typeof(this.severity) == "undefined" || this.severity === null) ? Number.NaN : parseInt(this.severity);
+        if (isNaN(severity))
+            this.severity = 2;
+        else if (this.severity < -1)
+            this.severity = -1;
+        else if (this.severity > 5)
+            this.severity = 5;
+        return this.severity;
+    };
+
+    this.getFile = function() {
+        if (typeof(this.file) == "undefined" || this.file === null)
+            this.file = "";
+        else if (typeof(this.message) != "string")
+            this.file = "" + this.file;
+        return this.file;
+    };
+
+    this.getLine = function() {
+        if (typeof(this.line) !== "number")
+            this.line = (typeof(this.line) == "undefined" || this.line === null) ? Number.NaN : parseInt(this.line);
+        if (this.line < 1)
+            this.line = Number.NaN;
+        return this.line;
+    };
+
+    this.getColumn = function() {
+        if (typeof(this.column) !== "number")
+            this.column = (typeof(this.column) == "undefined" || this.column === null) ? Number.NaN : parseInt(this.column);
+        if (this.column < 1)
+            this.column = Number.NaN;
+        return this.column;
+    };
+
+    this.toString = function() {
+        var logLine;
+        var severity = this.getSeverity();
+        switch (severity) {
+            case 0:
+                logLine = "DEBUG";
+                break;
+            case 1:
+                logLine = "INFO";
+                break;
+            case 2:
+                logLine = "PASS";
+                break;
+            case 3:
+                logLine = "WARNING";
+                break;
+            case 4:
+                logLine = "FAIL";
+                break;
+            case 5:
+                logLine = "ERROR";
+                break;
+            default:
+                logLine = "INCONCLUSIVE";
+                break;
+        }
+        logLine += " [" + severity;
+        var line = this.getLine();
+        var column = this.getColumn();
+        if (isNaN(line)) {
+            if (!isNaN(column))
+                logLine += "@," + column;
+        } else {
+            logLine += "@" + line;
+            if (!isNaN(column))
+                logLine += "," + column;
+        }
+        var file = this.getFile().trim();
         if (file.length > 0)
             logLine += "~" + file.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]").replace("\r", "\\r").repeat("\n", "\\n");
-    }
-    console.log("%s]%s", logLine, message);
+        var msgLines = [];
+        (function() {
+            var message = this.getMessage();
+            if (typeof(message) == "string")
+                return [message.trim()];
+            return message;    
+        })().forEach(function(s) {
+            msgLines = msgLines.concat(s.split(/\r\n?|\n/g).map(function(l) { return l.trim(); }));
+        });
+        for (var len = msgLines.length - 1; len > 1; len--) {
+            if (msgLines[len].length > 0)
+                break;
+            msgLines.pop();
+        }
+        while (msgLines.length > 0 && msgLines[0].length == 0)
+            msgLines.unshift();
+        if (msgLines.length == 0)
+            return logline + "]";
+        else
+            return logLine + "] " + message.join("\n\t");
+    };
 }
 
 /**
- * Writes formatted error message to the console.
- * @param {Error} error Error to be emitted.
- * @param {string|string[]=} message Additional message(s) to emit.
- * @param {number=4} severity Severity of error: -1=inconclusive,0=Debug,1=verbose,2=pass,3=warning,4=fail,5=error
+ * Creates a TestResult inconclusive message object.
+ * @param {string|string[]=} message Test result message.
+ * @param {string=} file File associated with test result.
+ * @param {number=} line Line number (1-based) associated with message.
+ * @param {number=} column Column number (1-based) associated with message.
  */
-function emitError(error, message, severity) {
+TestResult.CreateInconclusive = function(message, file, line, column) {
+    return new TestResult(message, -1, file, line, column);
+};
 
-}
+/**
+ * Creates a TestResult debug message object.
+ * @param {string|string[]=} message Test result message.
+ * @param {string=} file File associated with message.
+ * @param {number=} line Line number (1-based) associated with message.
+ * @param {number=} column Column number (1-based) associated with message.
+ */
+TestResult.CreateDebug = function(message, file, line, column) {
+    return new TestResult(message, 0, file, line, column);
+};
+
+/**
+ * Creates a TestResult debug message object.
+ * @param {string|string[]=} message Test result message.
+ * @param {string=} file File associated with message.
+ * @param {number=} line Line number (1-based) associated with message.
+ * @param {number=} column Column number (1-based) associated with message.
+ */
+TestResult.CreateInfo = function(message, file, line, column) {
+    return new TestResult(message, 1, file, line, column);
+};
+
+/**
+ * Creates a TestResult debug message object.
+ * @param {string|string[]=} message Test result message.
+ * @param {string=} file File associated with message.
+ * @param {number=} line Line number (1-based) associated with message.
+ * @param {number=} column Column number (1-based) associated with message.
+ */
+TestResult.CreatePass = function(message, file, line, column) {
+    return new TestResult(message, 2, file, line, column);
+};
+
+/**
+ * Creates a TestResult debug message object.
+ * @param {string|string[]=} message Test result message.
+ * @param {string=} file File associated with message.
+ * @param {number=} line Line number (1-based) associated with message.
+ * @param {number=} column Column number (1-based) associated with message.
+ */
+TestResult.CreateWarning = function(message, file, line, column) {
+    return new TestResult(message, 3, file, line, column);
+};
+
+/**
+ * Creates a TestResult debug message object.
+ * @param {string|string[]=} message Test result message.
+ * @param {string=} file File associated with message.
+ * @param {number=} line Line number (1-based) associated with message.
+ * @param {number=} column Column number (1-based) associated with message.
+ */
+TestResult.CreateFail = function(message, file, line, column) {
+    return new TestResult(message, 4, file, line, column);
+};
+
+/**
+ * Creates a TestResult debug message object.
+ * @param {string|string[]=} message Test result message.
+ * @param {string=} file File associated with message.
+ * @param {number=} line Line number (1-based) associated with message.
+ * @param {number=} column Column number (1-based) associated with message.
+ */
+TestResult.CreateError = function(message, file, line, column) {
+    return new TestResult(message, 5, file, line, column);
+};
+
+/**
+ * Parses stack trace into file, line, column information.
+ * @param {string} stackTrace Stack trace to parse.
+ */
+TestResult.parseStackTrace = function(stackTrace) {
+
+};
+
+/**
+ * Creates a TestResult object from an error.
+ * @param {Error} error Error from which to generate message and file/line information.
+ * @param {string|string[]=} message Additional message(s) to emit.
+ * @param {number=5} severity Severity of error: -1=inconclusive,0=Debug,1=info,2=pass,3=warning,4=fail,5=error
+ * @param {number=} stackDepth Maximum number of entries to parse from stack.
+ */
+TestResult.FromErrorObject = function(error, message, severity, stackDepth) {
+
+};
 
 var path = PATH.join(__dirname, "..", "Dist", "JSUnitTesting.js")
 try {
