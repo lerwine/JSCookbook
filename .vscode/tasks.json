@@ -79,10 +79,33 @@
                     "severity": "error",
                     "pattern":[
                         {
-                            "regexp": "^([^\\\\s].*)\\\\((\\\\d+,\\\\d+)\\\\):\\\\s*(.*)$",
-                            "file": 1,
-                            "location": 2,
-                            "message": 3
+                            "regexp": "^(?:ERROR|CRITICAL)\\s*\\[[45](?:@(\\d+)>(?:,(\\d+))?)?(?:~([^\\[\\]]*))?\\](?:\\s*(.+))?",
+                            "line": 1,
+                            "column": 2,
+                            "file": 3,
+                            "message": 4
+                        }
+                    ]
+                }, {
+                    "severity": "warning",
+                    "pattern":[
+                        {
+                            "regexp": "^WARNING\\s*\\[3(?:@(\\d+)>(?:,(\\d+))?)?(?:~([^\\[\\]]*))?\\](?:\\s*(.+))?",
+                            "line": 1,
+                            "column": 2,
+                            "file": 3,
+                            "message": 4
+                        }
+                    ]
+                }, {
+                    "severity": "info",
+                    "pattern":[
+                        {
+                            "regexp": "^INFO\\s*\\[2(?:@(\\d+)>(?:,(\\d+))?)?(?:~([^\\[\\]]*))?\\](?:\\s*(.+))?",
+                            "line": 1,
+                            "column": 2,
+                            "file": 3,
+                            "message": 4
                         }
                     ]
                 }

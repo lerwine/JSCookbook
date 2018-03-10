@@ -25,3 +25,6 @@ ecmel.vscode-html-css
 abusaidm.html-snippets
 ms-vscode.powershell
 DotJoshJohnson.xml
+fknop.vscode-npm
+christian-kohler.npm-intellisense
+lolkush.quickstart

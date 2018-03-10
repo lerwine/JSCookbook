@@ -66,6 +66,96 @@ if (fullPaths.filter(function(p) {
     return;
 */
 
+/**
+ * Writes a formatted message to the console.
+ * @param {string|string[]} message Message(s) to emit.
+ * @param {number=2} severity Severity of error: 0=Debug,1=verbose,2=info,3=warning,4=error,5=critical
+ * @param {string=} file Name of file associated with message. 
+ * @param {number=} line Line number (1-based) associated with message.
+ * @param {number=} column Column number (1-based) associated with message.
+ */
+function emitResult(message, severity, file, line, column) {
+    if (typeof(severity) !== "number")
+        severity = (typeof(severity) == "undefined" || severity === null) ? Number.NaN : parseInt(severity);
+    if (isNaN(severity))
+        severity = 2;
+    else if (severity < 0)
+        severity = 0;
+    else if (severity > 5)
+        severity = 5;
+    if (typeof(message) == "undefined" || message === null)
+        message = "";
+    else {
+        var re = /\r\n?|\n/g;
+        var nonBlankFilter = function(s) { return s.length > 0; };
+        if (typeof(message) == "object" && Array.isArray(message)) {
+                var arr = [];
+                message.forEach(function(s) {
+                    arr = arr.concat(((typeof(s) == "string") ? s : ((typeof(s) == "undefined" || s === null) ? "" : s+"")).split(re));
+                });
+                message = arr;
+        } else
+            message = ((typeof(message) == "string") ? message : ((typeof(message) == "undefined" || message === null) ? "" : message+"")).split(re)
+        message = message.map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+        if (message.length == 0)
+            message = "";
+        else
+            message = (message.length == 1) ? message[0] : message.join("\n\t");
+    }
+    if (message.length > 0)
+        message = " " + message;
+    if (typeof(line) !== "number")
+        line = (typeof(line) == "undefined" || line === null) ? Number.NaN : parseInt(line);
+    if (typeof(column) !== "number")
+        column = (typeof(column) == "undefined" || column === null) ? Number.NaN : parseInt(column);
+    var logLine;
+    switch (severity) {
+        case 0:
+            logLine = "DEBUG";
+            break;
+        case 1:
+            logLine = "VERBOSE";
+            break;
+        case 3:
+            logLine = "WARNING";
+            break;
+        case 4:
+            logLine = "ERROR";
+            break;
+        case 5:
+            logLine = "CRITICAL";
+            break;
+        default:
+            logLine = "INFO";
+            break;
+    }
+    logLine += " [" + severity;
+    if (isNaN(line) || line < 1) {
+        if (!isNaN(column) && column > 0)
+            logLine += "@," + column;
+    } else {
+        logLine += "@" + line;
+        if (!isNaN(column) && column > 0)
+            logLine += "," + column;
+    }
+    if (typeof(file) != "undefined" && file !== null) {
+        file = ((typeof(file) == "string") ? file : file+"").trim();
+        if (file.length > 0)
+            logLine += "~" + file.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]").replace("\r", "\\r").repeat("\n", "\\n");
+    }
+    console.log("%s]%s", logLine, message);
+}
+
+/**
+ * Writes formatted error message to the console.
+ * @param {Error} error Error to be emitted.
+ * @param {string|string[]=} message Additional message(s) to emit.
+ * @param {number=4} severity Severity of error: 0=Debug,1=verbose,2=info,3=warning,4=error,5=critical
+ */
+function emitError(error, message, severity) {
+
+}
+
 var path = PATH.join(__dirname, "..", "Dist", "JSUnitTesting.js")
 try {
     var context = VM.createContext(sandbox);
