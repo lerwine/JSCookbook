@@ -69,7 +69,7 @@ if (fullPaths.filter(function(p) {
 /**
  * Writes a formatted message to the console.
  * @param {string|string[]} message Message(s) to emit.
- * @param {number=2} severity Severity of error: 0=Debug,1=verbose,2=info,3=warning,4=error,5=critical
+ * @param {number=2} severity Severity of error: -1=inconclusive,0=Debug,1=verbose,2=pass,3=warning,4=fail,5=error
  * @param {string=} file Name of file associated with message. 
  * @param {number=} line Line number (1-based) associated with message.
  * @param {number=} column Column number (1-based) associated with message.
@@ -79,8 +79,8 @@ function emitResult(message, severity, file, line, column) {
         severity = (typeof(severity) == "undefined" || severity === null) ? Number.NaN : parseInt(severity);
     if (isNaN(severity))
         severity = 2;
-    else if (severity < 0)
-        severity = 0;
+    else if (severity < -1)
+        severity = -1;
     else if (severity > 5)
         severity = 5;
     if (typeof(message) == "undefined" || message === null)
@@ -116,17 +116,20 @@ function emitResult(message, severity, file, line, column) {
         case 1:
             logLine = "VERBOSE";
             break;
+        case 2:
+            logLine = "PASS";
+            break;
         case 3:
             logLine = "WARNING";
             break;
         case 4:
-            logLine = "ERROR";
+            logLine = "FAIL";
             break;
         case 5:
-            logLine = "CRITICAL";
+            logLine = "ERROR";
             break;
         default:
-            logLine = "INFO";
+            logLine = "INCONCLUSIVE";
             break;
     }
     logLine += " [" + severity;
@@ -150,7 +153,7 @@ function emitResult(message, severity, file, line, column) {
  * Writes formatted error message to the console.
  * @param {Error} error Error to be emitted.
  * @param {string|string[]=} message Additional message(s) to emit.
- * @param {number=4} severity Severity of error: 0=Debug,1=verbose,2=info,3=warning,4=error,5=critical
+ * @param {number=4} severity Severity of error: -1=inconclusive,0=Debug,1=verbose,2=pass,3=warning,4=fail,5=error
  */
 function emitError(error, message, severity) {
 
