@@ -4,9 +4,39 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build JSUnitTesting",
+            "label": "Build JSUnitTesting Min",
             "type": "shell",
             "command": "uglifyjs",
+            "identifier": "buildJSUnitTestingMin",
+            "group": "build",
+            "args": [
+                "./src/JSUnitTesting/Utility.js",
+                "./src/JSUnitTesting/TypeSpec.js",
+                "./src/JSUnitTesting/TestResult.js",
+                "./src/JSUnitTesting/UnitTest.js",
+                "./src/JSUnitTesting/TestCollection.js",
+                "./src/JSUnitTesting/AssertionError.js",
+                "./src/JSUnitTesting/Assert.js",
+                "-o",
+                "./Dist/JSUnitTesting.min.js",
+                "--source-map",
+                "--source-map-root",
+                "https://github.com/lerwine/JSCookbook/tree/master/src/JSUnitTesting",
+                "-c",
+                "-m"
+            ],
+            "problemMatcher":"$jshint"
+        },
+        {
+            "label": "Build JSUnitTesting",
+            "identifier": "buildJSUnitTesting",
+            "dependsOn": ["buildJSUnitTestingMin"],
+            "type": "shell",
+            "command": "uglifyjs",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "args": [
                 "./src/JSUnitTesting/Utility.js",
                 "./src/JSUnitTesting/TypeSpec.js",
@@ -25,26 +55,38 @@
             "problemMatcher":"$jshint"
         },
         {
-            "label": "Build JSUnitTesting Min",
+            "label": "Test JSUnitTesting",
+            "identifier": "testJSUnitTesting",
+            "dependsOn": ["buildJSUnitTesting"],
             "type": "shell",
-            "command": "uglifyjs",
+            "command": "node",
+            "group":{
+                "kind": "test",
+                "isDefault": true
+            },
             "args": [
-                "./src/JSUnitTesting/Utility.js",
-                "./src/JSUnitTesting/TypeSpec.js",
-                "./src/JSUnitTesting/TestResult.js",
-                "./src/JSUnitTesting/UnitTest.js",
-                "./src/JSUnitTesting/TestCollection.js",
-                "./src/JSUnitTesting/AssertionError.js",
-                "./src/JSUnitTesting/Assert.js",
-                "-o",
-                "./Dist/JSUnitTesting.min.js",
-                "--source-map",
-                "--source-map-root",
-                "https://github.com/lerwine/JSCookbook/tree/master/src/JSUnitTesting",
-                "-c",
-                "-m"
+                "./Testing/UnitTestingValidation.js",
+                "../src/JSUnitTesting/Utility.js",
+                "../src/JSUnitTesting/TypeSpec.js",
+                "../src/JSUnitTesting/TestResult.js",
+                "../src/JSUnitTesting/UnitTest.js",
+                "../src/JSUnitTesting/TestCollection.js",
+                "../src/JSUnitTesting/AssertionError.js",
+                "../src/JSUnitTesting/Assert.js",
             ],
-            "problemMatcher":"$jshint"
+            "problemMatcher": [
+                {
+                    "severity": "error",
+                    "pattern":[
+                        {
+                            "regexp": "^([^\\\\s].*)\\\\((\\\\d+,\\\\d+)\\\\):\\\\s*(.*)$",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

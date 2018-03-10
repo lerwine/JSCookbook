@@ -1,687 +1,717 @@
-function ColorInfo(color) {
-    var rgb = [0, 0, 0], hsb = [0, 0, 0], baseValueInfo;
+var ColorInfo = (function() {
+    var __ColorSpace_HSB = "hsb";
+    var __ColorSpace_RGB = "rgb";
+    var __ValueType_INT = "int";
+    var __ValueType_FLOAT = "float";
+    var __floatDigitRe = /^\d+\.\d+$/i;
+    var __hexDigitRe = /^(?:\#|0x)?([a-f\d]{2}$)/i;
+    var __hexStringRe = /^(?:\#|0x)?(?:([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})|([a-f\d])([a-f\d])([a-f\d]))$/i;
 
-    var updateBaseValues = function() {
-        if (baseValueInfo.colorSpace == "rgb") {
-            if (baseValueInfo.valueType == "percent") {
-                baseValueInfo.red = rgb[0];
-                baseValueInfo.green = rgb[1];
-                baseValueInfo.blue = rgb[2];
-            } else {
-                baseValueInfo.red = this.red8Bit();
-                baseValueInfo.green = this.green8Bit();
-                baseValueInfo.blue = this.blue8Bit();
-            }
-        } else if (baseValueInfo.valueType == "percent") {
-            baseValueInfo.hue = hsb[0];
-            baseValueInfo.saturation = hsb[1];
-            baseValueInfo.brightness = hsb[2];
-        } else {
-            baseValueInfo.hue = Math.round((hsb[1] * 2.55) / 3.6);
-            baseValueInfo.saturation = Math.round(hsb[1] * 2.55);
-            baseValueInfo.brightness = Math.round(hsb[2] * 2.55);
-        }
-    };
-
-    if (ColorInfo.isNil(color))
-        baseValueInfo = { red: 0, green: 0, blue: 0, colorSpace: "rgb", valueType: "percent" };
-    else {
-        if (typeof(color) == "string")
-            baseValueInfo = ColorInfo.parseColorString(color);
-        else if (typeof(color) == "object") {
-            if ((color.colorSpace === "rgb" || color.colorSpace === "hsb") && (color.valueType === "percent" || color.valueType === "8bit"))
-                baseValueInfo = color;
-            else
-            {
-                var rgbOriginal = {
-                    red: ColorInfo.asInteger(color.red), green: ColorInfo.asInteger(color.green), blue: ColorInfo.asInteger(color.blue),
-                    colorSpace: "rgb", valueType: (color.valueType === "8bit") ? "8bit" : "percent"
-                };
-                if (ColorInfo.isNil(rgbOriginal.red)) {
-                    rgbOriginal.red = ColorInfo.asInteger(color.r);
-                    if (ColorInfo.isNil(rgbOriginal.red)) {
-                        rgbOriginal.red = (ColorInfo.isNil(color.red)) ? color.r : color.red;
-                        if (typeof(rgbOriginal.red) == "function")
-                            rgbOriginal.red = rgbOriginal.red();
-                    }
-                }
-                if (ColorInfo.isNil(rgbOriginal.green)) {
-                    rgbOriginal.green = ColorInfo.asInteger(color.g);
-                    if (ColorInfo.isNil(rgbOriginal.green)) {
-                        rgbOriginal.green = (ColorInfo.isNil(color.green)) ? color.g : color.green;
-                        if (typeof(rgbOriginal.green) == "function")
-                            rgbOriginal.green = rgbOriginal.green();
-                    }
-                }
-                if (ColorInfo.isNil(rgbOriginal.blue)) {
-                    rgbOriginal.blue = ColorInfo.asInteger(color.b);
-                    if (ColorInfo.isNil(rgbOriginal.blue)) {
-                        rgbOriginal.blue = (ColorInfo.isNil(color.blue)) ? color.b : color.blue;
-                        if (typeof(rgbOriginal.blue) == "function")
-                            rgbOriginal.blue = rgbOriginal.blue();
-                    }
-                }
-                if (color.colorSpace === "rgb")
-                    baseValueInfo = rgbOriginal;
-                else {
-                    var hsbOriginal = {
-                        hue: ColorInfo.asInteger(color.hue), saturation: ColorInfo.asInteger(color.saturation), brightness: ColorInfo.asInteger(color.brightness),
-                        colorSpace: "hsb", valueType: rgbOriginal.valueType
-                    };
-                    if (ColorInfo.isNil(hsbOriginal.hue)) {
-                        hsbOriginal.hue = ColorInfo.asInteger(color.h);
-                        if (ColorInfo.isNil(hsbOriginal.hue)) {
-                            hsbOriginal.hue = (ColorInfo.isNil(color.hue)) ? color.h : color.hue;
-                            if (typeof(hsbOriginal.hue) == "function")
-                                hsbOriginal.hue = hsbOriginal.hue();
-                        }
-                    }
-                    if (ColorInfo.isNil(hsbOriginal.saturation)) {
-                        hsbOriginal.saturation = ColorInfo.asInteger(color.s);
-                        if (ColorInfo.isNil(hsbOriginal.saturation)) {
-                            hsbOriginal.saturation = (ColorInfo.isNil(color.saturation)) ? color.s : color.saturation;
-                            if (typeof(hsbOriginal.saturation) == "function")
-                                hsbOriginal.saturation = hsbOriginal.saturation();
-                        }
-                    }
-                    if (ColorInfo.isNil(hsbOriginal.brightness)) {
-                        hsbOriginal.brightness = ColorInfo.asInteger(color.b);
-                        if (ColorInfo.isNil(hsbOriginal.brightness)) {
-                            hsbOriginal.brightness = (ColorInfo.isNil(color.brightness)) ? color.b : color.brightness;
-                            if (typeof(hsbOriginal.brightness) == "function")
-                            hsbOriginal.brightness = hsbOriginal.brightness();
-                        }
-                    }
-                    if (color.colorSpace === "hsb")
-                        baseValueInfo = hsbOriginal;
-                    else if (typeof(rgbOriginal.red) == "number" && typeof(rgbOriginal.green) == "number" && typeof(rgbOriginal.blue) == "number") {
-                        baseValueInfo = rgbOriginal;
-                        if ((rgbOriginal.red < 0 || rgbOriginal.green < 0 || rgbOriginal.blue < 0 || (rgbOriginal.valueType == "8bit") ? (rgbOriginal.red > 255 ||rgbOriginal.green > 255 || rgbOriginal.blue > 255) :
-                                (rgbOriginal.red > 1 || rgbOriginal.green > 1 || rgbOriginal.blue > 1)) && typeof(hsbOriginal.hue) == "number" && typeof(hsbOriginal.saturation) == "number" && typeof(hsbOriginal.brightness) == "number")
-                            baseValueInfo = rgbOriginal;
-                    } else if (!(ColorInfo.isNil(hsbOriginal.hue) || ColorInfo.isNil(hsbOriginal.saturation) || ColorInfo.isNil(hsbOriginal.brightness)))
-                        baseValueInfo = hsbOriginal;
-                    else if (!(ColorInfo.isNil(rgbOriginal.red) || ColorInfo.isNil(rgbOriginal.green) || ColorInfo.isNil(colrgbOriginalor.blue)))
-                        baseValueInfo = rgbOriginal;
-                    else
-                        throw new Error("Input object does not have all RGB or HSB values");
-                }
-            }
-        } else
-            throw new Error("Invalid color argument type")
-        
-        var names = (baseValueInfo.colorSpace == "rgb") ? ["red", "green", "blue"] : ["hue", "saturation", "brightness"];
-        var values;
-        if (baseValueInfo.valueType == "8bit") {
-            values = names.map(function(n) {
-                var v = baseValueInfo[n];
-                if (ColorInfo.isNil(v))
-                    throw new Error("Value for " + n + " not found.");
-                if (typeof(v) != "number") {
-                    if (typeof(v) != "string")
-                        throw new Error("Invalid type for " + n + " value.");
-                    v = parseInt(v);
-                }
-                if (isNaN(v))
-                    throw new Error("Invalid " + n + " value.");
-                if (v < 0 || v > 255)
-                    throw new Error("Value of " + n + " is out of range.");
-                baseValueInfo[n] = v;
-                return v;
-            });
-            if (baseValueInfo.colorSpace == "hsb")
-                values[0] = (values[0] == 255) ? 0 : values[0] * 360;
-            values = values.map(function(v) { return v / 2.55; });
-        } else
-            values = names.map(function(n) {
-                var v = baseValueInfo[n];
-                if (ColorInfo.isNil(v))
-                    throw new Error("Value for " + n + " not found.");
-                if (typeof(v) != "number") {
-                    if (typeof(v) != "string")
-                        throw new Error("Invalid type for " + n + " value.");
-                    v = parseFloat(v);
-                }
-                if (isNaN(v))
-                    throw new Error("Invalid " + n + " value.");
-                if (v < 0 || v > ((n == "hue") ? 360 : 100))
-                    throw new Error("Value of " + n + " is out of range.");
-                baseValueInfo[n] = v;
-                return v;
-            });
-        
-        if ((baseValueInfo.colorSpace == "hsb")) {
-            rgb = ColorInfo.hsbToRgb(values);
-            hsb = ColorInfo.rgbToHsb(rgb);
-        } else {
-            hsb = ColorInfo.rgbToHsb(values);
-            rgb = values;
-        }
-    }
-
-    this.red = function(value) {
-        if (ColorInfo.isNil(value))
-            return rgb[0];
-        var i = ColorInfo.asInteger(value);
-        if (ColorInfo.isNil(i))
-            throw new Error("Invalid Red value");
-        if (i < 0 || i > 100)
-            throw new Error("Red must be a value from 0 to 100.");
-        if (rgb[0] == i)
-            return;
-        rgb[0] = i;
-        hsb = ColorInfo.rgbToHsb(rgb);
-        updateBaseValues();
-    };
-
-    this.red8Bit = function(value) {
-        if (ColorInfo.isNil(value))
-            return Math.round(rgb[0] * 2.55);
-        var i = ColorInfo.asInteger(value);
-        if (ColorInfo.isNil(i))
-            throw new Error("Invalid Red 8-bit value");
-        if (i < 0 || i > 255)
-            throw new Error("8-bit red must be a value from 0 to 255.");
-        i /= 2.55;
-        if (rgb[0] == i)
-            return;
-        rgb[0] = i;
-        hsb = ColorInfo.rgbToHsb(rgb);
-        updateBaseValues();
-    };
-
-    this.green = function(value) {
-        if (ColorInfo.isNil(value))
-            return rgb[1];
-        var i = ColorInfo.asInteger(value);
-        if (ColorInfo.isNil(i))
-            throw new Error("Invalid Green value");
-        if (i < 0 || i > 100)
-            throw new Error("Green must be a value from 0 to 100.");
-        if (rgb[1] == i)
-            return;
-        rgb[1] = i;
-        hsb = ColorInfo.rgbToHsb(rgb);
-        updateBaseValues();
-    };
-
-    this.green8Bit = function(value) {
-        if (ColorInfo.isNil(value))
-            return Math.round(rgb[1] * 2.55);
-        var i = ColorInfo.asInteger(value);
-        if (ColorInfo.isNil(i))
-            throw new Error("Invalid Green 8-bit value");
-        if (i < 0 || i > 255)
-            throw new Error("8-bit green must be a value from 0 to 255.");
-        i /= 2.55;
-        if (rgb[1] == i)
-            return;
-        rgb[1] = i;
-        hsb = ColorInfo.rgbToHsb(rgb);
-        updateBaseValues();
-    };
-
-    this.blue = function(value) {
-        if (ColorInfo.isNil(value))
-            return rgb[2];
-        var i = ColorInfo.asInteger(value);
-        if (ColorInfo.isNil(i))
-            throw new Error("Invalid Blue value");
-        if (i < 0 || i > 100)
-            throw new Error("Blue must be a value from 0 to 100.");
-        if (rgb[2] == i)
-            return;
-        rgb[2] = i;
-        hsb = ColorInfo.rgbToHsb(rgb);
-        updateBaseValues();
-    };
-
-    this.blue8Bit = function(value) {
-        if (ColorInfo.isNil(value))
-            return Math.round(rgb[1] * 2.55);
-        var i = ColorInfo.asInteger(value);
-        if (ColorInfo.isNil(i))
-            throw new Error("Invalid Blue 8-bit value");
-        if (i < 0 || i > 255)
-            throw new Error("8-bit blue must be a value from 0 to 255.");
-        i /= 2.55;
-        if (rgb[2] == i)
-            return;
-        rgb[2] = i;
-        hsb = ColorInfo.rgbToHsb(rgb);
-        updateBaseValues();
-    };
-
-    this.hue = function(value) {
-        if (ColorInfo.isNil(value))
-            return hsb[0];
-        var i = ColorInfo.asInteger(value);
-        if (ColorInfo.isNil(i))
-            throw new Error("Invalid Hue value");
-        if (i < 0 || i > 360)
-            throw new Error("Hue must be a degree value from 0.0 to 360.0.");
-        if (i == 360)
-            i = 0;
-        if (hsb[0] == i)
-            return;
-        hsb[0] = i;
-        rgb = ColorInfo.hsbToRgb(hsb);
-        hsb = ColorInfo.rgbToHsb(rgb);
-        updateBaseValues();
-    };
-
-    this.saturation = function(value) {
-        if (ColorInfo.isNil(value))
-            return hsb[1];
-        var i = ColorInfo.asInteger(value);
-        if (ColorInfo.isNil(i))
-            throw new Error("Invalid Saturation value");
-        if (i < 0 || i > 100)
-            throw new Error("Saturation must be a percentage value from 0.0 to 100.0.");
-        if (hsb[1] == i)
-            return;
-        hsb[1] = i;
-        rgb = ColorInfo.hsbToRgb(hsb);
-        hsb = ColorInfo.rgbToHsb(rgb);
-        updateBaseValues();
-    };
-
-    this.brightness = function(value) {
-        if (ColorInfo.isNil(value))
-            return hsb[2];
-        var i = ColorInfo.asInteger(value);
-        if (ColorInfo.isNil(i))
-            throw new Error("Invalid Brightness value");
-        if (i < 0 || i > 100)
-            throw new Error("Brightness must be a percentage value from 0.0 to 100.0.");
-        if (hsb[2] == i)
-            return;
-        hsb[2] = i;
-        rgb = ColorInfo.hsbToRgb(hsb);
-        hsb = ColorInfo.rgbToHsb(rgb);
-        updateBaseValues();
-    };
-
-    this.rgbHexString = function(value) {
-        if (ColorInfo.isNil(value))
-            return rgb.map(function(p) {
-                var i = Math.round(p * 2.55);
-                if (i < 16)
-                    return "0" + i.toString(16);
-                return i.toString(16);
-            }).join("");
-        var newRgb = ColorInfo.parseHexString(value).map(function(i) { return i / 2.55; });
-        if (newRgb[0] == rgb[0] && newRgb[1] == rgb[1] && newRgb[2] == rgb[2])
-            return;
-        rgb = newRgb;
-        hsb = ColorInfo.rgbToHsb(rgb);
-        updateBaseValues();
-    };
-
-    this.hsbHexString = function(value) {
-        if (ColorInfo.isNil(value)) {
-            var arr = hsb.map(function(p) { return p * 2.55; });
-            arr[0] /= 3.6;
-            return arr.map(function(p) {
-                var i = Math.round(p * 2.55);
-                if (i < 16)
-                    return "0" + i.toString(16);
-                return i.toString(16);
-            }).join("");
-        }
-        var newHsb = ColorInfo.parseHexString(value);
-        newHsb[0] *= 3.6;
-        newHsb = newHsb.map(function(i) { return i / 2.55; });
-        if (newHsb[0] == 360)
-            newHsb[0] = 0;
-        if (newHsb[0] == hsb[0] && newHsb[1] == hsb[1] && newHsb[2] == hsb[2])
-            return;
-        rgb = ColorInfo.hsbToRgb(newHsb);
-        hsb = ColorInfo.rgbToHsb(rgb);
-        updateBaseValues();
-    };
-
-    this.baseColorSpace = function(colorSpace) {
-        if (ColorInfo.isNil(colorSpace))
-            return baseValueInfo.colorSpace;
-        
-        if (baseValueInfo.colorSpace == colorSpace)
-            return;
-        
-        if (colorSpace === "rgb")
-            baseValueInfo = { colorSpace: "rgb", valueType: baseValueInfo.valueType };
-        else if (colorSpace == "hsb" || colorSpace == "hsv")
-            baseValueInfo = { colorSpace: "hsb", valueType: baseValueInfo.valueType };
-        else
-            throw new Error("ColorSpace must be either rgb or hsb.");
-        updateBaseValues();
-    };
-
-    this.baseValueType = function(type) {
-        if (ColorInfo.isNil(type))
-            return baseValueInfo.valueType;
-        
-        if (baseValueInfo.valueType == valueType)
-            return;
-        
-        if (valueType === "percent")
-            baseValueInfo = { colorSpace: baseValueInfo.colorSpace, valueType: "percent" };
-        else if (valueType == "8bit")
-            baseValueInfo = { colorSpace: baseValueInfo.colorSpace, valueType: "8bit" };
-        else
-            throw new Error("ColorSpace must be either percent or 8bit.");
-        updateBaseValues();
-    };
-
-    this.baseValues = function(values) {
-        if (ColorInfo.isNil(values)) {
-            if (baseValueInfo.colorSpace == "rgb")
-                return [this.baseValueInfo.red, this.baseValueInfo.green, this.baseValueInfo.blue];
-            return [this.baseValueInfo.hue, this.baseValueInfo.saturation, this.baseValueInfo.brightness];
-        }
-        var valueArr;
-        if (arguments.length > 1)
-            valueArr = [arguments[0], arguments[1], arguments[2]];
-        else
-            valueArr = (Array.isArray(values)) ? values : valueArr;
-        var numberArr = (baseValueInfo.valueType == "percent") ? valueArr.map(function(v) { return ColorInfo.asNumber(v); }) : valueArr.map(function(v) { return ColorInfo.asInteger(v); });
-        var names = (baseValueInfo.colorSpace == "rgb") ? ["red", "green", "blue"] : ["hue", "saturation", "brightness"];
-        for (var i = 0; i < 3; i++) {
-            if (numberArr.length < (i + 1) || typeof(numberArr[i]) != "number")
-                throw new Error(ColorInfo.isNil(valueArr[i]) ? "Value at position " + i + " (" + names[i] + ") not provided." : "Invalid value at position " + i + " (" + names[i] + ").");
-        }
-        if (baseValueInfo.valueType == "8bit") {
-            for (var i = 0; i < 3; i++) {
-                if (numberArr[i] < 0 || numberArr[i] > 255)
-                    throw new Error("Value at position " + i + " (" + names[i] + ") is out of range.");
-            }
-        } else {
-            var ranges = [100, 100, 100];
-            if (baseValueInfo.colorSpace == "hsb")
-                ranges[0] = 360;
-            for (var i = 0; i < 3; i++) {
-                if (numberArr[i] < 0 || numberArr[i] > ranges[i])
-                    throw new Error("Value at position " + i + " (" + names[i] + ") is out of range.");
-            }
-        }
-
-        if (baseValueInfo.colorSpace == "rgb") {
-            baseValueInfo.red = numberArr[0];
-            baseValueInfo.green = numberArr[1];
-            baseValueInfo.blue = numberArr[2];
-            if (baseValueInfo.valueType == "8bit")
-                numberArr = numberArr.map(function(n) { return n / 2.55; });
-            if (numberArr[0] != rgb[0] || numberArr[1] != rgb[1] || numberArr[2] != rgb[2]) {
-                rgb = numberArr;
-                hsb = ColorInfo.rgbToHsb(rgb);
-            }
-        } else {
-            baseValueInfo.hue = numberArr[0];
-            baseValueInfo.saturation = numberArr[1];
-            baseValueInfo.brightness = numberArr[2];
-            if (baseValueInfo.valueType == "8bit") {
-                numberArr[0] *= 3.6;
-                numberArr = numberArr.map(function(n) { return n / 2.55; });
-            }
-            if (numberArr[0] == 360) {
-                baseValueInfo.hue = 0;
-                numberArr[0] = 0;
-            }
-            if (numberArr[0] != hsb[0] || numberArr[1] != hsb[1] || numberArr[2] != hsb[2]) {
-                rgb = ColorInfo.hsbToRgb(numberArr);
-                hsb = ColorInfo.rgbToHsb(rgb);
-            }
-        }
-    };
-
-    this.toString = function() {
-        return "RGB(" + rgb.map(function(v) { return (Number.isInteger(v)) ? v : Math.round(v * 100) / 100; }).join("%,") + "%)";
-    };
-}
-ColorInfo.FloatDigitRe = /^\d+\.\d+$/i;
-ColorInfo.HexDigitRe = /^(?:\#|0x)?([a-f\d]{2}$)/i;
-ColorInfo.ByteValueRe = /^(0*(?:2(?:5[0-5]|[0-4]\d)|1\d\d|[1-9]\d?)|0+)$/;
-ColorInfo.HexStringRe = /^(?:\#|0x)?(?:([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})|([a-f\d])([a-f\d])([a-f\d]))$/i;
-ColorInfo.HsbRe = /^HS[BV]\(\s*(0*(?:360(?:\.0+)?|(?:3[0-5]\d|[12]\d\d|[1-9]\d?)(?:\.\d+)?)|0+(?:\.\d+)?)(?:\xb0|&deg;)?,\s*(0*100(?:\.0+)?|(?:(?:0*[1-9]\d?|0+)(?:\.\d+)?))%?,\s*(0*100(?:\.0+)?|(?:(?:0*[1-9]\d?|0+)(?:\.\d+)?))%?\s*\)$/;
-ColorInfo.RgbPctRe = /^RGB\(\s*(?:(0*100\.0+|(?:0*[1-9]\d?|0+)\.\d+)%?|(0*(?:100|[1-9]\d?)|0+)%),\s*(?:(0*100\.0+|(?:0*[1-9]\d?|0+)\.\d+)%?|(0*(?:100|[1-9]\d?)|0+)%),\s*(?:(0*100\.0+|(?:0*[1-9]\d?|0+)\.\d+)%?|(0*(?:100|[1-9]\d?)|0+)%)\s*\)$/;
-ColorInfo.Rgb24BitRe = /^RGB\(\s*(0*(?:2(?:5[0-5]|[0-4]\d)|1\d\d|[1-9]\d?)|0+),\s*(0*(?:2(?:5[0-5]|[0-4]\d)|1\d\d|[1-9]\d?)|0+),\s*(0*(?:2(?:5[0-5]|[0-4]\d)|1\d\d|[1-9]\d?)|0+)\s*\)$/;
-ColorInfo.asNumber = function(value) {
-    if (typeof(value) != "undefined" && value !== null) {
-        if (typeof(value) == "number") {
-            if (!isNaN(value))
-                return value;
-        } else if (typeof(value) == "string" && (value = value.trim().length > 0)) {
-            if (ColorInfo.FloatDigitRe.test(value))
-                return parseFloat(value);
-            var m = ColorInfo.HexDigitRe.exec(value);
-            if (!ColorInfo.isNil(m))
-                return parseInt(m[1], 16);
-
-            var n = parseFloat(value);
-            if (!isNaN(n))
-                return n;
-        }
-    }
-};
-ColorInfo.isNil = function(value) { return typeof(value) == "undefined" || value === null; }
-ColorInfo.asInteger = function(value) {
-    if (!ColorInfo.isNil(value)) {
-        if (typeof(value) == "number") {
-            if (!isNaN(value)) {
-                if (Number.isInteger(value))
+    var __asNumber = function(value) {
+        if (typeof(value) != "undefined" && value !== null) {
+            if (typeof(value) == "number") {
+                if (!isNaN(value))
                     return value;
-                return Math.round(value);
-            }
-        } else if (typeof(value) == "string" && (value = value.trim().length > 0)) {
-            var m = ColorInfo.HexDigitRe.exec(value);
-            if (!ColorInfo.isNil(m))
-                return parseInt(m[1], 16);
-            var n = parseInt(value);
-            if (!isNaN(n))
-                return n;
-        }
-    }
-};
-ColorInfo.parseHexString = function(text) {
-    if (ColorInfo.isNil(text))
-        return text;
-    if (typeof(text) != "string")
-        throw new Error("Argument must be a string value.");
-    var m = ColorInfo.HexStringRe.exec(text);
-    if (ColorInfo.isNil(m))
-        throw new Error("Invalid hexidecimal color string");
-    if (ColorInfo.isNil(m[1]))
-        return [m[4], m[5], m[6]].map(function(s) { return parseInt(s+s, 16); });
-    return [m[1], m[2], m[3]].map(function(s) { return parseInt(s, 16); });
-};
+            } else if (typeof(value) == "string" && (value = value.trim().length > 0)) {
+                if (__floatDigitRe.test(value))
+                    return parseFloat(value);
+                var m = __hexDigitRe.exec(value);
+                if (!__isNil(m))
+                    return parseInt(m[1], 16);
 
-ColorInfo.parseColorString = function(text) {
-    if (ColorInfo.isNil(text))
-        return text;
-    if (typeof(text) != "string")
-        throw new Error("Argument must be a string value.");
-    var m = ColorInfo.Rgb24BitRe.exec(text);
-    if (!ColorInfo.isNil(m))
-        return { red: parseInt(m[1]), green: parseInt(m[2]), blue: parseInt(m[3]), colorSpace: "rgb", valueType: "8bit" };
-    m = ColorInfo.RgbPctRe.exec(text);
-    if (!ColorInfo.isNil(m)) {
-        var rgbArr = [m[1], m[2], m[3], m[4], m[5], m[6]].filter(function(v) { return typeof(v) == "string"; }).map(function(s) { return parseFloat(s); });
-        return { red: rgbArr[0], green: rgbArr[1], blue: rgbArr[2], colorSpace: "rgb", valueType: "percent" };
-    }
-         
-    m = ColorInfo.HsbRe.exec(text);
-    if (!ColorInfo.isNil(m))
-        return { hue: parseFloat(m[0]), saturation: parseFloat(m[1]), brightness: parseFloat(m[2]), colorSpace: "hsb", valueType: "percent" };
-    m = ColorInfo.HexStringRe.exec(text);
-    if (ColorInfo.isNil(m))
-        throw new Error("Unknown color string");
-    var hexArr = ((ColorInfo.isNil(m[1])) ? [m[4]+m[4], m[5]+m[5], m[6]+m[6]] : [m[1], m[2], m[3]]).map(function(s) { return parseInt(s, 16); });
-    return { red: hexArr[0], green: hexArr[1], blue: hexArr[2], colorSpace: "rgb", valueType: "8bit" };
-};
-ColorInfo.rgbToHsb = function(rgb) {
-    var red, green, blue;
-    if (arguments.length > 1) {
-        red = arguments[0];
-        green = arguments[1];
-        if (arguments.length > 2)
-            blue = arguments[2];
-    } else {
-        if (!ColorInfo.isNil(rgb)) {
-            if (Array.isArray(rgb)) {
-                if (rgb.length > 0) {
-                    red = rgb[0];
-                    if (rgb.length > 1) {
-                        green = rgb[1];
-                        if (rgb.length > 2)
-                            blue = rgb[2];
-                    }
-                }
-                if (ColorInfo.isNil(red))
-                    red = (ColorInfo.isNil(rgb.red)) ? rgb.r : ((typeof(rgb.red) == "function") ? rgb.red() : rgb.red);
-                if (ColorInfo.isNil(green))
-                    green = (ColorInfo.isNil(rgb.green)) ? rgb.g : ((typeof(rgb.green) == "function") ? rgb.green() : rgb.green);
-                if (ColorInfo.isNil(blue))
-                    blue = (ColorInfo.isNil(rgb.blue)) ? rgb.b : ((typeof(rgb.blue) == "function") ? rgb.blue() : rgb.blue);
-            } else {
-                red = (ColorInfo.isNil(rgb.red)) ? rgb.r : ((typeof(rgb.red) == "function") ? rgb.red() : rgb.red);
-                green = (ColorInfo.isNil(rgb.green)) ? rgb.g : ((typeof(rgb.green) == "function") ? rgb.green() : rgb.green);
-                blue = (ColorInfo.isNil(rgb.blue)) ? rgb.b : ((typeof(rgb.blue) == "function") ? rgb.blue() : rgb.blue);
+                var n = parseFloat(value);
+                if (!isNaN(n))
+                    return n;
             }
         }
-    }
-    red = ColorInfo.asInteger(red);
-    if (ColorInfo.isNil(red))
-        throw new Error("Invalid Red value");
-    green = ColorInfo.asInteger(green);
-    if (ColorInfo.isNil(green))
-        throw new Error("Invalid Green value");
-    blue = ColorInfo.asInteger(blue);
-    if (ColorInfo.isNil(blue))
-        throw new Error("Invalid Blue value");
-    if (red < 0.0 || red > 100.0)
-        throw new Error("Red must be a percentage value from 0.0 to 100.0");
-    if (green < 0.0 || green > 100.0)
-        throw new Error("Green must be a percentage value from 0.0 to 100.0");
-    if (blue < 0.0 || blue > 100.0)
-        throw new Error("Blue must be a percentage value from 0.0 to 100.0");
+    };
 
-    red /= 100.0;
-    green /= 100.0;
-    blue /= 100.0;
-
-    var max, min;
-    if (red < green) {
-        if (blue < red) {
-            min = blue;
-            max = green;
-        } else {
-            min = red;
-            max = (blue < green) ? green : blue;
-        }
-    } else if (blue < green) {
-        min = blue;
-        max = red;
-    } else {
-        min = green;
-        max = (red < blue) ? blue : red;
-    }
-
-    var delta = max - min;
-    if (delta == 0.0)
-        return [ 0.0, 0.0, max * 100.0];
-
-    var hue = ((max == red) ? ((green - blue) / delta) : ((max == green) ? (2.0 + (blue - red) / delta) :
-        (4.0 + (red - green) / delta))) * 60.0;
-    if (hue < 0.0)
-        hue += 360.0;
-    var mm = max + min;
-    var brightness = mm / 2.0;
-    return [ hue, ((brightness <= 0.5) ? delta / mm : delta / (2.0 - mm)) * 100.0, brightness * 100.0];
-};
-ColorInfo.hsbToRgb = function(hsb) {
-    var hue, saturation, brightness;
-    if (arguments.length > 1) {
-        hue = arguments[0];
-        saturation = arguments[1];
-        if (arguments.length > 2)
-            brightness = arguments[2];
-    } else {
-        if (!ColorInfo.isNil(hsb)) {
-            if (Array.isArray(hsb)) {
-                if (hsb.length > 0) {
-                    hue = hsb[0];
-                    if (hsb.length > 1) {
-                        saturation = hsb[1];
-                        if (hsb.length > 2)
-                            brightness = hsb[2];
-                    }
-                }
-                if (ColorInfo.isNil(hue))
-                    hue = (ColorInfo.isNil(hsb.hue)) ? hsb.h : ((typeof(hsb.hue) == "function") ? hsb.hue() : hsb.hue);
-                if (ColorInfo.isNil(saturation))
-                    saturation = (ColorInfo.isNil(hsb.saturation)) ? hsb.s : ((typeof(hsb.saturation) == "function") ? hsb.saturation() : hsb.saturation);
-                if (ColorInfo.isNil(brightness))
-                    brightness = (ColorInfo.isNil(hsb.brightness)) ? hsb.b : ((typeof(hsb.brightness) == "function") ? hsb.brightness() : hsb.brightness);
-            } else {
-                hue = (ColorInfo.isNil(hsb.hue)) ? hsb.h : ((typeof(hsb.hue) == "function") ? hsb.hue() : hsb.hue);
-                saturation = (ColorInfo.isNil(hsb.saturation)) ? hsb.s : ((typeof(hsb.saturation) == "function") ? hsb.saturation() : hsb.saturation);
-                brightness = (ColorInfo.isNil(hsb.brightness)) ? hsb.b : ((typeof(hsb.brightness) == "function") ? hsb.brightness() : hsb.brightness);
-            }
-        }
-    }
-    hue = ColorInfo.asNumber(hue);
-    if (ColorInfo.isNil(hue))
-        throw new Error("Invalid Hue value");
-    saturation = ColorInfo.asNumber(saturation);
-    if (ColorInfo.isNil(saturation))
-        throw new Error("Invalid Saturation value");
-    brightness = ColorInfo.asNumber(brightness);
-    if (ColorInfo.isNil(brightness))
-        throw new Error("Invalid Brightness value");
-    if (hue < 0 || hue > 360)
-        throw new Error("Hue must be a value from 0.0 to 360.0");
-    if (saturation < 0 || saturation > 100.0)
-        throw new Error("Saturation must be a percentage value from 0.0 to 100.00");
-    if (brightness < 0 || brightness > 100.0)
-        throw new Error("Brightness must be a percentage value from 0.0 to 100.00");
-
-    if (hue == 360)
-        hue = 0;
-    saturation /= 100.0;
-    brightness /= 100.0;
+    var __isNil = function(value) { return typeof(value) == "undefined" || value === null; };
     
-    var min, max;
-    if (brightness < 0.5) {
-        min = brightness - brightness * saturation;
-        max = brightness + brightness * saturation;
-    } else {
-        min = brightness + brightness * saturation - saturation;
-        max = brightness - brightness * saturation + saturation;
+    var __asInteger = function(value) {
+        if (!__isNil(value)) {
+            if (typeof(value) == "number") {
+                if (!isNaN(value)) {
+                    if (Number.isInteger(value))
+                        return value;
+                    return Math.round(value);
+                }
+            } else if (typeof(value) == "string" && (value = value.trim().length > 0)) {
+                var m = __hexDigitRe.exec(value);
+                if (!__isNil(m))
+                    return parseInt(m[1], 16);
+                var n = parseInt(value);
+                if (!isNaN(n))
+                    return n;
+            }
+        }
+    };
+    
+    var __parseHexString = function(text) {
+        if (__isNil(text))
+            return text;
+        if (typeof(text) != "string")
+            throw new Error("Argument must be a string value.");
+        var m = __hexStringRe.exec(text);
+        if (__isNil(m))
+            throw new Error("Invalid hexidecimal color string");
+        if (!__isNil(m[1]))
+            return new Rgb8BitColorValues(parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16));
+
+        return new Rgb8BitColorValues(parseInt(m[4]+m[4], 16), parseInt(m[5]+m[5], 16), parseInt(m[6]+m[6], 16));
+    };
+    
+    var __rgbToHsb = function(rgb) {
+        if (arguments.length > 1)
+            return __rgbCvToHsb(new RgbPercentColorValues(arguments[0], arguments[1], arguments[2]));
+        if (!__isNil(rgb)) {
+            if (Array.isArray(rgb))
+                return __rgbCvToHsb(new RgbPercentColorValues(rgb[0], rgb[1], rgb[2]));
+            else {
+                var arr = [
+                    (typeof(rgb.red) == "function") ? rgb.red() : ((__isNil(rgb.red)) ? rgb.r : rgb.red),
+                    (typeof(rgb.green) == "function") ? rgb.green() : ((__isNil(rgb.green)) ? rgb.g : rgb.green),
+                    (typeof(rgb.blue) == "function") ? rgb.blue() : ((__isNil(rgb.blue)) ? rgb.b : rgb.blue)
+                ];
+                if (((typeof(rgb.valueType) == "function") ? rgb.valueType() : rgb.valueType) === __ValueType_INT)
+                    return __rgbCvToHsb(new Rgb8BitColorValues(arr[0], arr[1], arr[2]));
+                else
+                    return __rgbCvToHsb(new RgbPercentColorValues(arr[0], arr[1], arr[2]));
+            }
+        }
+    };
+    
+    var __hsbToRgb = function(hsb) {
+        if (arguments.length > 1)
+            return __hsbCvToRgb(new HsbPercentColorValues(arguments[0], arguments[1], arguments[2]));
+        if (!__isNil(hsb)) {
+            if (Array.isArray(hsb))
+                return __hsbCvToHsb(new HsbPercentColorValues(hsb[0], hsb[1], hsb[2]));
+            var arr = [
+                (typeof(hsb.hue) == "function") ? hsb.hue() : ((__isNil(hsb.hue)) ? hsb.h : hsb.hue),
+                (typeof(hsb.saturation) == "function") ? hsb.saturation() : ((__isNil(hsb.saturation)) ? hsb.s : hsb.saturation),
+                (typeof(hsb.brightness) == "function") ? hsb.brightness() : ((__isNil(hsb.brightness)) ? hsb.b : hsb.brightness)
+            ];
+            if (((typeof(hsb.valueType) == "function") ? hsb.valueType() : hsb.valueType) === __ValueType_INT)
+                return __hsbCvToRgb(new Hsb8BitColorValues(arr[0], arr[1], arr[2]));
+            else
+                return __hsbCvToRgb(new HsbPercentColorValues(arr[0], arr[1], arr[2]));
+        }
+    };
+    
+    var __setRgbHsb = function(rgb, hsb) {
+        this.rgb = rgb;
+        this.hsb = hsb;
+    };
+    
+    var __rgbCvToHsb = function(rgb) {
+        var errorMessages = rgb.getErrorMessages();
+        if (errorMessages.length > 0)
+            throw new Error(errorMessages.join("; "));
+        var red, green, blue;
+        if (rgb.valueType == __ValueType_INT) {
+            red = rgb.red / 255;
+            green = rgb.green / 255;
+            blue = rgb.blue / 255;
+        } else {
+            red = rgb.red / 100;
+            green = rgb.green / 100;
+            blue = rgb.blue / 100;
+        }
+        var max, min;
+        if (red < green) {
+            if (blue < red) {
+                min = blue;
+                max = green;
+            } else {
+                min = red;
+                max = (blue < green) ? green : blue;
+            }
+        } else if (blue < green) {
+            min = blue;
+            max = red;
+        } else {
+            min = green;
+            max = (red < blue) ? blue : red;
+        }
+
+        var delta = max - min;
+        if (delta == 0.0)
+            return new HsbPercentColorValues(0.0, 0.0, max * 100.0);
+
+        hue = ((max == red) ? ((green - blue) / delta) : ((max == green) ? (2.0 + (blue - red) / delta) :
+            (4.0 + (red - green) / delta))) * 60.0;
+        if (hue < 0.0)
+            hue += 360.0;
+        var mm = max + min;
+        brightness = mm / 2.0;
+        return new HsbPercentColorValues(hue, ((brightness <= 0.5) ? (delta / mm) : (delta / (2.0 - mm))) * 100.0, brightness * 100.0);
+    };
+    
+    var __hsbCvToRgb = function(hsb) {
+        var errorMessages = hsb.getErrorMessages();
+        if (errorMessages.length > 0)
+            throw new Error(errorMessages.join("; "));
+        var hue, saturation, brightness;
+        if (hsb.valueType == __ValueType_INT) {
+            hue = (hsb.hue / 2.55) * 3.6;
+            green = hsb.green / 255;
+            blue = hsb.blue / 255;
+        } else {
+            hue = hsb.hue;
+            saturation = hsb.saturation / 100;
+            brightness = hsb.brightness / 100;
+        }
+
+        var min, max;
+        if (brightness < 0.5) {
+            min = brightness - brightness * saturation;
+            max = brightness + brightness * saturation;
+        } else {
+            min = brightness + brightness * saturation - saturation;
+            max = brightness - brightness * saturation + saturation;
+        }
+
+        var sextant = Math.floor(hue / 60.0);
+        hue = ((hue >= 300.0) ? hue - 360.0 : hue) / 60.0 - 2.0 * Math.floor(((sextant + 1.0) % 6) / 2.0);
+        var mid = hue * (max - min);
+        if ((sextant % 2) == 0)
+            mid += min;
+        else
+            mid = min - mid;
+        max *= 100;
+        mid *= 100;
+        min *= 100;
+        switch (sextant)
+        {
+            case 0:
+                return new RgbPercentColorValues(max, mid, min);
+            case 1:
+                return new RgbPercentColorValues(mid, max, min);
+            case 2:
+                return new RgbPercentColorValues(min, max, mid);
+            case 3:
+                return new RgbPercentColorValues(min, mid, max);
+            case 4:
+                return new RgbPercentColorValues(mid, min, max);
+        }
+        return new RgbPercentColorValues(max, min, mid);
+    };
+
+    function RgbPercentColorValues(red, green, blue) {
+        this.red = __red = (typeof(red) == "undefined") ? 0 : red;
+        this.green = __green = (typeof(green) == "undefined") ? 0 : green;
+        this.blue = __blue = (typeof(blue) == "undefined") ? 0 : blue;
+        this.colorSpace = __ColorSpace_RGB;
+        this.valueType = __ValueType_FLOAT;
+        this.propertyNames = ["red", "green", "blue"];
+        this.maxValues = [100, 100, 100];
+        this.setRed = function(value) {
+            if (typeof(value) == "string")
+                value = parseFloat(value);
+            if (typeof(value) != "number" || isNaN(value))
+                throw new Error("Invalid Red value");
+            if (value < 0)
+                throw new Error("Red value cannot be less than zero");
+            if (value > 100)
+                throw new Error("Red value cannot be greater than 100");
+            if (this.red == value)
+                return false;
+            this.red = value;
+            return true;
+        };
+        this.setGreen = function(value) {
+            if (typeof(value) == "string")
+                value = parseFloat(value);
+            if (typeof(value) != "number" || isNaN(value))
+                throw new Error("Invalid Green value");
+            if (value < 0)
+                throw new Error("Green value cannot be less than zero");
+            if (value > 100)
+                throw new Error("Green value cannot be greater than 100");
+            if (this.green == value)
+                return false;
+            this.green = value;
+            return true;
+        };
+        this.setBlue = function(value) {
+            if (typeof(value) == "string")
+                value = parseFloat(value);
+            if (typeof(value) != "number" || isNaN(value))
+                throw new Error("Invalid Blue value");
+            if (value < 0)
+                throw new Error("Blue value cannot be less than zero");
+            if (value > 100)
+                throw new Error("Blue value cannot be greater than 100");
+            if (this.blue == value)
+                return false;
+            this.blue = value;
+            return true;
+        };
+        this.getValues = function() {
+            this.getErrorMessages();
+            return [ this.red, this.green, this.blue ];
+        };
+        this.isChanged = function() { return this.__red !== this.red || this.__green !== this.green || this.__blue !== this.blue; };
+        this.getErrorMessages = function() {
+            if (typeof(this.errorMessages) != "undefined" && this.__red === this.red && this.__green === this.green &&
+                    this.__blue === this.blue)
+                return this.errorMessages;
+            this.errorMessages = [];
+            for (var i = 0; i < this.propertyNames.length; i++) {
+                var name = this.propertyNames[i];
+                value = this[name];
+                var t = typeof(value);
+                if (t === "undefined") {
+                    this.errorMessages.push("The " + name + " value is undefined");
+                    continue;
+                }
+                if (t == "string") {
+                    var n = parseFloat(value);
+                    if (!isNaN(n))
+                        value = n;
+                    t = typeof(value);
+                }
+                if (t != "number") {
+                    if (value === null)
+                        this.errorMessages.push("The " + name + " value is null");
+                    else
+                        this.errorMessages.push("The " + name + " is of type [" + t + "]");
+                } else if (isNaN(value))
+                    this.errorMessages.push("The " + name + " value is not a number");
+                else if (value < 0)
+                    this.errorMessages.push("The " + name + " value is less than zero");
+                else if (value > 100)
+                    this.errorMessages.push("The " + name + " value is greater than 100");
+                this[name] = value;
+                this["__" + name] = value;
+            }
+            return this.errorMessages;
+        };
+    }
+    
+    function Rgb8BitColorValues(red, green, blue) {
+        this.red = __red = (typeof(red) == "undefined") ? 0 : red;
+        this.green = __green = (typeof(green) == "undefined") ? 0 : green;
+        this.blue = __blue = (typeof(blue) == "undefined") ? 0 : blue;
+        this.colorSpace = __ColorSpace_RGB;
+        this.valueType = __ValueType_INT;
+        this.propertyNames = ["red", "green", "blue"];
+        this.maxValues = [255, 255, 255];
+        this.setRed = function(value) {
+            if (typeof(value) == "string")
+                value = parseInt(value);
+            if (typeof(value) != "number" || isNaN(value))
+                throw new Error("Invalid Red value");
+            if (!Number.isInteger(value))
+                value = Math.round(value);
+            if (value < 0)
+                throw new Error("Red value cannot be less than zero");
+            if (value > 255)
+                throw new Error("Red value cannot be greater than 255");
+            if (this.red == value)
+                return false;
+            this.red = value;
+            return true;
+        };
+        this.setGreen = function(value) {
+            if (typeof(value) == "string")
+                value = parseInt(value);
+            if (typeof(value) != "number" || isNaN(value))
+                throw new Error("Invalid Green value");
+            if (!Number.isInteger(value))
+                value = Math.round(value);
+            if (value < 0)
+                throw new Error("Green value cannot be less than zero");
+            if (value > 255)
+                throw new Error("Green value cannot be greater than 255");
+            if (this.green == value)
+                return false;
+            this.green = value;
+            return true;
+        };
+        this.setBlue = function(value) {
+            if (typeof(value) == "string")
+                value = parseInt(value);
+            if (typeof(value) != "number" || isNaN(value))
+                throw new Error("Invalid Blue value");
+            if (!Number.isInteger(value))
+                value = Math.round(value);
+            if (value < 0)
+                throw new Error("Blue value cannot be less than zero");
+            if (value > 255)
+                throw new Error("Blue value cannot be greater than 255");
+            if (this.blue == value)
+                return false;
+            this.blue = value;
+            return true;
+        };
+        this.getValues = function() {
+            this.getErrorMessages();
+            return [ this.red, this.green, this.blue ];
+        };
+        this.isChanged = function() { return this.__red !== this.red || this.__green !== this.green || this.__blue !== this.blue; };
+        this.getErrorMessages = function() {
+            if (typeof(this.errorMessages) != "undefined" && this.__red === this.red && this.__green === this.green &&
+                    this.__blue === this.blue)
+                return this.errorMessages;
+            this.errorMessages = [];
+            for (var i = 0; i < this.propertyNames.length; i++) {
+                var name = this.propertyNames[i];
+                value = this[name];
+                var t = typeof(value);
+                if (t === "undefined") {
+                    this.errorMessages.push("The " + name + " value is undefined");
+                    continue;
+                }
+                if (t == "string") {
+                    var n = parseFloat(value);
+                    if (!isNaN(n))
+                        value = n;
+                    t = typeof(value);
+                }
+                if (t != "number") {
+                    if (value === null)
+                        this.errorMessages.push("The " + name + " value is null");
+                    else
+                        this.errorMessages.push("The " + name + " is of type [" + t + "]");
+                } else if (isNaN(value))
+                    this.errorMessages.push("The " + name + " value is not a number");
+                else {
+                    if (!Number.isInteger(value))
+                        value = Math.round(value);
+                    if (value < 0)
+                        this.errorMessages.push("The " + name + " value is less than zero");
+                    else if (value > 255)
+                        this.errorMessages.push("The " + name + " value is greater than 255");
+                }
+                this[name] = value;
+                this["__" + name] = value;
+            }
+            return this.errorMessages;
+        };
+    }
+    
+    function HsbPercentColorValues(hue, saturation, brightness) {
+        this.hue = __hue = (typeof(hue) == "undefined") ? 0 : hue;
+        this.saturation = __saturation = (typeof(saturation) == "undefined") ? 0 : saturation;
+        this.brightness = __brightness = (typeof(brightness) == "undefined") ? 0 : brightness;
+        this.colorSpace = __ColorSpace_HSB;
+        this.valueType = __ValueType_FLOAT;
+        this.propertyNames = ["hue", "saturation", "brightness"];
+        this.maxValues = [360, 100, 100];
+        this.setHue = function(value) {
+            if (typeof(value) == "string")
+                value = parseFloat(value);
+            if (typeof(value) != "number" || isNaN(value))
+                throw new Error("Invalid Hue value");
+            if (value < 0)
+                throw new Error("Hue value cannot be less than zero");
+            if (value > 360)
+                throw new Error("Hue value cannot be greater than 360");
+            if (value == 360)
+                value = 0;
+            if (this.hue == value)
+                return false;
+            this.hue = value;
+            return true;
+        };
+        this.setSaturation = function(value) {
+            if (typeof(value) == "string")
+                value = parseFloat(value);
+            if (typeof(value) != "number" || isNaN(value))
+                throw new Error("Invalid Saturation value");
+            if (value < 0)
+                throw new Error("Saturation value cannot be less than zero");
+            if (value > 100)
+                throw new Error("Saturation value cannot be greater than 100");
+            if (this.saturation == value)
+                return false;
+            this.saturation = value;
+            return true;
+        };
+        this.setBrightness = function(value) {
+            if (typeof(value) == "string")
+                value = parseFloat(value);
+            if (typeof(value) != "number" || isNaN(value))
+                throw new Error("Invalid Brightness value");
+            if (value < 0)
+                throw new Error("Brightness value cannot be less than zero");
+            if (value > 100)
+                throw new Error("Brightness value cannot be greater than 100");
+            if (this.brightness == value)
+                return false;
+            this.brightness = value;
+            return true;
+        };
+        this.getValues = function() {
+            this.getErrorMessages();
+            return [ this.hue, this.saturation, this.brightness ];
+        };
+        this.isChanged = function() { return this.__hue !== this.hue || this.__saturation !== this.saturation || this.__brightness !== this.brightness; };
+        this.getErrorMessages = function() {
+            if (typeof(this.errorMessages) != "undefined" && this.__hue === this.hue && this.__saturation === this.saturation &&
+                    this.__brightness === this.brightness)
+                return this.errorMessages;
+            this.errorMessages = [];
+            for (var i = 0; i < this.propertyNames.length; i++) {
+                var name = this.propertyNames[i];
+                value = this[name];
+                var t = typeof(value);
+                if (t === "undefined") {
+                    this.errorMessages.push("The " + name + " value is undefined");
+                    continue;
+                }
+                if (t == "string") {
+                    var n = parseFloat(value);
+                    if (!isNaN(n))
+                        value = n;
+                    t = typeof(value);
+                }
+                if (t != "number") {
+                    if (value === null)
+                        this.errorMessages.push("The " + name + " value is null");
+                    else
+                        this.errorMessages.push("The " + name + " is of type [" + t + "]");
+                } else if (isNaN(value))
+                    this.errorMessages.push("The " + name + " value is not a number");
+                else if (value < 0)
+                    this.errorMessages.push("The " + name + " value is less than zero");
+                else if (value > this.maxValues[i])
+                    this.errorMessages.push("The " + name + " value is greater than " + this.maxValues[i]);
+                else if (value == 360)
+                    value = 0;
+                this[name] = value;
+                this["__" + name] = value;
+            }
+            return this.errorMessages;
+        };
+    }
+    
+    function Hsb8BitColorValues(hue, saturation, brightness) {
+        this.hue = __hue = hue;
+        this.saturation = __saturation = saturation;
+        this.brightness = __brightness = brightness;
+        this.colorSpace = __ColorSpace_HSB;
+        this.valueType = __ValueType_INT;
+        this.propertyNames = ["hue", "saturation", "brightness"];
+        this.maxValues = [255, 255, 255];
+        this.setHue = function(value) {
+            if (typeof(value) == "string")
+                value = parseInt(value);
+            if (typeof(value) != "number" || isNaN(value))
+                throw new Error("Invalid Hue value");
+            if (!Number.isInteger(value))
+                value = Math.round(value);
+            if (value < 0)
+                throw new Error("Hue value cannot be less than zero");
+            if (value > 255)
+                throw new Error("Hue value cannot be greater than 255");
+            if (value == 255)
+                value = 0;
+            if (this.hue == value)
+                return false;
+            this.hue = value;
+            return true;
+        };
+        this.setSaturation = function(value) {
+            if (typeof(value) == "string")
+                value = parseInt(value);
+            if (typeof(value) != "number" || isNaN(value))
+                throw new Error("Invalid Saturation value");
+            if (!Number.isInteger(value))
+                value = Math.round(value);
+            if (value < 0)
+                throw new Error("Saturation value cannot be less than zero");
+            if (value > 255)
+                throw new Error("Saturation value cannot be greater than 255");
+            if (this.saturation == value)
+                return false;
+            this.saturation = value;
+            return true;
+        };
+        this.setBrightness = function(value) {
+            if (typeof(value) == "string")
+                value = parseInt(value);
+            if (typeof(value) != "number" || isNaN(value))
+                throw new Error("Invalid Brightness value");
+            if (!Number.isInteger(value))
+                value = Math.round(value);
+            if (value < 0)
+                throw new Error("Brightness value cannot be less than zero");
+            if (value > 255)
+                throw new Error("Brightness value cannot be greater than 255");
+            if (this.brightness == value)
+                return false;
+            this.brightness = value;
+            return true;
+        };
+        this.getValues = function() {
+            this.getErrorMessages();
+            return [ this.hue, this.saturation, this.brightness ];
+        };
+        this.isChanged = function() { return this.__hue !== this.hue || this.__saturation !== this.saturation || this.__brightness !== this.brightness; };
+        this.getErrorMessages = function() {
+            if (typeof(this.errorMessages) != "undefined" && this.__hue === this.hue && this.__saturation === this.saturation &&
+                    this.__brightness === this.brightness)
+                return this.errorMessages;
+            this.errorMessages = [];
+            for (var i = 0; i < this.propertyNames.length; i++) {
+                var name = this.propertyNames[i];
+                value = this[name];
+                var t = typeof(value);
+                if (t === "undefined") {
+                    this.errorMessages.push("The " + name + " value is undefined");
+                    continue;
+                }
+                if (t == "string") {
+                    var n = parseFloat(value);
+                    if (!isNaN(n))
+                        value = n;
+                    t = typeof(value);
+                }
+                if (t != "number") {
+                    if (value === null)
+                        this.errorMessages.push("The " + name + " value is null");
+                    else
+                        this.errorMessages.push("The " + name + " is of type [" + t + "]");
+                } else if (isNaN(value))
+                    this.errorMessages.push("The " + name + " value is not a number");
+                else {
+                    if (!Number.isInteger(value))
+                        value = Math.round(value);
+                    if (value < 0)
+                        this.errorMessages.push("The " + name + " value is less than zero");
+                    else if (value > 255)
+                        this.errorMessages.push("The " + name + " value is greater than 255");
+                    else if (value == 255 && name == "hue")
+                        value = 0;
+                }
+                this[name] = value;
+                this["__" + name] = value;
+            }
+            return this.errorMessages;
+        };
+    }
+    
+    function ColorInfo(color) {
+        var colorValues = { };
+
+        this.rgbValueType = function() { return colorValues.rgb.valueType; };
+
+        this.hsbValueType = function() { return colorValues.hsb.valueType; };
+
+        this.red = function(value) {
+            if (__isNil(value))
+                return colorValues.rgb.red;
+            if (colorValues.rgb.setRed(value))
+                __setRgbHsb.call(colorValues, colorValues.rgb, ColorInfo.__rgbCvToHsb(colorValues.rgb));
+        };
+
+        this.green = function(value) {
+            if (__isNil(value))
+                return colorValues.rgb.green;
+            if (colorValues.rgb.setGreen(value))
+                __setRgbHsb.call(colorValues, colorValues.rgb, ColorInfo.__rgbCvToHsb(colorValues.rgb));
+        };
+
+        this.blue = function(value) {
+            if (__isNil(value))
+                return colorValues.rgb.blue;
+            if (colorValues.rgb.setBlue(value))
+                __setRgbHsb.call(colorValues, colorValues.rgb, ColorInfo.__rgbCvToHsb(colorValues.rgb));
+        };
+
+        this.hue = function(value) {
+            if (__isNil(value))
+                return colorValues.hsb.hue;
+            if (colorValues.hsb.setHue(value))
+                __setRgbHsb.call(colorValues, ColorInfo.__hsbCvToRgb(colorValues.hsb), colorValues.hsb);
+        };
+
+        this.saturation = function(value) {
+            if (__isNil(value))
+                return colorValues.hsb.saturation;
+            if (colorValues.hsb.setSaturation(value))
+                __setRgbHsb.call(colorValues, ColorInfo.__hsbCvToRgb(colorValues.hsb), colorValues.hsb);
+        };
+
+        this.brightness = function(value) {
+            if (__isNil(value))
+                return colorValues.hsb.brightness;
+            if (colorValues.hsb.setBrightness(value))
+                __setRgbHsb.call(colorValues, ColorInfo.__hsbCvToRgb(colorValues.hsb), colorValues.hsb);
+        };
+
+        this.rgbHexString = function(value) {
+            if (__isNil(value))
+                return rgb.map(function(i) {
+                    if (i < 16)
+                        return "0" + i.toString(16);
+                    return i.toString(16);
+                }).join("");
+            var newRgb = __parseHexString(value);
+            if (newRgb[0] == rgb[0] && newRgb[1] == rgb[1] && newRgb[2] == rgb[2])
+                return;
+            rgb = newRgb;
+            hsb = __rgbToHsb(rgb);
+        };
+
+        if (__isNil(color))
+            __setRgbHsb.call(colorValues, new Rgb8BitColorValues(), new HsbPercentColorValues());
+        else if (typeof(color) == "string") {
+            var rgb = __parseHexString(color);
+            __setRgbHsb.call(colorValues, rgb, __rgbCvToHsb(rgb));
+        } 
+        else if (typeof(color) == "object") {
+            var newRgb = null, newHsb = null, em;
+            if (cs === __ColorSpace_RGB) {
+                newRgb = __rgbToHsb(color);
+                em = newRgb.getErrorMessages();
+            }
+            else if (cs === __ColorSpace_HSB) {
+                newHsb = __hsbToRgb(color);
+                em = newHsb.getErrorMessages();
+            }
+            else {
+                newRgb = __rgbToHsb(color);
+                em = newRgb.getErrorMessages();
+                if (newRgb.getErrorMessages().length > 0) {
+                    newHsb = __hsbToRgb(color);
+                    if (newHsb.getErrorMessages().length < newRgb.getErrorMessages().length) {
+                        em = newHsb.getErrorMessages();
+                        newRgb = null;
+                    }
+                    else
+                    newHsb = null;
+                }
+            }
+            if (em.length > 0)
+                throw new Error(em.join("; "));
+            if (newHsb == null)
+                __setRgbHsb.call(colorValues, newRgb, __rgbCvToHsb(newRgb));
+            else
+                __setRgbHsb.call(colorValues, __hsbCvToRgb(newHsb), newHsb);
+        }
     }
 
-    var sextant = Math.floor(hue / 60.0);
-    hue = ((hue >= 300.0) ? hue - 360.0 : hue) / 60.0 - 2.0 * Math.floor(((sextant + 1.0) % 6) / 2.0);
-    var mid = hue * (max - min);
-    if ((sextant % 2) == 0)
-        mid += min;
-    else
-        mid = min - mid;
-    max *= 100.0;
-    min *= 100.0;
-    mid *= 100.0;
-    switch (sextant)
-    {
-        case 0:
-            return [max, mid, min];
-        case 1:
-            return [mid, max, min];
-        case 2:
-            return [min, max, mid];
-        case 3:
-            return [min, mid, max];
-        case 4:
-            return [mid, min, max];
-    }
-    return [max, min, mid];
-}
-ColorInfo.hsbToRgb8Bit = function(hsb) { return ColorInfo.hsbToRgb(hsb).map(function(v) { return Math.round(v * 2.55); }); };
+    ColorInfo.getInnerMethods = function() {
+        return {
+            asInteger: __asInteger,
+            asNumber: __asNumber,
+            hsbCvToRgb: __hsbCvToRgb,
+            hsbToRgb: __hsbToRgb,
+            isNil: __isNil,
+            rgbCvToHsb: __rgbCvToHsb,
+            rgbToHsb: __rgbToHsb,
+            parseHexString: __parseHexString
+        };
+    };
+
+    ColorInfo.Rgb8BitColorValues = Rgb8BitColorValues;
+    ColorInfo.RgbPercentColorValues = RgbPercentColorValues;
+    ColorInfo.Hsb8BitColorValues = Hsb8BitColorValues;
+    ColorInfo.HsbPercentColorValues = HsbPercentColorValues;
+
+    return ColorInfo;
+})();

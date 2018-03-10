@@ -287,203 +287,269 @@ var testData = [
     { name: "YellowGreen", red: 154, green: 205, blue: 50,
         hue: 79.74193, saturation: 60.7843160629272, brightness: 50 }
 ].map(function(d) {
-    return { name: d.name, red8Bit: d.red, green8Bit: d.green, blue8Bit: d.blue, hue: d.hue, saturation: d.saturation, brightness: d.brightness,
-        red: d.red / 2.55, green: d.green / 2.55, blue: d.blue / 2.55
-    };
-});
+    return { name: d.name,
+        red8Bit: d.red, green8Bit: d.green, blue8Bit: d.blue,
+        hue8Bit: d.hue, saturation8Bit: Math.round(d.saturation * 2.55), brightness8Bit: d.brightness,
+        hue: d.hue, saturation: d.saturation, brightness: d.brightness,
+        red: d.red / 2.55, green: d.green / 2.55, blue: d.blue / 2.55,
 
-var failCount = 0;
-for (var i = 0; i < testData.length; i++) {
-    var text = [testData[i].red8Bit, testData[i].green8Bit, testData[i].blue8Bit].map(function(v) {
-        return (v < 16) ? "0" + v.toString(16) : v.toString(16);
-    }).join("");
-    var baseInfo = ColorInfo.parseColorString(text);
-    var bt = typeof(baseInfo);
-    if (bt != "object") {
-        console.warn("ColorInfo.parseColorString(\"" + text + "\") returned " + bt + " value.");
-        failCount++;
-    } else if (baseInfo === null) {
-        console.warn("ColorInfo.parseColorString(\"" + text + "\") returned a null value.");
-        failCount++;
-    } else if (typeof(baseInfo.red) !== "number") {
-        console.warn("ColorInfo.parseColorString(\"" + text + "\") returned " + ((baseInfo.red === null) ? "null" : bt) + " red value.");
-        failCount++;
-    } else if (typeof(baseInfo.green) !== "number") {
-        console.warn("ColorInfo.parseColorString(\"" + text + "\") returned " + ((baseInfo.green === null) ? "null" : bt) + " green value.");
-        failCount++;
-    } else if (typeof(baseInfo.blue) !== "number") {
-        console.warn("ColorInfo.parseColorString(\"" + text + "\") returned " + ((baseInfo.blue === null) ? "null" : bt) + " blue value.");
-        failCount++;
-    } else if (baseInfo.red != testData[i].red8Bit || baseInfo.green != testData[i].green8Bit || baseInfo.blue != testData[i].blue8Bit) {
-        console.warn("ColorInfo.parseColorString(\"" + text + "\") expected values (" + testData[i].red8Bit + "," + testData[i].green8Bit + "," + testData[i].blue8Bit + "); actual: (" + baseInfo.red + "," + baseInfo.green + "," + baseInfo.blue + ")");
-        failCount++;
-    } else if (baseInfo.colorSpace != "rgb") {
-        console.warn("ColorInfo.parseColorString(\"" + text + "\") expected colorSpace \"rgb\"; actual: " + baseInfo.colorSpace);
-        failCount++;
-    } else if (baseInfo.valueType != "8bit"){
-        console.warn("ColorInfo.parseColorString(\"" + text + "\") expected valueType \"8bit\"; actual: " + baseInfo.valueType);
-        failCount++;
-    }
-    var rgbValues = ColorInfo.parseHexString(text);
-    var bt = typeof(rgbValues);
-    if (bt != "object") {
-        console.warn("ColorInfo.parseHexString(\"" + text + "\") returned " + bt + " value.");
-        failCount++;
-    } else if (rgbValues === null) {
-        console.warn("ColorInfo.parseHexString(\"" + text + "\") returned a null value.");
-        failCount++;
-    } else if (!Array.isArray(rgbValues)) {
-        console.warn("ColorInfo.parseHexString(\"" + text + "\") did not return an array.");
-        failCount++;
-    } else if (rgbValues.length != 3) {
-        console.warn("ColorInfo.parseHexString(\"" + text + "\") expected 3 elements; actual: " + rgbValues.length);
-        failCount++;
-    } else if (typeof(rgbValues[0]) !== "number") {
-        console.warn("ColorInfo.parseHexString(\"" + text + "\") returned " + ((rgbValues[0] === null) ? "null" : bt) + " red value.");
-        failCount++;
-    } else if (typeof(rgbValues[1]) !== "number") {
-        console.warn("ColorInfo.parseHexString(\"" + text + "\") returned " + ((rgbValues[1] === null) ? "null" : bt) + " green value.");
-        failCount++;
-    } else if (typeof(rgbValues[2]) !== "number") {
-        console.warn("ColorInfo.parseHexString(\"" + text + "\") returned " + ((rgbValues[2] === null) ? "null" : bt) + " blue value.");
-        failCount++;
-    } else if (rgbValues[0] != testData[i].red8Bit || rgbValues[1] != testData[i].green8Bit || rgbValues[2] != testData[i].blue8Bit) {
-        console.warn("ColorInfo.parseHexString(\"" + text + "\") expected values (" + testData[i].red8Bit + "," + testData[i].green8Bit + "," + testData[i].blue8Bit + "); actual: (" + rgbValues.join(",") + ")");
-        failCount++;
-    }
-}
-
-if (failCount > 0) {
-    console.warn(failCount + " pre-tests failed. Cannot continue.");
-    return;
-}
-else
-    console.info("Pre-tests succeeded.");
-
-var defaultDelta = 0.5;
-function notInRange(x, y, delta) {
-    var diff = (x > y) ? x - y : y - x;
-    return diff > ((typeof(delta) == "number") ? delta : defaultDelta);
-}
-
-var testCount = 0;
-var failCount = 0;
-for (var i = 0; i < testData.length; i++) {
-    var lastFailCount = failCount;
-    testCount++;
-    try {
-        var hsb = ColorInfo.rgbToHsb(testData[i].red, testData[i].green, testData[i].blue);
-        var actual = hsb.map(function(v) { return Math.round(v * 100) / 100.0; });
-        var expected = [testData[i].hue, testData[i].saturation, testData[i].brightness].map(function(v) { return Math.round(v * 100) / 100.0; });
-        if (notInRange(actual[0], expected[0]) || notInRange(actual[1], expected[1]) || notInRange(actual[2], expected[2])) {
-            console.warn("%s rgbToHsb(%d,%d,%d) expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, testData[i].red,
-                testData[i].green, testData[i].blue, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2]);
-            failCount++;
-        }
-    }
-    catch (e) {
-        console.error(e);
-        console.warn("%s rgbToHsb(%d,%d,%d) failed with exception %s", testData[i].name, testData[i].red,
-            testData[i].green, testData[i].blue, e.message);
-    }
-    if (lastFailCount < failCount)
-        continue;
-    try {
-        var actual = ColorInfo.hsbToRgb(testData[i].hue, testData[i].saturation, testData[i].brightness);
-        if (actual[0] !== testData[i].red || actual[1] !== testData[i].green || actual[2] !== testData[i].blue) {
-            console.warn("%s hsbToRgb(%f,%f,%f) expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, testData[i].hue,
-                testData[i].saturation, testData[i].brightness, testData[i].red, testData[i].green, testData[i].blue,
-                actual[0], actual[1], actual[2]);
-            failCount++;
-        }
-    }
-    catch (e) {
-        console.error(e);
-        console.warn("%s hsbToRgb(%f,%f,%f) failed with exception %s", testData[i].name, testData[i].hue,
-            testData[i].saturation, testData[i].brightness, e.message);
-    }
-    if (lastFailCount < failCount)
-        continue;
-    try {
-        var colorInfo = new ColorInfo({ r: testData[i].red, g: testData[i].green, b: testData[i].blue });
-        var actual = [colorInfo.hue(), colorInfo.saturation(), colorInfo.brightness()];
-        var expected = [testData[i].hue, testData[i].saturation, testData[i].brightness];
-        if (notInRange(actual[0], expected[0]) || notInRange(actual[1], expected[1]) || notInRange(actual[2], expected[2])) {
-            console.warn("%s new ColorInfo(%d,%d,%d) expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, testData[i].red,
-                testData[i].green, testData[i].blue, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2]);
-            failCount++;
-        }
-        if (colorInfo.red() !== testData[i].red || colorInfo.green() !== testData[i].green || colorInfo.blue() !== testData[i].blue) {
-            console.warn("%s new ColorInfo(%d,%d,%d) expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, testData[i].red,
-                testData[i].green, testData[i].blue, testData[i].red, testData[i].green, testData[i].blue, colorInfo.red(), colorInfo.green(), colorInfo.blue());
-            failCount++;
-        }
-    }
-    catch (e) {
-        console.error(e);
-        console.warn("%s new ColorInfo(%d,%d,%d) failed with exception %s", testData[i].name, testData[i].red,
-            testData[i].green, testData[i].blue, e.message);
-    }
-    if (lastFailCount < failCount)
-        continue;
-    try {
-        var colorInfo = new ColorInfo({ h: testData[i].hue, s: testData[i].saturation, b: testData[i].brightness });
-        if (colorInfo.red() !== testData[i].red || colorInfo.green() !== testData[i].green || colorInfo.blue() !== testData[i].blue) {
-            console.warn("%s new ColorInfo(%f,%f,%f) expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, testData[i].hue,
-                testData[i].saturation, testData[i].brightness, testData[i].red, testData[i].green, testData[i].blue, colorInfo.red(), colorInfo.green(), colorInfo.blue());
-            failCount++;
-        }
-        var actual = [colorInfo.hue(), colorInfo.saturation(), colorInfo.brightness()];
-        var expected = [testData[i].hue, testData[i].saturation, testData[i].brightness];
-        if (notInRange(actual[0], expected[0]) || notInRange(actual[1], expected[1]) || notInRange(actual[2], expected[2])) {
-            console.warn("%s new ColorInfo(%f,%f,%f) expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, testData[i].hue,
-                testData[i].saturation, testData[i].brightness, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2]);
-            failCount++;
-        }
-    }
-    catch (e) {
-        console.error(e);
-        console.warn("%s new ColorInfo(%f,%f,%f) failed with exception %s", testData[i].name, testData[i].hue,
-            testData[i].saturation, testData[i].brightness, e.message);
-    }
-    if (lastFailCount < failCount)
-        continue;
-    try {
-        var rgbStr = [testData[i].red8Bit, testData[i].green8Bit, testData[i].blue8Bit].map(function(v) {
+        hex: [d.red, d.green, d.blue].map(function(v) {
             if (v < 16)
                 return "0" + v.toString(16);
             return v.toString(16);
-        }).join("");
-        var colorInfo = new ColorInfo(rgbStr);
-        if (colorInfo.red() !== testData[i].red || colorInfo.green() !== testData[i].green || colorInfo.blue() !== testData[i].blue) {
-            console.warn("%s new ColorInfo(\"%s\") expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, rgbStr, testData[i].red, testData[i].green, testData[i].blue,
-                colorInfo.red(), colorInfo.green(), colorInfo.blue());
-            failCount++;
+        }).join("")
+    };
+});
+
+var innerMethods = ColorInfo.getInnerMethods();
+var results = testData.map(function(testValues) {
+    var messages = [];
+    try {
+        var rgb = innerMethods.parseHexString(testValues.hex);
+        var t = (rgb === null) ? "null" : typeof(rgb);
+        if (t !== "object")
+            messages.push("Result is " + t);
+        else {
+            t = (rgb.red === null) ? "null" : typeof(rgb.red);
+            if (t !== "number")
+                messages.push("Red value is " + t);
+            else if (rgb.red != testValues.red8Bit)
+                messages.push("Expected Red: " + testValues.red8Bit + "; actual: " + rgb.red);
+            t = (rgb.green === null) ? "null" : typeof(rgb.green);
+            if (t !== "number")
+                messages.push("Green value is " + t);
+            else if (rgb.green != testValues.green8Bit)
+                messages.push("Expected Green: " + testValues.green8Bit + "; actual: " + rgb.green);
+            t = (rgb.blue === null) ? "null" : typeof(rgb.blue);
+            if (t !== "number")
+                messages.push("Blue value is " + t);
+            else if (rgb.blue != testValues.blue8Bit)
+                messages.push("Expected Blue: " + testValues.blue8Bit + "; actual: " + rgb.blue);
         }
-        var actual = [colorInfo.hue(), colorInfo.saturation(), colorInfo.brightness()];
-        var expected = [testData[i].hue, testData[i].saturation, testData[i].brightness];
-        if (notInRange(actual[0], expected[0]) || notInRange(actual[1], expected[1]) || notInRange(actual[2], expected[2])) {
-            console.warn("%s new ColorInfo(\"%s\") expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, rgbStr, expected[0], expected[1], expected[2],
-                actual[0], actual[1], actual[2]);
-            failCount++;
-        }
-        rgbStr = "#" + rgbStr;
-        colorInfo = new ColorInfo(rgbStr);
-        if (colorInfo.red() !== testData[i].red || colorInfo.green() !== testData[i].green || colorInfo.blue() !== testData[i].blue) {
-            console.warn("%s new ColorInfo(\"%s\") expected: RGB(%d,%d,%d); actual: RGB(%d,%d,%d)", testData[i].name, rgbStr, testData[i].red, testData[i].green, testData[i].blue, colorInfo.red(),
-                colorInfo.green(), colorInfo.blue());
-            failCount++;
-        }
-        actual = [colorInfo.hue(), colorInfo.saturation(), colorInfo.brightness()];
-        expected = [testData[i].hue, testData[i].saturation, testData[i].brightness];
-        if (notInRange(actual[0], expected[0]) || notInRange(actual[1], expected[1]) || notInRange(actual[2], expected[2])) {
-            console.warn("%s new ColorInfo(\"%s\") expected: HSB(%f,%f,%f); actual: HSB(%f,%f,%f)", testData[i].name, rgbStr, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2])
-            failCount++;
-        }
+    } catch (e) {
+        messages.push(e);
     }
-    catch (e) {
-        console.error(e);
-        console.warn("%s new ColorInfo(\"%s\") failed with exception %s", testData[i].name, rgbStr, e.message);
-    }
+    return {
+        color: testValues.name,
+        id: "innerMethods.parseHexString(\"" + testValues.hex + "\")",
+        messages: messages
+    };
+});
+function notInRange(x, y) {
+    return ((x < y) ? y - x : x - y) > 0.0001;
 }
-console.log("%d tests completed", testCount);
+results = results.concat(testData.map(function(testValues) {
+    var messages = [];
+    try {
+        var hsb = innerMethods.rgbToHsb(testValues.red, testValues.green, testValues.blue);
+        var t = (hsb === null) ? "null" : typeof(hsb);
+        if (t !== "object")
+            messages.push("Result is " + t);
+        else {
+            t = (hsb.hue === null) ? "null" : typeof(hsb.hue);
+            if (t !== "number")
+                messages.push("Hue value is " + t);
+            else if (notInRange(hsb.hue, testValues.hue))
+                messages.push("Expected Hue: " + testValues.hue + "; actual: " + hsb.hue);
+            t = (hsb.saturation === null) ? "null" : typeof(hsb.saturation);
+            if (t !== "number")
+                messages.push("Saturation value is " + t);
+            else if (notInRange(hsb.saturation, testValues.saturation))
+                messages.push("Expected Saturation: " + testValues.saturation + "; actual: " + hsb.saturation);
+            t = (hsb.brightness === null) ? "null" : typeof(hsb.brightness);
+            if (t !== "number")
+                messages.push("Brightness value is " + t);
+            else if (notInRange(hsb.brightness, testValues.brightness))
+                messages.push("Expected Brightness: " + testValues.brightness + "; actual: " + hsb.brightness);
+        }
+    } catch (e) {
+        messages.push(e);
+    }
+    return {
+        color: testValues.name,
+        id: "innerMethods.rgbToHsb(" + testValues.red + ", " + testValues.green + ", " + testValues.blue +")",
+        messages: messages
+    };
+}));
+results = results.concat(testData.map(function(testValues) {
+    var messages = [];
+    try {
+        var rgb = innerMethods.hsbToRgb(testValues.hue, testValues.saturation, testValues.brightness);
+        var t = (rgb === null) ? "null" : typeof(rgb);
+        if (t !== "object")
+            messages.push("Result is " + t);
+        else {
+            t = (rgb.red === null) ? "null" : typeof(rgb.red);
+            if (t !== "number")
+                messages.push("red value is " + t);
+            else if (notInRange(rgb.red, testValues.red))
+                messages.push("Expected red: " + testValues.red + "; actual: " + rgb.red);
+            t = (rgb.green === null) ? "null" : typeof(rgb.green);
+            if (t !== "number")
+                messages.push("green value is " + t);
+            else if (notInRange(rgb.green, testValues.green))
+                messages.push("Expected green: " + testValues.green + "; actual: " + rgb.green);
+            t = (rgb.blue === null) ? "null" : typeof(rgb.blue);
+            if (t !== "number")
+                messages.push("blue value is " + t);
+            else if (notInRange(rgb.blue, testValues.blue))
+                messages.push("Expected blue: " + testValues.blue + "; actual: " + rgb.blue);
+        }
+    } catch (e) {
+        messages.push(e);
+    }
+    return {
+        color: testValues.name,
+        id: "innerMethods.hsbToRgb(" + testValues.hue + ", " + testValues.saturation + ", " + testValues.brightness +")",
+        messages: messages
+    };
+}));
+results = results.concat(testData.map(function(testValues) {
+    var messages = [];
+    try {
+        var rgb = new ColorInfo.RgbPercentColorValues(testValues.red, testValues.green, testValues.blue);
+        t = (rgb.red === null) ? "null" : typeof(rgb.red);
+        if (t !== "number")
+            messages.push("Red value is " + t);
+        else if (notInRange(rgb.red, testValues.red))
+            messages.push("Expected red: " + testValues.red + "; actual: " + rgb.red);
+        t = (rgb.green === null) ? "null" : typeof(rgb.green);
+        if (t !== "number")
+            messages.push("Green value is " + t);
+        else if (notInRange(rgb.green, testValues.green))
+            messages.push("Expected green: " + testValues.green + "; actual: " + rgb.green);
+        t = (rgb.blue === null) ? "null" : typeof(rgb.blue);
+        if (t !== "number")
+            messages.push("Blue value is " + t);
+        else if (notInRange(rgb.blue, testValues.blue))
+            messages.push("Expected blue: " + testValues.blue + "; actual: " + rgb.blue);
+        var m = rgb.getErrorMessages();
+        t = (m === null) ? "null" : typeof(m);
+        if (t != "object" || !Array.isArray(m))
+            messages.push("getErrorMessages returned " + t);
+        if (m.length > 0)
+            messages.push("Expected no messages from getErrorMessages; actual" + messages.length + " messages:\n\t" + messages.join("\n\t"));
+    } catch (e) {
+        messages.push(e);
+    }
+    return {
+        color: testValues.name,
+        id: "new ColorInfo.RgbPercentColorValues(" + testValues.red + ", " + testValues.green + ", " + testValues.blue  + ")",
+        messages: messages
+    };
+}));
+results = results.concat(testData.map(function(testValues) {
+    var messages = [];
+    try {
+        var rgb = new ColorInfo.Rgb8BitColorValues(testValues.red8Bit, testValues.green8Bit, testValues.blue8Bit);
+        t = (rgb.red === null) ? "null" : typeof(rgb.red);
+        if (t !== "number")
+            messages.push("Red value is " + t);
+        else if (notInRange(rgb.red, testValues.red8Bit))
+            messages.push("Expected red: " + testValues.red8Bit + "; actual: " + rgb.red);
+        t = (rgb.green === null) ? "null" : typeof(rgb.green);
+        if (t !== "number")
+            messages.push("Green value is " + t);
+        else if (notInRange(rgb.green, testValues.green8Bit))
+            messages.push("Expected green: " + testValues.green8Bit + "; actual: " + rgb.green);
+        t = (rgb.blue === null) ? "null" : typeof(rgb.blue);
+        if (t !== "number")
+            messages.push("Blue value is " + t);
+        else if (notInRange(rgb.blue, testValues.blue8Bit))
+            messages.push("Expected blue: " + testValues.blue8Bit + "; actual: " + rgb.blue);
+        var m = rgb.getErrorMessages();
+        t = (m === null) ? "null" : typeof(m);
+        if (t != "object" || !Array.isArray(m))
+            messages.push("getErrorMessages returned " + t);
+        if (m.length > 0)
+            messages.push("Expected no messages from getErrorMessages; actual" + m.length + " messages:\n\t" + mgh'o                                                         ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''opppppppppppppppppppppppc xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxerwwwwwwwwwwwwwwwwwwwwwwwwwwwww.join("\n\t"));
+    } catch (e) {
+        messages.push(e);
+    }
+    return {
+        color: testValues.name,
+        id: "new ColorInfo.Rgb8BitColorValues(" + testValues.red8Bit + ", " + testValues.green8Bit + ", " + testValues.blue8Bit  + ")",
+        messages: messages
+    };
+}));
+results = results.concat(testData.map(function(testValues) {
+    var messages = [];
+    try {
+        var hsb = new ColorInfo.HsbPercentColorValues(testValues.hue, testValues.saturation, testValues.brightness);
+        t = (hsb.hue === null) ? "null" : typeof(hsb.hue);
+        if (t !== "number")
+            messages.push("Hue value is " + t);
+        else if (notInRange(hsb.hue, testValues.hue))
+            messages.push("Expected hue: " + testValues.hue + "; actual: " + hsb.hue);
+        t = (hsb.saturation === null) ? "null" : typeof(hsb.saturation);
+        if (t !== "number")
+            messages.push("Saturation value is " + t);
+        else if (notInRange(hsb.saturation, testValues.saturation))
+            messages.push("Expected saturation: " + testValues.saturation + "; actual: " + hsb.saturation);
+        t = (hsb.brightness === null) ? "null" : typeof(hsb.brightness);
+        if (t !== "number")
+            messages.push("Brightness value is " + t);
+        else if (notInRange(hsb.brightness, testValues.brightness))
+            messages.push("Expected brightness: " + testValues.brightness + "; actual: " + hsb.brightness);
+        var m = hsb.getErrorMessages();
+        t = (m === null) ? "null" : typeof(m);
+        if (t != "object" || !Array.isArray(m))
+            messages.push("getErrorMessages returned " + t);
+        else if (m.length > 0)
+            messages.push("Expected no messages from getErrorMessages; actual" + m.length + " messages:\n\t" + m.join("\n\t"));
+    } catch (e) {
+        messages.push(e);
+    }
+    return {
+        color: testValues.name,
+        id: "new ColorInfo.HsbPercentColorValues(" + testValues.hue + ", " + testValues.saturation + ", " + testValues.brightness  + ")",
+        messages: messages
+    };
+}));
+results = results.concat(testData.map(function(testValues) {
+    var messages = [];
+    try {
+        var hsb = new ColorInfo.Hsb8BitColorValues(testValues.hue8Bit, testValues.saturation8Bit, testValues.brightness8Bit);
+        t = (hsb.hue === null) ? "null" : typeof(hsb.hue);
+        if (t !== "number")
+            messages.push("Hue value is " + t);
+        else if (hsb.hue != testValues.hue8Bit)
+            messages.push("Expected hue: " + testValues.hue8Bit + "; actual: " + hsb.hue);
+        t = (hsb.saturation === null) ? "null" : typeof(hsb.saturation);
+        if (t !== "number")
+            messages.push("Saturation value is " + t);
+        else if (hsb.saturation != testValues.saturation8Bit)
+            messages.push("Expected saturation: " + testValues.saturation8Bit + "; actual: " + hsb.saturation);
+        t = (hsb.brightness === null) ? "null" : typeof(hsb.brightness);
+        if (t !== "number")
+            messages.push("Brightness value is " + t);
+        else if (notInRange(hsb.brightness, testValues.brightness8Bit))
+            messages.push("Expected brightness: " + testValues.brightness8Bit + "; actual: " + hsb.brightness);
+        var m = hsb.getErrorMessages();
+        t = (m === null) ? "null" : typeof(m);
+        if (t != "object" || !Array.isArray(m))
+            messages.push("getErrorMessages returned " + t);
+        else if (m.length > 0)
+            messages.push("Expected no messages from getErrorMessages; actual " + m.length + " messages:\n\t" + m.join("\n\t"));
+    } catch (e) {
+        messages.push(e);
+    }
+    return {
+        color: testValues.name,
+        id: "new ColorInfo.Hsb8BitColorValues(" + testValues.hue8Bit + ", " + testValues.saturation8Bit + ", " + testValues.brightness8Bit  + ")",
+        messages: messages
+    };
+}));
+var failed = results.filter(function(r) { return r.messages.length > 0; });
+failed.forEach(function(r) {
+    r.messages.forEach(function(m) {
+        if (typeof(m) == "string")
+            console.error(r.id + " [" + r.color + "]: " + m);
+        else {
+            console.error("Begin " + r.id + " [" + r.color + "] Unexpected Error");
+            console.error(m);
+            console.error("End " + r.id + " [" + r.color + "] Unexpected Error");
+        }
+    });
+});
+console.log((results.length - failed.length) + " passed,1 " + failed.length + " failed.");

@@ -7,6 +7,9 @@ var FS   = require('fs');
 var OS   = require('os');
 var UTIL = require("util");
 var UglifyJS = require("uglify-js2");
+
+var vsCodeTasks = JSON.parse(FS.readFileSync(PATH.join(__dirname, "..", ".vscode", "tasks.json")).toString());
+vsCodeTasks.tasks
 var inputPath = PATH.join(__dirname, "..", "JSCookbook", "JSUnitTesting");
 var inputFiles = [
     "Utility.js",

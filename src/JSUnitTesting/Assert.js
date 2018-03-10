@@ -88,20 +88,5 @@ JsUnitTesting.Assert = (function(Utility, AssertionError, TypeSpec) {
 		this.isTrue = function(actual, message, number) { return this.areLike(true, actual, message, number); };
 		this.isFalse = function(actual, message, number) { return this.areLike(false, actual, message, number); };
 	}
-	Assert.fail = Assert.prototype.fail;
-	Assert.isNil = Assert.prototype.isNil;
-	Assert.notNil = Assert.prototype.notNil;
-	Assert.is = Assert.prototype.is;
-	Assert.isNot = Assert.prototype.isNot;
-	Assert.areEqual = Assert.prototype.areEqual;
-	Assert.areNotEqual = Assert.prototype.areNotEqual;
-	Assert.areLike = Assert.prototype.areLike;
-	Assert.areNotLike = Assert.prototype.areNotLike;
-	Assert.isLessThan = Assert.prototype.isLessThan;
-	Assert.notLessThan = Assert.prototype.notLessThan;
-	Assert.isGreaterThan = Assert.prototype.isGreaterThan;
-	Assert.notGreaterThan = Assert.prototype.notGreaterThan;
-	Assert.isTrue = Assert.prototype.isTrue;
-	Assert.isFalse = Assert.prototype.isFalse;
 	return Assert;
 })(JsUnitTesting.Utility, JsUnitTesting.AssertionError, JsUnitTesting.TypeSpec);
