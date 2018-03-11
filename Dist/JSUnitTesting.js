@@ -128,6 +128,7 @@ JsUnitTesting.Utility = function(Utility) {
         }
         return "";
     };
+    return Utility;
 }(JsUnitTesting.Utility);
 
 JsUnitTesting.TypeSpec = function(Utility) {
@@ -198,22 +199,29 @@ JsUnitTesting.TypeSpec = function(Utility) {
     return TypeSpec;
 }(JsUnitTesting.Utility);
 
-JsUnitTesting.TestResult = function(Utility, TypeSpec) {
+JsUnitTesting.TestResult = function(Utility, TypeSpec, ResultStatus) {
     function TestResult(evaluator, assertion, unitTest, testCollection, testId, stateInfo) {
+        this.status = ResultStatus.NotEvaluated;
+        this.error = null;
+        this.unitTestId = null;
+        this.unitTestName = null;
+        this.testCollectionId = null;
+        this.testCollectionName = null;
+        this.message = thisObj.message;
         var cb = function(evaluator, args) {
             var assert = new Assert(unitTest, testCollection);
-            return evaluator.apply(undefined, args);
+            return evaluator.apply(assert, args);
         };
         var thisObj = {
             stateInfo: stateInfo,
             unitTestId: Utility.isNil(testId) ? Utility.isNil(unitTest.id) ? null : unitTest.id : testId,
             unitTestName: unitTest.name,
             testCollectionId: Utility.isNil(testCollection) ? null : testCollection.id,
-            testCollectionName: Utility.isNil(testCollection) ? null : testCollection.name
+            testCollectionName: Utility.isNil(testCollection) ? null : testCollection.name,
+            status: ResultStatus.Inconclusive
         };
         try {
             this.result = new TypeSpec(cb.call(this, evaluator, unitTest.args));
-            this.evaluationFinished = true;
             if (typeof assertion === "function") {
                 var ar = cb.call(this, assertion, [ result.value ]);
                 if (typeof ar === "boolean") this.success = ar; else {
@@ -255,9 +263,9 @@ JsUnitTesting.TestResult = function(Utility, TypeSpec) {
         this.message = thisObj.message;
     }
     return TestResult;
-}(JsUnitTesting.Utility, JsUnitTesting.TypeSpec);
+}(JsUnitTesting.Utility, JsUnitTesting.TypeSpec, JsUnitTesting.ResultStatus);
 
-JsUnitTesting.UnitTest = function(Utility, TestResult) {
+JsUnitTesting.UnitTest = function(Utility, TestResult, ResultStatus) {
     function UnitTest(evaluator, args, name, description, id, assertion) {
         if (typeof evaluator !== "function") {
             if (typeof evaluator === "undefined") throw "testFunc must be defined";
@@ -293,174 +301,190 @@ JsUnitTesting.UnitTest = function(Utility, TestResult) {
         };
     }
     return UnitTest;
-}(JsUnitTesting.Utility, JsUnitTesting.TestResult);
+}(JsUnitTesting.Utility, JsUnitTesting.TestResult, JsUnitTesting.ResultStatus);
 
 JsUnitTesting.TestCollection = function(Utility, UnitTest) {
-    function TestCollection(tests, name, id) {
+    function _add() {
+        for (var a = 0; a < arguments.length; a++) {
+            var arr = Utility.toArray(arguments[a]);
+            for (var i = 0; i < arr.length; i++) {
+                if (typeof arr[i] !== "undefined" && arr[i] !== null && arr[i] instanceof UnitTest) this.notRun.push(arr[i]);
+            }
+        }
+    }
+    function _clear() {
         this.notRun = [];
-        this.__resultInfo = [];
-        this.name = Utility.convertToString(name);
-        this.id = Utility.convertToNumber(id);
-        this.add = function() {
-            for (var a = 0; a < arguments.length; a++) {
-                var arr = Utility.toArray(arguments[a]);
-                for (var i = 0; i < arr.length; i++) {
-                    if (typeof arr[i] !== "undefined" && arr[i] !== null && arr[i] instanceof UnitTest) this.notRun.push(arr[i]);
+        this.resultInfo = [];
+    }
+    function _run() {
+        var passCount = 0;
+        var totalCount = 0;
+        var completedIds = Utility.mapArray(this.resultInfo, function(r) {
+            return r.result.testId;
+        });
+        var state = {};
+        var currentResults = [];
+        while (this.notRun.length > 0) {
+            var unitTest = this.notRun.pop();
+            if (Utility.nil(unitTest)) return null;
+            totalCount++;
+            var id = unitTest.id;
+            if (typeof id !== "number" || isNaN(id) || !Number.isFinite(id)) id = 0;
+            var canUseId = true;
+            for (var i = 0; i < completedIds.length; i++) {
+                if (completedIds[i] == n) {
+                    canUseId = false;
+                    break;
                 }
             }
+            if (!canUseId) {
+                var hasId = function(n) {
+                    for (var i = 0; i < this.completed.length; i++) {
+                        var x = this.completed[i].id;
+                        if (typeof x === "number" && !isNaN(x) && Number.isFinite(x) && x == n) return true;
+                    }
+                    for (var i = 0; i < this.notRun.length; i++) {
+                        var x = this.notRun[i].id;
+                        if (typeof x === "number" && !isNaN(x) && Number.isFinite(x) && x == n) return true;
+                    }
+                    return false;
+                };
+                do {
+                    id++;
+                } while (hasId(id));
+            }
+            completedIds.push(id);
+            var result = unitTest.exec(this, id, state);
+            this.resultInfo.push({
+                test: unitTest,
+                result: result
+            });
+            currentResults.push(result);
+            if (result.passed) passCount++;
+        }
+        return {
+            passed: passCount,
+            failed: totalCount - passed,
+            results: currentResults
+        };
+    }
+    function _runAll() {
+        var passCount = 0;
+        var toAdd = Utility.mapArray(this.resultInfo, function(r) {
+            return r.test;
+        });
+        for (var i = 0; i < toAdd.length; i++) this.notRun.push(toAdd[i]);
+        this.resultInfo = [];
+        var completedIds = [];
+        var state = {};
+        while (this.notRun.length > 0) {
+            var unitTest = this.notRun.pop();
+            if (Utility.nil(unitTest)) return null;
+            var id = unitTest.id;
+            if (typeof id !== "number" || isNaN(id) || !Number.isFinite(id)) id = 0;
+            var canUseId = true;
+            for (var i = 0; i < completedIds.length; i++) {
+                if (completedIds[i] == n) {
+                    canUseId = false;
+                    break;
+                }
+            }
+            if (!canUseId) {
+                var hasId = function(n) {
+                    for (var i = 0; i < this.completed.length; i++) {
+                        var x = this.completed[i].id;
+                        if (typeof x === "number" && !isNaN(x) && Number.isFinite(x) && x == n) return true;
+                    }
+                    for (var i = 0; i < this.notRun.length; i++) {
+                        var x = this.notRun[i].id;
+                        if (typeof x === "number" && !isNaN(x) && Number.isFinite(x) && x == n) return true;
+                    }
+                    return false;
+                };
+                do {
+                    id++;
+                } while (hasId(id));
+            }
+            completedIds.push(id);
+            var result = unitTest.exec(this, id, state);
+            this.resultInfo.push({
+                test: unitTest,
+                result: result
+            });
+            if (result.passed) passCount++;
+        }
+        return {
+            passed: passCount,
+            failed: this.resultInfo.count - passCount,
+            results: this.getResults()
+        };
+    }
+    function TestCollection(tests, name, id) {
+        var innerData = {
+            name: Utility.convertToString(name),
+            id: Utility.convertToNumber(id),
+            notRun: [],
+            resultInfo: []
+        };
+        this.name = innerData.name;
+        this.id = innerData.id;
+        this.add = function() {
+            _add.apply(innerData, arguments);
         };
         this.clear = function() {
-            this.notRun = [];
-            this.__resultInfo = [];
+            _clear.call(innerData);
         };
         this.getPassedTests = function() {
-            return Utility.mapArray(Utility.filterArray(this.__resultInfo, function(r) {
+            return Utility.mapArray(Utility.filterArray(innerData.resultInfo, function(r) {
                 return r.result.passed;
             }), function(r) {
                 return r.test;
             });
         };
         this.getFailedTests = function() {
-            return Utility.mapArray(Utility.filterArray(this.__resultInfo, function(r) {
+            return Utility.mapArray(Utility.filterArray(innerData.resultInfo, function(r) {
                 return !r.result.passed;
             }), function(r) {
                 return r.test;
             });
         };
         this.getResults = function() {
-            return Utility.mapArray(this.__resultInfo, function(r) {
+            return Utility.mapArray(innerData.resultInfo, function(r) {
                 return !r.result.passed;
             });
         };
         this.allPassed = function() {
-            for (var i = 0; i < this.__resultInfo.length; i++) {
-                if (!this.__resultInfo[i].result.passed) return false;
+            for (var i = 0; i < innerData.resultInfo.length; i++) {
+                if (!innerData.resultInfo[i].result.passed) return false;
             }
             return true;
         };
         this.anyPassed = function() {
-            for (var i = 0; i < this.__resultInfo.length; i++) {
-                if (this.__resultInfo[i].result.passed) return true;
+            for (var i = 0; i < innerData.resultInfo.length; i++) {
+                if (innerData.resultInfo[i].result.passed) return true;
             }
             return false;
         };
         this.run = function() {
-            var passCount = 0;
-            var totalCount = 0;
-            var completedIds = Utility.mapArray(this.__resultInfo, function(r) {
-                return r.result.testId;
-            });
-            var state = {};
-            var currentResults = [];
-            while (this.notRun.length > 0) {
-                var unitTest = this.notRun.pop();
-                if (Utility.nil(unitTest)) return null;
-                totalCount++;
-                var id = unitTest.id;
-                if (typeof id !== "number" || isNaN(id) || !Number.isFinite(id)) id = 0;
-                var canUseId = true;
-                for (var i = 0; i < completedIds.length; i++) {
-                    if (completedIds[i] == n) {
-                        canUseId = false;
-                        break;
-                    }
-                }
-                if (!canUseId) {
-                    var hasId = function(n) {
-                        for (var i = 0; i < this.completed.length; i++) {
-                            var x = this.completed[i].id;
-                            if (typeof x === "number" && !isNaN(x) && Number.isFinite(x) && x == n) return true;
-                        }
-                        for (var i = 0; i < this.notRun.length; i++) {
-                            var x = this.notRun[i].id;
-                            if (typeof x === "number" && !isNaN(x) && Number.isFinite(x) && x == n) return true;
-                        }
-                        return false;
-                    };
-                    do {
-                        id++;
-                    } while (hasId(id));
-                }
-                completedIds.push(id);
-                var result = unitTest.exec(this, id, state);
-                this.__resultInfo.push({
-                    test: unitTest,
-                    result: result
-                });
-                currentResults.push(result);
-                if (result.passed) passCount++;
-            }
-            return {
-                passed: passCount,
-                failed: totalCount - passed,
-                results: currentResults
-            };
+            return _run.call(innerData);
         };
         this.runAll = function() {
-            var passCount = 0;
-            var toAdd = Utility.mapArray(this.__resultInfo, function(r) {
-                return r.test;
-            });
-            for (var i = 0; i < toAdd.length; i++) this.notRun.push(toAdd[i]);
-            this.__resultInfo = [];
-            var completedIds = [];
-            var state = {};
-            while (this.notRun.length > 0) {
-                var unitTest = this.notRun.pop();
-                if (Utility.nil(unitTest)) return null;
-                var id = unitTest.id;
-                if (typeof id !== "number" || isNaN(id) || !Number.isFinite(id)) id = 0;
-                var canUseId = true;
-                for (var i = 0; i < completedIds.length; i++) {
-                    if (completedIds[i] == n) {
-                        canUseId = false;
-                        break;
-                    }
-                }
-                if (!canUseId) {
-                    var hasId = function(n) {
-                        for (var i = 0; i < this.completed.length; i++) {
-                            var x = this.completed[i].id;
-                            if (typeof x === "number" && !isNaN(x) && Number.isFinite(x) && x == n) return true;
-                        }
-                        for (var i = 0; i < this.notRun.length; i++) {
-                            var x = this.notRun[i].id;
-                            if (typeof x === "number" && !isNaN(x) && Number.isFinite(x) && x == n) return true;
-                        }
-                        return false;
-                    };
-                    do {
-                        id++;
-                    } while (hasId(id));
-                }
-                completedIds.push(id);
-                var result = unitTest.exec(this, id, state);
-                this.__resultInfo.push({
-                    test: unitTest,
-                    result: result
-                });
-                if (result.passed) passCount++;
-            }
-            return {
-                passed: passCount,
-                failed: this.__resultInfo.count - passCount,
-                results: this.getResults()
-            };
+            return _runAll.call(innerData);
         };
         this.runFailed = function() {
             var passCount = 0;
             var totalCount = 0;
-            var toAdd = Utility.mapArray(Utility.filterArray(this.__resultInfo, function(r) {
+            var toAdd = Utility.mapArray(Utility.filterArray(innerData.resultInfo, function(r) {
                 return !r.result.passed;
             }), function(r) {
                 return r.test;
             });
             for (var i = 0; i < this.notRun.length; i++) toAdd.push(this.notRun[i]);
             this.notRun = toAdd;
-            this.__resultInfo = Utility.filterArray(this.__resultInfo, function(r) {
+            innerData.resultInfo = Utility.filterArray(innerData.resultInfo, function(r) {
                 return r.result.passed;
             });
-            var completedIds = Utility.mapArray(this.__resultInfo, function(r) {
+            var completedIds = Utility.mapArray(innerData.resultInfo, function(r) {
                 return r.result.testId;
             });
             var state = {};
@@ -496,7 +520,7 @@ JsUnitTesting.TestCollection = function(Utility, UnitTest) {
                 }
                 completedIds.push(id);
                 var result = unitTest.exec(this, id, state);
-                this.__resultInfo.push({
+                innerData.resultInfo.push({
                     test: unitTest,
                     result: result
                 });
@@ -613,20 +637,5 @@ JsUnitTesting.Assert = function(Utility, AssertionError, TypeSpec) {
             return this.areLike(false, actual, message, number);
         };
     }
-    Assert.fail = Assert.prototype.fail;
-    Assert.isNil = Assert.prototype.isNil;
-    Assert.notNil = Assert.prototype.notNil;
-    Assert.is = Assert.prototype.is;
-    Assert.isNot = Assert.prototype.isNot;
-    Assert.areEqual = Assert.prototype.areEqual;
-    Assert.areNotEqual = Assert.prototype.areNotEqual;
-    Assert.areLike = Assert.prototype.areLike;
-    Assert.areNotLike = Assert.prototype.areNotLike;
-    Assert.isLessThan = Assert.prototype.isLessThan;
-    Assert.notLessThan = Assert.prototype.notLessThan;
-    Assert.isGreaterThan = Assert.prototype.isGreaterThan;
-    Assert.notGreaterThan = Assert.prototype.notGreaterThan;
-    Assert.isTrue = Assert.prototype.isTrue;
-    Assert.isFalse = Assert.prototype.isFalse;
     return Assert;
 }(JsUnitTesting.Utility, JsUnitTesting.AssertionError, JsUnitTesting.TypeSpec);

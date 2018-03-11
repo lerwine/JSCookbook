@@ -1,5 +1,6 @@
 /**
  * Namespace for unit testing
+ * @namespace
  */
 var JsUnitTesting = JsUnitTesting || {};
 
@@ -18,7 +19,7 @@ JsUnitTesting.Utility = (function(Utility) {
 	Utility.isNil = function(value) { return (typeof(value) === "undefined" || value === null); };
 	
 	/**
-	 * Ensures that a value is an array.
+	 * Ensures that a valcvcue is an array.
 	 * @param {*} value - Value to be converted to an array.
 	 * @returns {Array} - if value is undefined, an empty array is returned. If value was alread an array, then the value is simply returned. Otherwise, an array with a single element containing the value is returned.
 	 */
@@ -245,4 +246,5 @@ JsUnitTesting.Utility = (function(Utility) {
 	
 		return "";
 	};
+	return Utility;
 })(JsUnitTesting.Utility);

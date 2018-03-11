@@ -27,7 +27,7 @@ JsUnitTesting.TestResult = (function(Utility, TypeSpec, ResultStatus) {
 			unitTestName: unitTest.name,
 			testCollectionId: (Utility.isNil(testCollection)) ? null : testCollection.id,
             testCollectionName: (Utility.isNil(testCollection)) ? null : testCollection.name,
-            status = ResultStatus.Inconclusive
+            status: ResultStatus.Inconclusive
         };
 		try {
             this.result = new TypeSpec(cb.call(this, evaluator, unitTest.args));
@@ -81,4 +81,4 @@ JsUnitTesting.TestResult = (function(Utility, TypeSpec, ResultStatus) {
         this.message = thisObj.message;
 	}
 	return TestResult;
-})(JsUnitTesting.Utility, JsUnitTesting.TypeSpec, JSUnitTesting.ResultStatus);
+})(JsUnitTesting.Utility, JsUnitTesting.TypeSpec, JsUnitTesting.ResultStatus);
