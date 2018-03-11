@@ -1,4 +1,4 @@
-JsUnitTesting.UnitTest = (function(Utility, TestResult) {
+JsUnitTesting.UnitTest = (function(Utility, TestResult, ResultStatus) {
 	/**
 	 * This gets executed to perform a unit test.
 	 * @callback evaluatorCallback
@@ -14,6 +14,7 @@ JsUnitTesting.UnitTest = (function(Utility, TestResult) {
 	 * @callback assertionCallback
 	 * @param {*} evaluationResult -	The value returned from the unit test.
 	 * @throws {Error} If the result value does not indicate a success, then an error should be thrown.
+	 * @returns {ResultStatus}
 	 */
 	/**
 	 * @classDescription	A single unit test to be performed
@@ -21,7 +22,7 @@ JsUnitTesting.UnitTest = (function(Utility, TestResult) {
 	 * @param {string=} name -	User-friendly name of unit test.
 	 * @param {Array=[]} args -	Arguments to pass to evaluatorCallback.
 	 * @param {string=} description -	Description of unit test.
-	 * @param {assertionCallback=} assertion -	Asserts the result value from the unit test.
+	 * @param {assertionCallback=} assertion Asserts the result value from the unit test.
 	 * @description	When evaluator is called, args will be passed to the evaluator with a JsUnitTesting.TestContext object as "this", which describes the test being executed.
 	 * @constructor
 	 */
@@ -62,4 +63,4 @@ JsUnitTesting.UnitTest = (function(Utility, TestResult) {
 		};
 	}
  	return UnitTest;
-})(JsUnitTesting.Utility, JsUnitTesting.TestResult);
+})(JsUnitTesting.Utility, JsUnitTesting.TestResult, JsUnitTesting.ResultStatus);

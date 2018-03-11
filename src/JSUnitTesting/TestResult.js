@@ -1,19 +1,36 @@
-JsUnitTesting.TestResult = (function(Utility, TypeSpec) {
+JsUnitTesting.TestResult = (function(Utility, TypeSpec, ResultStatus) {
+    /**
+     * Create a test result object.
+	 * @param {evaluatorCallback} evaluator -	Function to be executed which performs the test.
+	 * @param {assertionCallback=} assertion Asserts the result value from the unit test.
+     * @param {JSUnitTesting.UnitTest} unitTest Defines the test to be conducted.
+     * @param {JSUnitTesting.TestCollection} testCollection Collection which contains the test to be executed.
+     * @param {number} testId Unique ID of test.
+     * @param {*} stateInfo Arbitrary state information which is carried through the test.
+     */
 	function TestResult(evaluator, assertion, unitTest, testCollection, testId, stateInfo) {
+        this.status = ResultStatus.NotEvaluated;
+        this.error = null;
+        this.unitTestId = null;
+        this.unitTestName = null;
+        this.testCollectionId = null;
+        this.testCollectionName = null;
+        this.message = thisObj.message;
+
 		var cb = function(evaluator, args) {
 			var assert = new Assert(unitTest, testCollection);
-			return evaluator.apply(undefined, args);
+			return evaluator.apply(assert, args);
 		};
 		var thisObj = {
 			stateInfo: stateInfo,
 			unitTestId: (Utility.isNil(testId)) ? ((Utility.isNil(unitTest.id)) ? null : unitTest.id) : testId,
 			unitTestName: unitTest.name,
 			testCollectionId: (Utility.isNil(testCollection)) ? null : testCollection.id,
-			testCollectionName: (Utility.isNil(testCollection)) ? null : testCollection.name,
+            testCollectionName: (Utility.isNil(testCollection)) ? null : testCollection.name,
+            status = ResultStatus.Inconclusive
         };
 		try {
             this.result = new TypeSpec(cb.call(this, evaluator, unitTest.args));
-            this.evaluationFinished = true;
             if (typeof(assertion) === "function") {
                 var ar = cb.call(this, assertion, [result.value]);
                 if (typeof(ar) === "boolean")
@@ -64,4 +81,4 @@ JsUnitTesting.TestResult = (function(Utility, TypeSpec) {
         this.message = thisObj.message;
 	}
 	return TestResult;
-})(JsUnitTesting.Utility, JsUnitTesting.TypeSpec);
+})(JsUnitTesting.Utility, JsUnitTesting.TypeSpec, JSUnitTesting.ResultStatus);
