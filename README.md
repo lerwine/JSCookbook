@@ -28,3 +28,6 @@ DotJoshJohnson.xml
 fknop.vscode-npm
 christian-kohler.npm-intellisense
 lolkush.quickstart
+HookyQR.jsdoctagcomplete
+sidthesloth.html5-boilerplate
+xabikos.javascriptsnippets
