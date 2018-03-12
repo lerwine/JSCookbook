@@ -21,7 +21,9 @@ The following Visual Studio Code extensions are recommended:
 eg2.vscode-npm-script
 dbaeumer.vscode-eslint
 dbaeumer.jshint
+mkaufman.htmlhint
 ecmel.vscode-html-css
+Zignd.html-css-class-completion
 abusaidm.html-snippets
 ms-vscode.powershell
 DotJoshJohnson.xml
