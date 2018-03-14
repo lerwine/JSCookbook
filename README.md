@@ -16,6 +16,10 @@ The following packages were installed locally:
 jquery@3.3.1
 popper.js@1.12.9
 bootstrap@4.0.0
+angular@1.6.9
+@types/angular@1.6.43
+@angular/cli@1.7.3
+
 
 The following Visual Studio Code extensions are recommended:
 eg2.vscode-npm-script
@@ -33,3 +37,5 @@ lolkush.quickstart
 HookyQR.jsdoctagcomplete
 sidthesloth.html5-boilerplate
 xabikos.javascriptsnippets
+johnpapa.angular2
+johnpapa.angular-essentials
