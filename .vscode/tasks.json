@@ -4,17 +4,6 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "typescript",
-            "tsconfig": "src/JSUnitTesting/tsconfig.json",
-            "problemMatcher": [
-                "$tsc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
             "label": "Build JSUnitTesting Min",
             "type": "shell",
             "command": "uglifyjs",
@@ -37,8 +26,7 @@
                 "-m"
             ],
             "problemMatcher":"$jshint"
-        },
-        {
+        }, {
             "label": "Build JSUnitTesting",
             "identifier": "buildJSUnitTesting",
             "dependsOn": ["buildJSUnitTestingMin"],
@@ -61,8 +49,7 @@
                 "-b"
             ],
             "problemMatcher":"$jshint"
-        },
-        {
+        }, {
             "label": "Test JSUnitTesting",
             "identifier": "testJSUnitTesting",
             "dependsOn": ["buildJSUnitTesting"],
@@ -118,6 +105,34 @@
                     ]
                 }
             ]
+        }, {
+            "label": "Start web server",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "command": "gulp",
+            "args": [
+                "startWebServer"
+            ],
+            "presentation": {
+                "reveal": "always"
+            }
+        }, {
+            "label": "Stop web server",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "command": "gulp",
+            "args": [
+                "stopWebServer"
+            ],
+            "presentation": {
+                "reveal": "always"
+            }
         }
     ]
 }

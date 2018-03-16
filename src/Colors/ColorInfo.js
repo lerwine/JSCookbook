@@ -1,4 +1,187 @@
 var ColorInfo = (function() {
+    var colorSpaceValues = {
+        rgb: {
+            propertyNames: [ "red", "green", "blue" ],
+            maxFloatValues: [ 100, 100, 100 ]
+        },
+        hsb: {
+            propertyNames: [ "hue", "saturation", "brightness" ],
+            maxFloatValues: [ 360, 100, 100 ]
+        }
+    };
+
+    var booleanStringRe = /^(?:(t(?:rue)?|y(?:es)?|-?(?:0*[1-9|0+\.0*[1-9]))|(f(?:alse)|no?|-?0+(?:\.0+)?(?:[^.\d]|$)))/;
+    var floatDigitRe = /^\d+\.\d+$/i;
+    var hex8bitRe = /^(?:\#|0x)?([a-f\d]{2}$)/i;
+    var hex24bitRe = /^(?:\#|0x)?(?:([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})|([a-f\d])([a-f\d])([a-f\d]))$/i;
+
+    function isNil(value) { return typeof(value) == "undefined" || value === null; }
+    function asString(value, defaultValue) {
+        if (typeof(value) == "string")
+            return value;
+        if (isNil(value)) {
+            if (isNil(defaultValue))
+                return defaultValue;
+            return asString(defaultValue);
+        }
+        if (Array.isArray(value)) {
+            if (value.length == 0) {
+                if (isNil(defaultValue))
+                    return defaultValue;
+                return asString(defaultValue);
+            }
+            if (value.length > 1) {
+                return value.map(function(v) {
+                    if (typeof(v) == "string")
+                        return v;
+                    if (isNil(v))
+                        return "";
+                    if (Array.isArray(v))
+                        return v.join("\t");
+                    try {
+                        var s = v.toString();
+                        if (typeof(s) == "string")
+                            return s;
+                    } catch (e) { /* okay to ignore */ }
+                    return v + "";
+                }).join("\n");
+            }
+            value = value[0];
+            if (typeof(value) == "string")
+                return value;
+            if (isNil(value)) {
+                if (isNil(defaultValue))
+                    return defaultValue;
+                return asString(defaultValue);
+            }
+        }
+        try {
+            var s = value.toString();
+            if (typeof(s) == "string")
+                return s;
+        } catch (e) { /* okay to ignore */ }
+        return value + "";
+    }
+    function toBoolean(value, defaultValue) {
+        if (typeof(value) == "boolean")
+            return value;
+        if (typeof(value) == "number")
+            return value == 0;
+        if (isNil(value)) {
+            if (isNil(defaultValue))
+                return defaultValue;
+            return toBoolean(defaultValue);
+        }
+        if (Array.isArray(value)) {
+            if (value.length == 0) {
+                if (isNil(defaultValue))
+                    return defaultValue;
+                return toBoolean(defaultValue);
+            }
+            if (value.length > 1)
+                value = asString(value, "");
+            else {
+                value = value[0];
+                if (typeof(value) == "boolean")
+                    return value;
+                if (typeof(value) == "number")
+                    return value == 0;
+                if (isNil(value)) {
+                    if (isNil(defaultValue))
+                        return defaultValue;
+                    return toNumber(defaultValue);
+                }
+            }
+        }
+        if (typeof(value) != "string") {
+            if (typeof(value.valueOf) == "function") {
+                try {
+                    var s = value.valueOf();
+                    if (typeof(s) == "boolean")
+                        return s;
+                    if (typeof(s) == "number")
+                        return s == 0;
+                } catch (e) { /* okay to ignore */ }
+            }
+            value = asString(value, "").trim();
+        } else
+            value = value.trim();
+        
+        if (value.length > 0) {
+            m = booleanStringRe.exec(value);
+            if (!isNil(m))
+                return isNil(m[1]);
+            var n = parseFloat(value);
+            if (!isNaN(n))
+                return n == 0;
+        }
+
+        if (isNil(defaultValue))
+            return defaultValue;
+        return toNumber(defaultValue);
+    }
+    function toNumber(value, defaultValue) {
+        if (typeof(value) == "number")
+            return value;
+        if (typeof(value) == "boolean")
+            return (value) ? 1 : 0;
+        if (isNil(value)) {
+            if (isNil(defaultValue))
+                return defaultValue;
+            return toNumber(defaultValue);
+        }
+        if (Array.isArray(value)) {
+            if (value.length == 0) {
+                if (isNil(defaultValue))
+                    return defaultValue;
+                return toNumber(defaultValue);
+            }
+            if (value.length > 1)
+                value = asString(value, "");
+            else {
+                value = value[0];
+                if (typeof(value) == "number")
+                    return value;
+                if (typeof(value) == "boolean")
+                    return (value) ? 1 : 0;
+                if (isNil(value)) {
+                    if (isNil(defaultValue))
+                        return defaultValue;
+                    return toNumber(defaultValue);
+                }
+            }
+        }
+        if (typeof(value) != "string") {
+            if (typeof(value.valueOf) == "function") {
+                try {
+                    var s = value.valueOf();
+                    if (typeof(s) == "number")
+                        return s;
+                    if (typeof(s) == "boolean")
+                        return (s) ? 1 : 0;
+                } catch (e) { /* okay to ignore */ }
+            }
+            value = asString(value, "").trim();
+        } else
+            value = value.trim();
+        
+        if (value.length > 0) {
+            var n = parseFloat(value);
+            if (!isNaN(n))
+                return n;
+            
+            m = booleanStringRe.exec(value);
+            if (!isNil(m))
+                return isNil(m[1]);
+        }
+
+        if (isNil(defaultValue))
+            return defaultValue;
+        return toNumber(defaultValue);
+    }
+    
+})();
+var ColorInfo_zzz = (function() {
     var __ColorSpace_HSB = "hsb";
     var __ColorSpace_RGB = "rgb";
     var __ValueType_INT = "int";
@@ -594,7 +777,7 @@ var ColorInfo = (function() {
         };
     }
     
-    function ColorInfo(color) {
+    function ColorInfo_zzz(color) {
         var colorValues = { };
 
         this.rgbValueType = function() { return colorValues.rgb.valueType; };
@@ -605,42 +788,42 @@ var ColorInfo = (function() {
             if (__isNil(value))
                 return colorValues.rgb.red;
             if (colorValues.rgb.setRed(value))
-                __setRgbHsb.call(colorValues, colorValues.rgb, ColorInfo.__rgbCvToHsb(colorValues.rgb));
+                __setRgbHsb.call(colorValues, colorValues.rgb, ColorInfo_zzz.__rgbCvToHsb(colorValues.rgb));
         };
 
         this.green = function(value) {
             if (__isNil(value))
                 return colorValues.rgb.green;
             if (colorValues.rgb.setGreen(value))
-                __setRgbHsb.call(colorValues, colorValues.rgb, ColorInfo.__rgbCvToHsb(colorValues.rgb));
+                __setRgbHsb.call(colorValues, colorValues.rgb, ColorInfo_zzz.__rgbCvToHsb(colorValues.rgb));
         };
 
         this.blue = function(value) {
             if (__isNil(value))
                 return colorValues.rgb.blue;
             if (colorValues.rgb.setBlue(value))
-                __setRgbHsb.call(colorValues, colorValues.rgb, ColorInfo.__rgbCvToHsb(colorValues.rgb));
+                __setRgbHsb.call(colorValues, colorValues.rgb, ColorInfo_zzz.__rgbCvToHsb(colorValues.rgb));
         };
 
         this.hue = function(value) {
             if (__isNil(value))
                 return colorValues.hsb.hue;
             if (colorValues.hsb.setHue(value))
-                __setRgbHsb.call(colorValues, ColorInfo.__hsbCvToRgb(colorValues.hsb), colorValues.hsb);
+                __setRgbHsb.call(colorValues, ColorInfo_zzz.__hsbCvToRgb(colorValues.hsb), colorValues.hsb);
         };
 
         this.saturation = function(value) {
             if (__isNil(value))
                 return colorValues.hsb.saturation;
             if (colorValues.hsb.setSaturation(value))
-                __setRgbHsb.call(colorValues, ColorInfo.__hsbCvToRgb(colorValues.hsb), colorValues.hsb);
+                __setRgbHsb.call(colorValues, ColorInfo_zzz.__hsbCvToRgb(colorValues.hsb), colorValues.hsb);
         };
 
         this.brightness = function(value) {
             if (__isNil(value))
                 return colorValues.hsb.brightness;
             if (colorValues.hsb.setBrightness(value))
-                __setRgbHsb.call(colorValues, ColorInfo.__hsbCvToRgb(colorValues.hsb), colorValues.hsb);
+                __setRgbHsb.call(colorValues, ColorInfo_zzz.__hsbCvToRgb(colorValues.hsb), colorValues.hsb);
         };
 
         this.rgbHexString = function(value) {
@@ -695,7 +878,7 @@ var ColorInfo = (function() {
         }
     }
 
-    ColorInfo.getInnerMethods = function() {
+    ColorInfo_zzz.getInnerMethods = function() {
         return {
             asInteger: __asInteger,
             asNumber: __asNumber,
@@ -708,10 +891,10 @@ var ColorInfo = (function() {
         };
     };
 
-    ColorInfo.Rgb8BitColorValues = Rgb8BitColorValues;
-    ColorInfo.RgbPercentColorValues = RgbPercentColorValues;
-    ColorInfo.Hsb8BitColorValues = Hsb8BitColorValues;
-    ColorInfo.HsbPercentColorValues = HsbPercentColorValues;
+    ColorInfo_zzz.Rgb8BitColorValues = Rgb8BitColorValues;
+    ColorInfo_zzz.RgbPercentColorValues = RgbPercentColorValues;
+    ColorInfo_zzz.Hsb8BitColorValues = Hsb8BitColorValues;
+    ColorInfo_zzz.HsbPercentColorValues = HsbPercentColorValues;
 
-    return ColorInfo;
+    return ColorInfo_zzz;
 })();

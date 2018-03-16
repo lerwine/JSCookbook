@@ -7,35 +7,33 @@ Dev Environment Setup
 ---------------------
 This solution was developed using Visual Studio Code.
 
-The following npm packages were installed globally:
-eslint@4.18.2
-jshint@2.9.5
-uglify-js@3.3.13
+The npm package manager (VS Code extension eg2.vscode-npm-script) and node.js is required for building and package maintenance.
 
-The following packages were installed locally:
-jquery@3.3.1
-popper.js@1.12.9
-bootstrap@4.0.0
-angular@1.6.9
-@types/angular@1.6.43
-@angular/cli@1.7.3
+Microsoft PowerShell 5.0 or better may be required for development.
 
+Additionally, the following npm packages most likely need to be installed globally:
+- node
+- uglify-js
+- gulp
+- mocha
 
-The following Visual Studio Code extensions are recommended:
-eg2.vscode-npm-script
-dbaeumer.vscode-eslint
-dbaeumer.jshint
-mkaufman.htmlhint
-ecmel.vscode-html-css
-Zignd.html-css-class-completion
-abusaidm.html-snippets
-ms-vscode.powershell
-DotJoshJohnson.xml
-fknop.vscode-npm
-christian-kohler.npm-intellisense
-lolkush.quickstart
-HookyQR.jsdoctagcomplete
-sidthesloth.html5-boilerplate
-xabikos.javascriptsnippets
-johnpapa.angular2
-johnpapa.angular-essentials
+Use the command "npm update" to install required local packages.
+
+The following additional Visual Studio Code extensions are recommended:
+- eg2.vscode-npm-script
+- dbaeumer.vscode-eslint
+- dbaeumer.jshint
+- mkaufman.htmlhint
+- ecmel.vscode-html-css
+- Zignd.html-css-class-completion
+- abusaidm.html-snippets
+- ms-vscode.powershell
+- DotJoshJohnson.xml
+- fknop.vscode-npm
+- christian-kohler.npm-intellisense
+- lolkush.quickstart
+- HookyQR.jsdoctagcomplete
+- sidthesloth.html5-boilerplate
+- xabikos.javascriptsnippets
+- johnpapa.angular2
+- johnpapa.angular-essentials
