@@ -11,35 +11,16 @@
     <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/bootstrap-table/dist/bootstrap-table.css" />
     <script type="text/javascript" src="../node_modules/jquery/dist/jquery.js"></script>
     <script type="text/javascript" src="../node_modules/angular/angular.js"></script>
-    <script type="text/javascript" src=?"../node_modules/bootstrap/dist/js/bootstrap.js"></script>
+    <script type="text/javascript" src="../node_modules/bootstrap/dist/js/bootstrap.js"></script>
     <script type="text/javascript" src="../node_modules/bootstrap-table/dist/bootstrap-table.js"></script>
-    <script type="text/javascript" src="TestData.js"></script>
-    <script type="text/javascript">
-    var unitTestJSLoaded = false;
-
-    $().ready(function() {
-        var testData = new TestData();
-        $("form").submit(function(event) {
-            try {
-                $("#preTestCheckResultDiv").empty().removeClass("success warning danger alert-dark").addClass("alert-dark").text("Running..");
-                $("#runTestButton").attr("disabled", "disabled");
-                $("#unitTestsMenuItem").hide();
-                testData.runPreTests();
-            } catch(err) {
-
-            } finally {
-                $("#runTestButton").removeAttr("disabled");
-                testData.applyResult($("#preTestCheckResultDiv"));
-                if (testData.preTestResult.success)
-                    $("#unitTestsMenuItem").show();
-            }
-        });
-        testData.applyResult($("#preTestCheckResultDiv"));
-        if (testData.preTestResult.success)
-            $("#unitTestsMenuItem").show();
-        $("#runTestButton").removeAttr("disabled");
-    });
-    </script>
+    <script type="text/javascript" src="app.js"></script>
+    <script type="text/javascript" src="JsUnitTesting/Utility.js"></script>
+    <script type="text/javascript" src="JsUnitTesting/TypeSpec.js"></script>
+    <script type="text/javascript" src="JsUnitTesting/TestResult.js"></script>
+    <script type="text/javascript" src="JsUnitTesting/UnitTest.js"></script>
+    <script type="text/javascript" src="JsUnitTesting/TestCollection.js"></script>
+    <script type="text/javascript" src="JsUnitTesting/AssertionError.js"></script>
+    <script type="text/javascript" src="JsUnitTesting/Assert.js"></script>
 </head>
 <body>
     <header class="container-fluid border border-secondary p-sm-1"><h1>Lenny's JavaScript Cookbook</h1></header>
@@ -51,12 +32,42 @@
             <li class="nav-item border border-secondary bg-dark" style="visibility:hidden" id="unitTestsMenuItem"><a href="unit_tests.html" class="nav-link text-light">Unit Tests</a></li>
         </ul>
     </nav>
-    <aside class="float-sm-right border border-secondary p-sm-1 ml-md-3">Aside from all we've discussed.</aside>
-    <section class="container-fluid border border-light p-md-3">
+    <section class="container-fluid border border-light p-md-3" ng-app="jscookbook" ng-controller="rootIndexController">
         <form action="index.html">
             <h2>Pre-Test check result</h2>
             <div class="container" id="preTestCheckResultDiv" />
-            <input type="submit" id="runTestButton" value="Run Now" disabled="disabled" />
+            <button type="button" ng-click="startPrevalidation()" onclick="return false;" ng-disabled="preValidationDisabled">Run Now</button>
+            <div class="container" ng-show="hasResults">
+                <div class="row">
+                    <div class="col-1">Status</div>
+                    <div class="col-2">Name</div>
+                    <div class="col-8">Message</div>
+                    <div class="col-1">Detail</div>
+                </div>
+                <span ng-repeat="r in preValidationResults">
+                    <div class="row">
+                        <div class="col-1">{{r.status}}</div>
+                        <div class="col-2">{{r.name}}</div>
+                        <div class="col-8">{{r.message}}</div>
+                        <div class="col-1">
+                            <button type="button" ng-click="r.toggleDetail()" onclick="return false;" ng-show="r.buttonIsVisible">{{r.buttonText}}</button>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="r.detailContainerIsVisible">
+                        <div class="col-1"> </div>
+                        <div class="col-11">
+                            <div ng-show="r.showDetail">
+                                <strong>Details</strong>
+                                <pre>{{r.detail}}</pre>
+                            </div>
+                            <div ng-show="r.showStackTrace">
+                                <strong>Stack Track</strong>
+                                <pre>{{r.stackTrace}}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </span>
+            </div>
         </form>
     </section>
     <footer class="container-fluid border border-secondary p-sm-1 bg-secondary">It all ends with the footer.</footer>

@@ -50,68 +50,13 @@
             ],
             "problemMatcher":"$jshint"
         }, {
-            "label": "Test JSUnitTesting",
-            "identifier": "testJSUnitTesting",
-            "dependsOn": ["buildJSUnitTesting"],
-            "type": "shell",
-            "command": "node",
-            "group":{
-                "kind": "test",
-                "isDefault": true
-            },
-            "args": [
-                "./Testing/UnitTestingValidation.js",
-                "../src/JSUnitTesting/Utility.js",
-                "../src/JSUnitTesting/TypeSpec.js",
-                "../src/JSUnitTesting/TestResult.js",
-                "../src/JSUnitTesting/UnitTest.js",
-                "../src/JSUnitTesting/TestCollection.js",
-                "../src/JSUnitTesting/AssertionError.js",
-                "../src/JSUnitTesting/Assert.js",
-            ],
-            "problemMatcher": [
-                {
-                    "severity": "error",
-                    "pattern":[
-                        {
-                            "regexp": "^(?:ERROR|FAIL)\\s*\\[[45](?:@(\\d+)>(?:,(\\d+))?)?(?:~([^\\[\\]]*))?\\](?:\\s*(.+))?",
-                            "line": 1,
-                            "column": 2,
-                            "file": 3,
-                            "message": 4
-                        }
-                    ]
-                }, {
-                    "severity": "warning",
-                    "pattern":[
-                        {
-                            "regexp": "^(?:WARNING|INCONCLUSIVE)\\s*\\[(?:-1|3)(?:@(\\d+)>(?:,(\\d+))?)?(?:~([^\\[\\]]*))?\\](?:\\s*(.+))?",
-                            "line": 1,
-                            "column": 2,
-                            "file": 3,
-                            "message": 4
-                        }
-                    ]
-                }, {
-                    "severity": "info",
-                    "pattern":[
-                        {
-                            "regexp": "^(INFO|PASS)\\s*\\[2(?:@(\\d+)>(?:,(\\d+))?)?(?:~([^\\[\\]]*))?\\](?:\\s*(.+))?",
-                            "line": 1,
-                            "column": 2,
-                            "file": 3,
-                            "message": 4
-                        }
-                    ]
-                }
-            ]
-        }, {
             "label": "Start web server",
             "type": "shell",
             "group": {
                 "kind": "test",
                 "isDefault": true
             },
+            "identifier": "startWebServer",
             "command": "gulp",
             "args": [
                 "startWebServer"
@@ -122,10 +67,8 @@
         }, {
             "label": "Stop web server",
             "type": "shell",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
+            "group": "test",
+            "identifier": "stopWebServer",
             "command": "gulp",
             "args": [
                 "stopWebServer"

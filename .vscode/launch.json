@@ -10,8 +10,7 @@
         "name": "Launch Chrome for localhost",
         "sourceMaps": false,
         "url": "http://localhost:8080/src/index.html",
-        "webRoot": "${workspaceFolder}",
-        "preLaunchTask": "startWebServer"
+        "webRoot": "${workspaceFolder}"
     }, {
         "type": "chrome",
         "request": "attach",

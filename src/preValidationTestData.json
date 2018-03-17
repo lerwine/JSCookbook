@@ -1,0 +1,199 @@
+[
+    {
+        "name": "Utility namespace verification", "expected": "\"object\"", "test": "equals",
+        "method": "function() { return typeof(JsUnitTesting.Utility); }",
+        "dependents": [
+            {
+                "name": "Utility.isNil", "expected": "\"function\"", "test": "equals",
+                "method": "function() { return typeof(JsUnitTesting.Utility.isNil); }",
+                "dependents": [
+                    {
+                        "name": "Utility.isNil()", "expected": "true", "test": "equals",
+                        "method": "function() { return Utility.isNil(); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.isNil(undefined)", "expected": "true", "test": "equals",
+                        "method": "function() { return Utility.isNil(undefined); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.isNil(null)", "expected": "true", "test": "equals",
+                        "method": "function() { return Utility.isNil(null); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.isNil([])", "expected": "false", "test": "equals",
+                        "method": "function() { return Utility.isNil([]); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.isNil({})", "expected": "false", "test": "equals",
+                        "method": "function() { return Utility.isNil({}); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.isNil([null])", "expected": "false", "test": "equals",
+                        "method": "function() { return Utility.isNil([null]); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.isNil(Number.NaN)", "expected": "false", "test": "equals",
+                        "method": "function() { return Utility.isNil(Number.NaN); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.isNil(false)", "expected": "false", "test": "equals",
+                        "method": "function() { return Utility.isNil(false); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.isNil(0)", "expected": "false", "test": "equals",
+                        "method": "function() { return Utility.isNil(0); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.isNil(\"\")", "expected": "false", "test": "equals",
+                        "method": "function() { return Utility.isNil(\"\"); }",
+                        "dependents": []
+                    }
+                ]
+            }, {
+                "name": "Utility.toArray", "expected": "\"function\"", "test": "equals",
+                "method": "function() { return typeof(JsUnitTesting.Utility.toArray); }",
+                "dependents": [
+                    {
+                        "name": "Utility.toArray()", "expected": "[]", "test": "equals",
+                        "method": "function() { return Utility.toArray(); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray(undefined)", "expected": "[]", "test": "equals",
+                        "method": "function() { return Utility.toArray(undefined); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray(null)", "expected": "[null]", "test": "equals",
+                        "method": "function() { return Utility.toArray(null); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray([])", "expected": "[]", "test": "equals",
+                        "method": "function() { return Utility.toArray([]); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray({})", "expected": "[{}]", "test": "equals",
+                        "method": "function() { return Utility.toArray({}); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray([null])", "expected": "[null]", "test": "equals",
+                        "method": "function() { return Utility.toArray([null]); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray(false)", "expected": "[false]", "test": "equals",
+                        "method": "function() { return Utility.toArray(false); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray(Number.NaN)", "expected": "[Number.NaN]", "test": "equals",
+                        "method": "function() { return Utility.toArray(Number.NaN); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray(0)", "expected": "[0]", "test": "equals",
+                        "method": "function() { return Utility.toArray(0); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray(\"\")", "expected": "[\"\"]", "test": "equals",
+                        "method": "function() { return Utility.toArray(\"\"); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray(\"Test\")", "expected": "[\"Test\"]", "test": "equals",
+                        "method": "function() { return Utility.toArray(\"Test\"); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray([[]])", "expected": "[]", "test": "equals",
+                        "method": "function() { return Utility.toArray([[]]); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray([[],null)", "expected": "[]", "test": "equals",
+                        "method": "function() { return Utility.toArray([[],null]); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.toArray([[2],\"test\")", "expected": "[[2], \"test\"]", "test": "equals",
+                        "method": "function() { return Utility.toArray([[2],\"test\"]); }",
+                        "dependents": []
+                    }
+                ]
+            }, {
+                "name": "Utility.convertToNumber", "expected": "\"function\"", "test": "equals",
+                "method": "function() { return typeof(JsUnitTesting.Utility.convertToNumber); }",
+                "dependents": [
+                    {
+                        "name": "Utility.convertToNumber()", "expected": "undefined", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber(0)", "expected": "0", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(0); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber(1000)", "expected": "1000", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(1000); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber(\"1000\")", "expected": "1000", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(\"1000\"); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber(\"00001000\")", "expected": "1000", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(\"00001000\"); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber(undefined)", "expected": "undefined", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(undefined); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber(null)", "expected": "null", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(null); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber([])", "expected": "undefined", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber([]); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber({})", "expected": "undefined", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber({}); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber([null])", "expected": "undefined", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber([null]); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber(false)", "expected": "0", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(false); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber(true)", "expected": "1", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(true); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber(Number.NaN)", "expected": "Number.NaN", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(Number.NaN); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber(0)", "expected": "0", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(0); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber(\"\")", "expected": "undefined", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(\"\"); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber(\"Test\")", "expected": "undefined", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber(\"Test\"); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber([[]])", "expected": "undefined", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber([[]]); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber([[],null)", "expected": "undefined", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber([[],null]); }",
+                        "dependents": []
+                    }, {
+                        "name": "Utility.convertToNumber([[2],\"test\")", "expected": "2", "test": "equals",
+                        "method": "function() { return Utility.convertToNumber([[2],\"test\"]); }",
+                        "dependents": []
+                    }
+                ]
+            }
+        ]
+    }
+]

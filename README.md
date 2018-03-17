@@ -12,7 +12,6 @@ The npm package manager (VS Code extension eg2.vscode-npm-script) and node.js is
 Microsoft PowerShell 5.0 or better may be required for development.
 
 Additionally, the following npm packages most likely need to be installed globally:
-- node
 - uglify-js
 - gulp
 - mocha
