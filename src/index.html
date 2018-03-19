@@ -15,9 +15,8 @@
     <script type="text/javascript" src="../node_modules/bootstrap-table/dist/bootstrap-table.js"></script>
     <script type="text/javascript" src="app.js"></script>
     <script type="text/javascript" src="JsUnitTesting/Utility.js"></script>
-    <script type="text/javascript" src="JsUnitTesting/TypeSpec.js"></script>
-    <script type="text/javascript" src="JsUnitTesting/TestResult.js"></script>
     <script type="text/javascript" src="JsUnitTesting/UnitTest.js"></script>
+    <script type="text/javascript" src="JsUnitTesting/TestResult.js"></script>
     <script type="text/javascript" src="JsUnitTesting/TestCollection.js"></script>
     <script type="text/javascript" src="JsUnitTesting/AssertionError.js"></script>
     <script type="text/javascript" src="JsUnitTesting/Assert.js"></script>
@@ -40,22 +39,20 @@
             <div class="container" ng-show="hasResults">
                 <div class="row">
                     <div class="col-1">Status</div>
-                    <div class="col-2">Name</div>
-                    <div class="col-8">Message</div>
-                    <div class="col-1">Detail</div>
+                    <div class="col-4">Name</div>
+                    <div class="col-7">Message</div>
                 </div>
                 <span ng-repeat="r in preValidationResults">
                     <div class="row">
-                        <div class="col-1">{{r.status}}</div>
-                        <div class="col-2">{{r.name}}</div>
-                        <div class="col-8">{{r.message}}</div>
-                        <div class="col-1">
-                            <button type="button" ng-click="r.toggleDetail()" onclick="return false;" ng-show="r.buttonIsVisible">{{r.buttonText}}</button>
-                        </div>
+                        <div class="col-1">{{r.status}} <button type="button button-sm" ng-click="r.toggleDetail()" onclick="return false;">{{r.buttonText}}</button></div>
+                        <div class="col-4">{{r.name}}</div>
+                        <div class="col-7">{{r.message}}</div>
                     </div>
                     <div class="row" ng-show="r.detailContainerIsVisible">
                         <div class="col-1"> </div>
                         <div class="col-11">
+                            <div><strong>Name:</strong> {{r.name}}</div>
+                            <div><strong>Message:</strong> {{r.message}}</div>
                             <div ng-show="r.showDetail">
                                 <strong>Details</strong>
                                 <pre>{{r.detail}}</pre>

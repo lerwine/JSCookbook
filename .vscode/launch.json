@@ -9,7 +9,7 @@
         "request": "launch",
         "name": "Launch Chrome for localhost",
         "sourceMaps": false,
-        "url": "http://localhost:8080/src/index.html",
+        "url": "http://localhost:8085/src/index.html",
         "webRoot": "${workspaceFolder}"
     }, {
         "type": "chrome",

@@ -1,27 +1,30 @@
-JsUnitTesting.UnitTest = (function(Utility, TestResult, ResultStatus) {
+JsUnitTesting.UnitTest = (function(Utility, ResultStatus) {
 	/**
 	 * This gets executed to perform a unit test.
 	 * @callback evaluatorCallback
-	 * @param {...*} arguments -	Arguments passed to the test evaluation, which were pass to the unit test constructor.
+	 * @param {...*} arguments Arguments passed to the test evaluation, which were passed to the unit test constructor.
 	 * @throws {Error} If the evaluator performs its own assertions, then an error can be thrown.
 	 * @return {*} Return value to be passed to assertionCallback.
 	 * @this {TestContext}	This is an object which contains information about the current test. 
 	 * @description	When this is executed, 
 	 */
-	/**
+
+	 /**
 	 * This asserts a result value from a unit test.
 	 *
 	 * @callback assertionCallback
-	 * @param {*} evaluationResult -	The value returned from the unit test.
+	 * @param {*} evaluationResult The value returned from the unit test.
 	 * @throws {Error} If the result value does not indicate a success, then an error should be thrown.
 	 * @returns {ResultStatus}
 	 */
+
 	/**
 	 * @classDescription	A single unit test to be performed
 	 * @param {evaluatorCallback} evaluator -	Function to be executed which performs the test.
 	 * @param {string=} name -	User-friendly name of unit test.
 	 * @param {Array=[]} args -	Arguments to pass to evaluatorCallback.
 	 * @param {string=} description -	Description of unit test.
+	 * @param {number=} id Unique identifier for test.
 	 * @param {assertionCallback=} assertion Asserts the result value from the unit test.
 	 * @description	When evaluator is called, args will be passed to the evaluator with a JsUnitTesting.TestContext object as "this", which describes the test being executed.
 	 * @constructor
@@ -34,33 +37,32 @@ JsUnitTesting.UnitTest = (function(Utility, TestResult, ResultStatus) {
 				throw "testFunc cannot be null";
 			throw "evaluator must be a function";
 		}
-		if (typeof(assertion) !== "function" && assertion !== null)
-			throw "assertion must be a function if it is defined";
-		id = JsUnitTesting.Utility.convertToNumber(id);
-		if (typeof(id) !== "undefined" && id != null && !isNaN(id))
+		if (typeof(assertion) !== "function") {
+			if (Utility.isNil(assertion))
+				this.assertion = UnitTest.defaulAssertionTest;
+			else
+				throw "assertion must be a function if it is defined";
+		} else
+			this.assertion = assertion;
+		id = Utility.convertToNumber(id);
+		if (!Utility.isNil(id) && !isNaN(id))
 			this.id = id;
-		name = JsUnitTesting.Utility.convertToString(name, "");
-		if (name.trim().length > 0)
-			this.name = name;
-		else {
-			name = JsUnitTesting.Utility.getFunctionName(evaluator);
-			if (typeof(this.id) !== "undefined")
-				name = (name.length == 0) ? this.id.toString() : (name + " [" + this.id + "]");
+		name = Utility.convertToString(name, "").trim();
+		if (name.length == 0) {
+			name = Utility.getFunctionName(evaluator);
+			if (typeof(name) != "string" || (name = name.trim()).length == 0)
+				name = (typeof(this.id) !== "undefined") ? this.id.toString() : "";
 		}
 		this.name = name;
-		this.description = JsUnitTesting.Utility.convertToString(description, "");
-
-		this.toString = function() { return this.toJSON(); };
-		
-		this.toJSON = function() {
-			JSON.stringify({ args: this.args, name: this.name, description: this.description, id: this.id });
-		};
-		
-		this.valueOf = function() { return (typeof(this.id) === "undefined") ? Number.NaN : this.id; };
-
-		this.exec = function(testCollection, testId, stateInfo) {
-			return new TestResult(evaluator, assertion, this, testCollection, testId, stateInfo);
-		};
+		this.description = Utility.convertToString(description, "");
 	}
+
+	UnitTest.defaulAssertionTest = function(testResult) {
+		if (testResult === true)
+			return ResultStatus.Pass;
+		
+		return (testResult === false) ? ResultStatus.Fail : ((typeof(testResult) == "number" &&!isNaN(testResult)) ? testResult : ResultStatus.Inconclusive);
+	};
+
  	return UnitTest;
-})(JsUnitTesting.Utility, JsUnitTesting.TestResult, JsUnitTesting.ResultStatus);
+})(JsUnitTesting.Utility, JsUnitTesting.ResultStatus);

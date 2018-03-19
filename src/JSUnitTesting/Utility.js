@@ -9,6 +9,8 @@ var JsUnitTesting = JsUnitTesting || {};
  * @namespace
  */
 JsUnitTesting.Utility = (function(Utility) {
+	nanValue = parseInt("NaN");
+
 	Utility = Utility || {};
 
 	/**
@@ -161,11 +163,51 @@ JsUnitTesting.Utility = (function(Utility) {
 		return JSON.stringify(value);
 	};
 
+	function stringifyShallow(value) {
+		if (typeof(value) == "undefined")
+			return "undefined";
+		if (value === null)
+			return "null";
+		return JSON.stringify(value);
+	}
+	Utility.stringifyDeep = function(value, maxDepth) {
+		if (typeof(maxDepth) != "number" || isNaN(maxDepth) || !Number.isFinite(maxDepth))
+			maxDepth = 4;
+		if (typeof(value) == "undefined")
+			return "undefined";
+		if (typeof(value) != "object")
+			return stringifyShallow(value);
+		if (value === null)
+			return "null";
+		var lines = [];
+		var foundKey = false;
+		var n;
+		if (maxDepth > 0) {
+			for (n in value) {
+				if (typeof(n) != "number")
+					foundKey = true;
+				try { lines.push({ k: n, v: stringifyDeep(value[n], maxDepth - 1) }); } catch (e) { }
+			}
+		} else {
+			for (n in value) {
+				if (typeof(n) != "number")
+					foundKey = true;
+				try { lines.push({ k: n, v: stringifyShallow(value[n]) }); } catch (e) { }
+			}
+		}
+		if (foundKey)
+			return "{\n\t" + lines.map(function(kvp) { return stringifyShallow(kvp.k) + ": " + kvp.v; }).join("\n")
+				.split(lineSplitRe).join(",\n\t") + "\n}";
+		if (lines.length > 0)
+			return "[\n\t" + lines.map(function(kvp) { return kvp.v; }) + "\n]";
+		return (Array.isArray(value)) ? "[ ]" : "{ }";
+	};
+	
 	/**
 	 * Ensures that a value is a number, converting it, if necessary.
 	 * @param {*} value - The value to convert to a number.
 	 * @param {number=} defaultValue - The default value to return if the value could not be converted to a number.
-	 * @returns {number} The value converted to a number, or Number.NaN if it could not be converted and the default value was not provided.
+	 * @returns {number} The value converted to a number, or nanValue if it could not be converted and the default value was not provided.
 	 */
 	Utility.convertToNumber = function(value, defaultValue) {
 		if (Utility.isNil(value)) {
@@ -181,6 +223,26 @@ JsUnitTesting.Utility = (function(Utility) {
 			case "boolean":
 				return (value) ? 1 : 0;
 			default:
+				if (Array.isArray(value)) {
+					if (value.length == 0)
+						value = nanValue;
+					else {
+						value = value[0];
+						if (Utility.isNil(value)) {
+							if (typeof(defaultValue) === "undefined")
+								return value;
+							return (defaultValue === null) ? defaultValue : Utility.convertToNumber(defaultValue);
+						}
+						switch (typeof(value)) {
+							case "number":
+								if (!isNaN(value))
+									return value;
+								break;
+							case "boolean":
+								return (value) ? 1 : 0;
+						}
+					}
+				}
 				if (value instanceof Date)
 					return value.valueOf();
 				
@@ -199,9 +261,9 @@ JsUnitTesting.Utility = (function(Utility) {
 							else
 								value = (i == f) ? i : f;
 						} catch (e) { value = i; }
-					} catch (e) { value = Number.NaN; }
+					} catch (e) { value = nanValue; }
 				} else
-					value = Number.NaN;
+					value = nanValue;
 				if (!isNaN(value))
 					return value;
 				break;
@@ -246,5 +308,6 @@ JsUnitTesting.Utility = (function(Utility) {
 	
 		return "";
 	};
+
 	return Utility;
 })(JsUnitTesting.Utility);
