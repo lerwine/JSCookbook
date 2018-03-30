@@ -21,51 +21,69 @@
     <script type="text/javascript" src="JsUnitTesting/AssertionError.js"></script>
     <script type="text/javascript" src="JsUnitTesting/Assert.js"></script>
 </head>
-<body>
+<body ng-app="jscookbook" ng-controller="rootIndexController">
     <header class="container-fluid border border-secondary p-sm-1"><h1>Lenny's JavaScript Cookbook</h1></header>
     <nav class="container-fluid navbar navbar-expand-lg navbar-light bg-light border border-light p-sm-1 mr-md-3">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item active border border-secondary bg-dark">Home</li>
+            <!-- <li class="nav-item active border border-secondary bg-dark" ng-repeat="m in preCheckState.navItems" ng-class="{{m.cssClass}}"><a href="#"
+                class="nav-link text-light" ng-click="preCheckState.selectItem($index)" ng-class="{{m.cssClass}}" ng-hide="m.isDisabled" onclick="return false;">{{m.text}}</a></li> -->
             <li class="nav-item border border-secondary bg-dark"><a href="git_cheat_sheet.html" class="nav-link text-light">Git cheat sheet</a></li>
             <li class="nav-item border border-secondary bg-dark"><a href="vscode_cheat_sheet.html" class="nav-link text-light">VS Code cheat sheet</a></li>
             <li class="nav-item border border-secondary bg-dark" style="visibility:hidden" id="unitTestsMenuItem"><a href="unit_tests.html" class="nav-link text-light">Unit Tests</a></li>
         </ul>
     </nav>
-    <section class="container-fluid border border-light p-md-3" ng-app="jscookbook" ng-controller="rootIndexController">
-        <form action="index.html">
-            <h2>Pre-Test check result</h2>
-            <div class="container" id="preTestCheckResultDiv" />
-            <button type="button" ng-click="startPrevalidation()" onclick="return false;" ng-disabled="preValidationDisabled">Run Now</button>
-            <div class="container" ng-show="hasResults">
-                <div class="row">
-                    <div class="col-1">Status</div>
-                    <div class="col-4">Name</div>
-                    <div class="col-7">Message</div>
-                </div>
-                <span ng-repeat="r in preValidationResults">
-                    <div class="row">
-                        <div class="col-1">{{r.status}} <button type="button button-sm" ng-click="r.toggleDetail()" onclick="return false;">{{r.buttonText}}</button></div>
-                        <div class="col-4">{{r.name}}</div>
-                        <div class="col-7">{{r.message}}</div>
-                    </div>
-                    <div class="row" ng-show="r.detailContainerIsVisible">
-                        <div class="col-1"> </div>
-                        <div class="col-11">
-                            <div><strong>Name:</strong> {{r.name}}</div>
-                            <div><strong>Message:</strong> {{r.message}}</div>
-                            <div ng-show="r.showDetail">
-                                <strong>Details</strong>
-                                <pre>{{r.detail}}</pre>
-                            </div>
-                            <div ng-show="r.showStackTrace">
-                                <strong>Stack Track</strong>
-                                <pre>{{r.stackTrace}}</pre>
+    <section class="card border border-light p-md-3">
+        <h5 class="card-header">Pre-Test Validation</h5>
+        <div class="card-body">
+            <form action="index.html">
+                <button type="button" class="btn btn-primary" ng-click="startPrevalidation()" ng-disabled="preValidationDisabled" onclick="return false;">Run Pre-Test Validation</button>
+                <div ng-show="hasResults" class="container">
+                    <div class="form-row">
+                        <div class="col-md-12">
+                            <div class="container">
+                                <div class="row">
+                                    <label class="col">
+                                        {{errorCountMessage}}
+                                        <input type="checkbox" class="form-control" ng-model="showErrors" />
+                                    </label>
+                                    <label class="col">
+                                        {{warningCountMessage}}
+                                        <input type="checkbox" class="form-control" ng-model="showWarnings" />
+                                    </label>
+                                    <label class="col">
+                                        {{successCountMessage}}
+                                        <input type="checkbox" class="form-control" ng-model="showSuccess" />
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </span>
-            </div>
-        </form>
+                    <div class="form-row">
+                        <div class="col-md-3">Name</div>
+                        <div class="col-md-1">Status</div>
+                        <div class="col">Message</div>
+                    </div>
+                    <div class="form-group" ng-repeat="r in preValidationResults" ng-show="r.isVisible">
+                        <div ng-class="{{r.cssClass}}">
+                            <div class="col-md-3"><button type="button" class="btn btn-outline-secondary button-sm" ng-click="toggleShowDetail($index)" onclick="return false;">{{r.name}}</button></div>
+                            <div class="col-md-1">{{r.status}}</div>
+                            <div class="col">{{r.message}}</div>
+                        </div>
+                        <div class="form-row" ng-show="r.detailContainerIsVisible">
+                            <div class="col-md-3"></div>
+                            <div class="col">
+                                <h6>Message</h6>
+                                <div>{{r.message}}</div>
+                                <h6 ng-show="r.showDetail">Detail</h6>
+                                <pre ng-show="r.showDetail">{{r.detail}}</pre>
+                                <h6 ng-show="r.showStackTrace">Detail</h6>
+                                <pre ng-show="r.showStackTrace">{{r.stackTrace}}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
     </section>
     <footer class="container-fluid border border-secondary p-sm-1 bg-secondary">It all ends with the footer.</footer>
 </body>

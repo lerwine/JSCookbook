@@ -37,13 +37,13 @@ JsUnitTesting.UnitTest = (function(Utility, ResultStatus) {
 				throw "testFunc cannot be null";
 			throw "evaluator must be a function";
 		}
+		this.evaluator = evaluator;
 		if (typeof(assertion) !== "function") {
-			if (Utility.isNil(assertion))
-				this.assertion = UnitTest.defaulAssertionTest;
-			else
+			if (!Utility.isNil(assertion))
 				throw "assertion must be a function if it is defined";
+			this.assertion = UnitTest.defaulAssertionTest;
 		} else
-			this.assertion = assertion;
+		this.assertion = assertion;
 		id = Utility.convertToNumber(id);
 		if (!Utility.isNil(id) && !isNaN(id))
 			this.id = id;

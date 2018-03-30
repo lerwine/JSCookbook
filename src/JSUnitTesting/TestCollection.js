@@ -8,6 +8,7 @@ JsUnitTesting.TestCollection = (function(Utility, UnitTest) {
 			}
 		}
 	}
+	
 	function _clear() {
 		this.notRun = [];
 		this.resultInfo = [];
@@ -16,44 +17,22 @@ JsUnitTesting.TestCollection = (function(Utility, UnitTest) {
 	function _run() {
 		var passCount = 0;
 		var totalCount = 0;
-		var completedIds = Utility.mapArray(this.resultInfo, function(r) { return r.result.testId; });
+		var completedIds = this.resultInfo.map(function(r) { return r.result.testId; });
 		var state = {};
 		var currentResults = [];
+		var index = 0;
 		while (this.notRun.length > 0) {
-			var unitTest = this.notRun.pop();
+			var unitTest = this.notRun.unshift();
 			if (Utility.nil(unitTest))
-				return null;
+				continue;
 			totalCount++;
 			var id = unitTest.id;
 			if (typeof(id) !== "number" || isNaN(id) || !Number.isFinite(id))
 				id = 0;
-			var canUseId = true;
-			for (var i = 0; i < completedIds.length; i++) {
-				if (completedIds[i] == n) {
-					canUseId = false;
-					break;
-				}
-			}
-			if (!canUseId) {
-				var hasId = function(n) {
-					for (var i = 0; i < this.completed.length; i++) {
-						var x = this.completed[i].id;
-						if (typeof(x) === "number" && !isNaN(x) && Number.isFinite(x) && x == n)
-							return true;
-					}
-					for (var i = 0; i < this.notRun.length; i++) {
-						var x = this.notRun[i].id;
-						if (typeof(x) === "number" && !isNaN(x) && Number.isFinite(x) && x == n)
-							return true;
-					}
-					return false;
-				};
-				do {
-					id++;
-				} while (hasId(id));
-			}
+			while (completedIds.filter(function(n) { return n == id; }).length > 0)
+				id++;
 			completedIds.push(id);
-			var result = unitTest.exec(this, id, state);
+			var tc = new TestContext(unitTest, this, index, stateInfo);
 			this.resultInfo.push({
 				test: unitTest,
 				result: result

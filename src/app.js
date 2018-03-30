@@ -145,6 +145,19 @@ function getTypeEx(obj) {
 }
 function PreValidationResult(status, name, message, stackTrace, detail) {
     this.status = status;
+    switch (status) {
+        case "error":
+        case "fail":
+            this.cssClass = ["form-row", "alert", "alert-danger"];
+            break;
+        case "pass":
+            this.cssClass = ["form-row", "alert", "alert-success"];
+            break;
+        default:
+            this.cssClass = ["form-row", "alert", "alert-warning"];
+            break;
+    }
+    this.isVisible = true;
     this.name = asString(name);
     this.message = asString(message);
     this.detail = (isNil(detail)) ? "" : ((typeof(detail) == "object")) ? stringifyDeep(detail) : asString(detail, "");
@@ -153,19 +166,9 @@ function PreValidationResult(status, name, message, stackTrace, detail) {
         this.stackTrace = "";
     else
         this.stackTrace = s.split(lineSplitRe).map(function(s) { return s.trim(); }).join("\n");
-    this.buttonText = "show";
     this.detailContainerIsVisible = false;
     this.showDetail = (this.detail.trim().length > 0);
     this.showStackTrace = (this.stackTrace.trim().length > 0);
-    this.toggleDetail = function() {
-        if (this.detailContainerIsVisible) {
-            this.detailContainerIsVisible = false;
-            this.buttonText = "show";
-        } else {
-            this.detailContainerIsVisible = true;
-            this.buttonText = "hide";
-        }
-    };
 }
 PreValidationResult.newSuccess = function(name, message) {
     return new PreValidationResult("pass", name, asValidatedString(message, "Test Passed"));
@@ -207,7 +210,7 @@ var testMethods = {
             names.push(n);
         return names;
     },
-    equals: function(expected, actual) {
+    equals: function(actual, expected) {
         if (typeof(expected) == "undefined")
             return typeof(actual) == "undefined";
         if (typeof(actual) == "undefined")
@@ -248,264 +251,289 @@ var nanValue = parseInt("NaN");
 var testDefinitions = [
     {
         name: "Utility namespace validation", expected: "object", test: testMethods.equals,
-            method: function() { return typeof(JsUnitTesting.Utility); },
-        dependents: [
-            {
-                name: "JsUnitTesting.Utility.isNil", expected: "function", test: testMethods.equals,
-                    method: function() { return typeof(JsUnitTesting.Utility.isNil); },
-                dependents: [
-                    {
-                        name: "JsUnitTesting.Utility.isNil()", expected: true, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.isNil(); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.isNil(undefined)", expected: true, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.isNil(undefined); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.isNil(null)", expected: true, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.isNil(null); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.isNil([])", expected: false, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.isNil([]); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.isNil({})", expected: false, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.isNil({}); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.isNil([null])", expected: false, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.isNil([null]); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.isNil(nanValue)", expected: false, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.isNil(nanValue); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.isNil(false)", expected: false, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.isNil(false); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.isNil(0)", expected: false, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.isNil(0); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.isNil(\"\")", expected: false, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.isNil(""); },
-                        dependents: []
-                    }
-                ]
-            }, {
-                name: "JsUnitTesting.Utility.toArray", expected: "function", test: testMethods.equals,
-                method: function() { return typeof(JsUnitTesting.Utility.toArray); },
-                dependents: [
-                    {
-                        name: "JsUnitTesting.Utility.toArray()", expected: [], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray(); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray(undefined)", expected: [], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray(undefined); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray(null)", expected: [null], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray(null); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray([])", expected: [], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray([]); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray({})", expected: [{}], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray({}); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray([null])", expected: [null], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray([null]); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray(false)", expected: [false], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray(false); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray(nanValue)", expected: [nanValue], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray(nanValue); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray(0)", expected: [0], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray(0); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray(\"\")", expected: [""], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray(""); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray(\"Test\")", expected: ["Test"], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray("Test"); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray([[]])", expected: [[]], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray([[]]); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray([[],null)", expected: [[],null], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray([[],null]); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.toArray([[2],\"test\")", expected: [[2], "test"], test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.toArray([[2],"test"]); },
-                        dependents: []
-                    }
-                ]
-            }, {
-                name: "JsUnitTesting.Utility.convertToNumber", expected: "function", test: testMethods.equals,
-                method: function() { return typeof(JsUnitTesting.Utility.convertToNumber); },
-                dependents: [
-                    {
-                        name: "JsUnitTesting.Utility.convertToNumber()", expected: undefined, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber(); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber(0)", expected: 0, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber(0); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber(1000)", expected: 1000, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber(1000); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber(\"1000\")", expected: 1000, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber("1000"); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber(\"00001000\")", expected: 1000, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber("00001000"); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber(undefined)", expected: undefined, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber(undefined); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber(null)", expected: null, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber(null); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber([])", expected: nanValue, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber([]); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber({})", expected: nanValue, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber({}); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber([null])", expected: null, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber([null]); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber(false)", expected: 0, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber(false); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber(true)", expected: 1, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber(true); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber(nanValue)", expected: nanValue, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber(nanValue); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber(0)", expected: 0, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber(0); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber(\"\")", expected: nanValue, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber(""); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber(\"Test\")", expected: nanValue, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber("Test"); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber([[]])", expected: nanValue, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber([[]]); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber([[],null)", expected: nanValue, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber([[],null]); },
-                        dependents: []
-                    }, {
-                        name: "JsUnitTesting.Utility.convertToNumber([[2],\"test\")", expected: nanValue, test: testMethods.equals,
-                        method: function() { return JsUnitTesting.Utility.convertToNumber([[2],"test"]); },
-                        dependents: []
-                    }
-                ]
-            }
-        ]
+            method: function() { return typeof(JsUnitTesting.Utility); }, dependsUpon: []
+    }, {
+        name: "JsUnitTesting.Utility.isNil", expected: "function", test: testMethods.equals,
+            method: function() { return typeof(JsUnitTesting.Utility.isNil); }, dependsUpon: ["Utility namespace validation"]
+    }, {
+        name: "JsUnitTesting.Utility.isNil()", expected: true, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.isNil(); }, dependsUpon: ["JsUnitTesting.Utility.isNil"]
+    }, {
+        name: "JsUnitTesting.Utility.isNil(undefined)", expected: true, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.isNil(undefined); }, dependsUpon: ["JsUnitTesting.Utility.isNil"]
+    }, {
+        name: "JsUnitTesting.Utility.isNil(null)", expected: true, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.isNil(null); }, dependsUpon: ["JsUnitTesting.Utility.isNil"]
+    }, {
+        name: "JsUnitTesting.Utility.isNil([])", expected: false, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.isNil([]); }, dependsUpon: ["JsUnitTesting.Utility.isNil"]
+    }, {
+        name: "JsUnitTesting.Utility.isNil({})", expected: false, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.isNil({}); }, dependsUpon: ["JsUnitTesting.Utility.isNil"]
+    }, {
+        name: "JsUnitTesting.Utility.isNil([null])", expected: false, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.isNil([null]); }, dependsUpon: ["JsUnitTesting.Utility.isNil"]
+    }, {
+        name: "JsUnitTesting.Utility.isNil(nanValue)", expected: false, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.isNil(nanValue); }, dependsUpon: ["JsUnitTesting.Utility.isNil"]
+    }, {
+        name: "JsUnitTesting.Utility.isNil(false)", expected: false, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.isNil(false); }, dependsUpon: ["JsUnitTesting.Utility.isNil"]
+    }, {
+        name: "JsUnitTesting.Utility.isNil(0)", expected: false, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.isNil(0); }, dependsUpon: ["JsUnitTesting.Utility.isNil"]
+    }, {
+        name: "JsUnitTesting.Utility.isNil(\"\")", expected: false, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.isNil(""); }, dependsUpon: ["JsUnitTesting.Utility.isNil"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray", expected: "function", test: testMethods.equals,
+        method: function() { return typeof(JsUnitTesting.Utility.toArray); }, dependsUpon: ["Utility namespace validation"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray()", expected: [], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray(); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray(undefined)", expected: [], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray(undefined); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray(null)", expected: [null], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray(null); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray([])", expected: [], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray([]); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray({})", expected: [{}], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray({}); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray([null])", expected: [null], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray([null]); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray(false)", expected: [false], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray(false); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray(nanValue)", expected: [nanValue], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray(nanValue); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray(0)", expected: [0], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray(0); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray(\"\")", expected: [""], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray(""); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray(\"Test\")", expected: ["Test"], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray("Test"); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray([[]])", expected: [[]], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray([[]]); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray([[],null)", expected: [[],null], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray([[],null]); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.toArray([[2],\"test\")", expected: [[2], "test"], test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.toArray([[2],"test"]); }, dependsUpon: ["JsUnitTesting.Utility.toArray"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber", expected: "function", test: testMethods.equals,
+        method: function() { return typeof(JsUnitTesting.Utility.convertToNumber); }, dependsUpon: ["Utility namespace validation"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber()", expected: undefined, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber(); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber(0)", expected: 0, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber(0); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber(1000)", expected: 1000, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber(1000); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber(\"1000\")", expected: 1000, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber("1000"); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber(\"00001000\")", expected: 1000, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber("00001000"); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber(undefined)", expected: undefined, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber(undefined); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber(null)", expected: null, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber(null); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber([])", expected: nanValue, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber([]); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber({})", expected: nanValue, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber({}); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber([null])", expected: null, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber([null]); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber(false)", expected: 0, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber(false); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber(true)", expected: 1, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber(true); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber(nanValue)", expected: nanValue, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber(nanValue); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber(0)", expected: 0, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber(0); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber(\"\")", expected: nanValue, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber(""); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber(\"Test\")", expected: nanValue,
+        test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber("Test"); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber([[]])", expected: nanValue, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber([[]]); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber([[],null)", expected: nanValue, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber([[],null]); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
+    }, {
+        name: "JsUnitTesting.Utility.convertToNumber([[2],\"test\")", expected: nanValue, test: testMethods.equals,
+        method: function() { return JsUnitTesting.Utility.convertToNumber([[2],"test"]); }, dependsUpon: ["JsUnitTesting.Utility.convertToNumber"]
     }, {
         name: "JsUnitTesting.UnitTest class validation", expected: "function", test: testMethods.equals,
-            method: function() { return typeof(JsUnitTesting.UnitTest); },
-        dependents: [
-            {
-                name: "JsUnitTesting.UnitTest constructor test", expected:undefined, test: function(r) {
-                    var expected = "My unit test";
-                    if (r.name !== expected)
-                        return "name expected: " + JSON.stringify(expected) + "; Actual: " +
-                            JsUnitTesting.Utility.stringifyDeep(r.name);
-                    expected = 24;
-                    if (r.id !== expected)
-                        return "id expected: " + JSON.stringify(expected) + "; Actual: " +
-                            JsUnitTesting.Utility.stringifyDeep(r.id);
-
-                }, method: function() {
-                    return new JsUnitTesting.UnitTest(function(a, b, c) {
-                    }, ["A", 2, false], "My unit test", "My desc", 24, function(r) {
-                    });
-                },
-                dependents: [
-
-                ]
-            }
-        ]
+        method: function() { return typeof(JsUnitTesting.UnitTest); },
+        dependsUpon: []
+    }, {
+        name: "JsUnitTesting.UnitTest constructor test", expected: undefined,
+        test: function(r) {
+            var expected = "My unit test";
+            if (r.name !== expected)
+                return "name expected: " + JSON.stringify(expected) + "; Actual: " +
+                    JsUnitTesting.Utility.stringifyDeep(r.name);
+            expected = 24;
+            if (r.id !== expected)
+                return "id expected: " + JSON.stringify(expected) + "; Actual: " +
+                    JsUnitTesting.Utility.stringifyDeep(r.id);
+            expected = "My desc";
+            if (r.description !== expected)
+                return "description expected: " + JSON.stringify(expected) + "; Actual: " +
+                    JsUnitTesting.Utility.stringifyDeep(r.description);
+        },
+        method: function() {
+            return new JsUnitTesting.UnitTest(function(a, b, c) { },
+                ["A", 2, false], "My unit test", "My desc", 24, function(r) {
+            });
+        },
+        dependsUpon: ["JsUnitTesting.UnitTest class validation", "JsUnitTesting.Utility.convertToNumber", "JsUnitTesting.Utility.toArray", "JsUnitTesting.Utility.isNil"]
+    }, {
+        name: "JsUnitTesting.TestCollection class validation", expected: "function", test: testMethods.equals,
+        method: function() { return typeof(JsUnitTesting.TestCollection); },
+        dependsUpon: []
+    }, {
+        name: "JsUnitTesting.TestCollection constructor test", expected: undefined,
+        test: function(r) {
+            var expected = "myTest";
+            if (r.name !== expected)
+                return "name expected: " + JSON.stringify(expected) + "; Actual: " +
+                    JsUnitTesting.Utility.stringifyDeep(r.name);
+            expected = 8;
+            if (r.id !== expected)
+                return "id expected: " + JSON.stringify(expected) + "; Actual: " +
+                    JsUnitTesting.Utility.stringifyDeep(r.id);
+        },
+        method: function() {
+            return new JsUnitTesting.TestCollection([], "myTest", 8);
+        },
+        dependsUpon: ["JsUnitTesting.UnitTest class validation", "JsUnitTesting.Utility.convertToNumber", "JsUnitTesting.Utility.toArray", "JsUnitTesting.Utility.isNil"]
+    }, {
+        name: "JsUnitTesting.TestCollection constructor test", expected: undefined,
+        test: function(r) {
+            var expected = "myTest";
+            if (r.name !== expected)
+                return "name expected: " + JSON.stringify(expected) + "; Actual: " +
+                    JsUnitTesting.Utility.stringifyDeep(r.name);
+            expected = 8;
+            if (r.id !== expected)
+                return "id expected: " + JSON.stringify(expected) + "; Actual: " +
+                    JsUnitTesting.Utility.stringifyDeep(r.id);
+        },
+        method: function() {
+            return new JsUnitTesting.TestCollection([], "myTest", 8);
+        },
+        dependsUpon: ["JsUnitTesting.TestCollection constructor test", "JsUnitTesting.Utility.convertToNumber", "JsUnitTesting.Utility.toArray", "JsUnitTesting.Utility.isNil"]
     }
 ];
 function doTest($scope, testArr, parentPath) {
     var resultArr = [];
+    testArr.forEach(function(d) { d.skip = false; });
     testArr.forEach(function(d) {
-        try {
-            var actual = d.method();
-            var r = d.test(d.expected, actual);
-            if (typeof(r) == "boolean") {
-                if (r) {
+        var passed = false;
+        if (d.skip)
+            resultArr.push(PreValidationResult.newSkip(d.name, "Skipped because a dependent test failed."));
+        else {
+            try {
+                var actual = d.method();
+                var r = d.test(actual, d.expected);
+                if (typeof(r) == "boolean") {
+                    if (r) {
+                        resultArr.push(PreValidationResult.newSuccess(d.name));
+                        passed = true;
+                    }
+                    else
+                        resultArr.push(PreValidationResult.newFail(d.name, "Expected: " + stringifyShallow(d.expected) + "; Actual: " + stringifyShallow(actual), {
+                            expected: d.expected,
+                            actual: actual
+                        }));
+                } else if (isNil(r)) {
                     resultArr.push(PreValidationResult.newSuccess(d.name));
+                    passed = true;
                     if (typeof(d.dependents) == "object" && d.dependents !== null &&
                             Array.isArray(d.dependents) && d.dependents.length > 0)
                         resultArr = resultArr.concat(doTest($scope, d.dependents, d.name));
-                }
-                else
-                    resultArr.push(PreValidationResult.newFail(d.name, "Expected: " + stringifyShallow(d.expected) + "; Actual: " + stringifyShallow(actual), {
-                        expected: d.expected,
-                        actual: actual
-                    }));
-            } else if (isNil(r)) {
-                resultArr.push(PreValidationResult.newSuccess(d.name));
-                if (typeof(d.dependents) == "object" && d.dependents !== null &&
-                        Array.isArray(d.dependents) && d.dependents.length > 0)
-                    resultArr = resultArr.concat(doTest($scope, d.dependents, d.name));
-            } else
-                resultArr.push(PreValidationResult.newFail(d.name, stringifyShallow(r)));
-        } catch (e) {
-            resultArr.push(PreValidationResult.newError(d.name, e));
+                } else
+                    resultArr.push(PreValidationResult.newFail(d.name, stringifyShallow(r)));
+            } catch (e) {
+                resultArr.push(PreValidationResult.newError(d.name, e));
+            }
         }
+        
+        if (!passed)
+            testArr.forEach(function(a) {
+                if (a.dependsUpon.filter(function(s) { return s == d.name; }).length > 0)
+                    a.skip = true;
+            });
     });
     return resultArr;
 }
 var jsCookbookModule = angular.module("jscookbook", []);
-jsCookbookModule.controller("rootIndexController", function($scope, $q, $http) {
+jsCookbookModule.controller("rootIndexController", function($scope, $q) {
     $scope.preValidationResults = [];
     $scope.preValidationStatus = PreValidationStatus.notStarted;
     $scope.preValidationDisabled = false;
     $scope.hasResults = false;
+    $scope.showErrors = true;
+    $scope.showWarnings = true;
+    $scope.showSuccess = false;
+    $scope.errorCountMessage = "";
+    $scope.warningCountMessage = "";
+    $scope.successCountMessage = "";
+    $scope.setItemVisibilities = function() {
+        $scope.preValidationResults.forEach(function(r) {
+            switch (r.status) {
+                case "error":
+                case "fail":
+                    r.isVisible = $scope.showErrors;
+                    break;
+                case "pass":
+                    r.isVisible = $scope.showSuccess;
+                    break;
+                default:
+                    r.isVisible = $scope.showWarnings;
+                    break;
+            }
+        });
+    };
+    $scope.toggleShowDetail = function(index) {
+        for (var i = 0; i < $scope.preValidationResults.length; i++) {
+            if (i == index) {
+                $scope.preValidationResults[i].detailContainerIsVisible = !$scope.preValidationResults[i].detailContainerIsVisible;
+            } else {
+                $scope.preValidationResults[i].detailContainerIsVisible = false;
+            }
+        }
+    };
     $scope.startPrevalidation = function() {
         $scope.preValidationDisabled = true;
         if ($scope.preValidationStatus == PreValidationStatus.running)
@@ -527,18 +555,39 @@ jsCookbookModule.controller("rootIndexController", function($scope, $q, $http) {
             $scope.preValidationDisabled = false;
             $scope.preValidationResults = results;
             $scope.hasResults = results.length > 0;
-            if ($scope.preValidationResults.filter(function(r) { return r.status == "pass"; }).length == $scope.preValidationResults.length)
+            $scope.passCount = results.filter(function(r) { return r.status == "pass"; }).length;
+            $scope.failCount = results.filter(function(r) { return r.status == "fail" || r.status == "error"; }).length;
+            $scope.warnCount = results.length - $scope.passCount - $scope.failCount;
+            if (results.filter(function(r) { return r.status == "pass"; }).length == results.length)
                 $scope.preValidationStatus = PreValidationStatus.success;
-            if ($scope.preValidationResults.filter(function(r) { return r.status == "skip"; }).length > 0)
+            if (results.filter(function(r) { return r.status == "skip"; }).length > 0)
                 $scope.preValidationStatus = PreValidationStatus.incomplete;
             else
                 $scope.preValidationStatus = PreValidationStatus.fail;
+            if ($scope.failCount == results.length) {
+                $scope.errorCountMessage = "All tests failed";
+                $scope.warningCountMessage = "No tests had warnings";
+                $scope.successCountMessage = "No tests passed";
+            } else if ($scope.passCount == results.length) {
+                $scope.errorCountMessage = "No tests failed";
+                $scope.warningCountMessage = "No tests had warnings";
+                $scope.successCountMessage = "All tests passed";
+            } else {
+                $scope.errorCountMessage = ($scope.failCount == 1) ? "1 test failed" : $scope.failCount + " tests failed";
+                $scope.warningCountMessage = ($scope.warnCount == 1) ? "1 had warnings" : $scope.warnCount + " tests had warnings";
+                $scope.successCountMessage = ($scope.passCount == 1) ? "1 test passed" : $scope.passCount + " tests passed";
+                }
+            $scope.setItemVisibilities();
         }, function(results) {
             $scope.preValidationDisabled = false;
             $scope.preValidationResults = results;
             $scope.hasResults = results.length > 0;
             $scope.preValidationStatus = PreValidationStatus.error;
+            $scope.setItemVisibilities();
         });
         return false;
     };
+    $scope.$watchGroup(["showErrors", "showWarnings", "showSuccess"], function() {
+        $scope.setItemVisibilities();
+    });
 });
