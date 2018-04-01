@@ -4,6 +4,36 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Build TypeUtil ES5",
+            "type": "typescript",
+            "tsconfig": "src/TypeUtil/tsconfig.json",
+            "problemMatcher": [ "$tsc" ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }, {
+            "label": "Build TypeUtil ES3",
+            "type": "typescript",
+            "tsconfig": "src/TypeUtil/tsconfig-es3.json",
+            "problemMatcher": [ "$tsc" ],
+            "group": "build"
+        }, {
+            "label": "Build AssertionTesting ES5",
+            "type": "typescript",
+            "tsconfig": "src/AssertionTesting/tsconfig.json",
+            "problemMatcher": [ "$tsc" ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }, {
+            "label": "Build AssertionTesting ES3",
+            "type": "typescript",
+            "tsconfig": "src/AssertionTesting/tsconfig-es3.json",
+            "problemMatcher": [ "$tsc" ],
+            "group": "build"
+        }, {
             "label": "Build JSUnitTesting Min",
             "type": "shell",
             "command": "uglifyjs",

@@ -1,19 +1,29 @@
-var AssertionTesting = AssertionTesting || {};
+var AssertionTesting2 = AssertionTesting2 || {};
 
 (function() {
     var newLineString = "\n";
-    var whitespaceRegex = /^\s*$/g;
+    var whitespaceRegex = /^\s*$/;
     var trimEndRegex = /^(\s*\S+(\s+\S+)*)/;
     var lineSplitRegex = /\r\n?|\n/g;
     var boolRegex = /^(?:(t(?:rue)?|y(?:es)?|[+-]?(?:0*[1-9]\d*(?:\.\d+)?|0+\.0*[1-9]\d*)|\+)|(f(?:alse)?|no?|[+-]?0+(?:\.0+)?|-))$/i;
+    var ucFirstRegex = /^([^a-zA-Z\d]*[a-z])(.+)?$/g;
+
     function defined(value) { return typeof(value) !== "undefined"; }
+
     function isString(value) { return typeof(value) === "string"; }
+    
     function isFunction(value) { return typeof(value) === "function"; }
+    
     function isBoolean(value) { return typeof(value) === "boolean"; }
+    
     function isNumber(value) { return typeof(value) === "number" && !isNaN(value); }
+    
     function nil(value) { return !defined(value) || value === null; }
-    function isNilOrEmptyString(s) { return !isString(value) || value.length == 0; }
-    function isNilOrWhitespace(s) { return !isString(value) || whitespaceRegex.test(value); }
+    
+    function isNilOrEmptyString(s) { return nil(s) || (isString(s) && s.length == 0); }
+    
+    function isNilOrWhitespace(s) { return nil(s) || (isString(s) && whitespaceRegex.test(s)); }
+    
     function asString(value, defaultValue, ignoreWhitespace) {
         if (!defined(value)) {
             if (nil(defaultValue))
@@ -26,7 +36,7 @@ var AssertionTesting = AssertionTesting || {};
             return asString(defaultValue);
         }
         if (!isString(value))
-            value = (Array.isArray(value)) ? value.join(newLine) : (function() {
+            value = (Array.isArray(value)) ? value.join(newLineString) : (function() {
                 try {
                     var s = value.toString();
                     if (isString(s))
@@ -41,16 +51,25 @@ var AssertionTesting = AssertionTesting || {};
         }
         return value;
     }
+    
+    function trimEnd(v) {
+        var s = asString(v, "");
+        var m = trimEndRegex.exec(s);
+        if (nil(m))
+            return "";
+        return m[1];
+    }
+    
     function asNumber(value, defaultValue) {
         if (!defined(value)) {
             if (nil(defaultValue))
-                return defaultValue;
+                return (defined(defaultValue)) ? defaultValue : value;
             return asNumber(defaultValue);
         }
         if (value === null) {
             if (nil(defaultValue))
                 return value;
-            return asNumber(defaultValue);
+            return asNumber(defaultValue, value);
         }
         if (typeof(value) !== "number") {
             if (isFunction(value.valueOf)) {
@@ -72,14 +91,16 @@ var AssertionTesting = AssertionTesting || {};
             return asNumber(defaultValue);
         return value;
     }
+    
     function asInteger(value, defaultValue) {
         value = asNumber(value, defaultValue);
-        if (isNaN(value) || Number.isInteger(value))
+        if (nil(value) || isNaN(value) || Number.isInteger(value))
             return value;
         return Math.round(value);
     }
+    
     function asBoolean(value, defaultValue) {
-        if (typeof(value) !== "boolean")
+        if (typeof(value) === "boolean")
             return value;
     
         if (!defined(value)) {
@@ -89,8 +110,8 @@ var AssertionTesting = AssertionTesting || {};
         }
         if (value === null) {
             if (nil(defaultValue))
-                return value;
-            return asBoolean(defaultValue);
+                return (defined(defaultValue)) ? defaultValue : value;
+            return asBoolean(defaultValue, value);
         }
         if (typeof(value) === "number")
             return !isNaN(value) && value != 0;
@@ -110,56 +131,156 @@ var AssertionTesting = AssertionTesting || {};
             return asBoolean(defaultValue);
         return nil(mg[2]);
     }
+    
     function getClassName(value) {
-        if (!nil(value)) {
-            var p = (isFunction(value)) ? value : Object.getPrototypeOf(value);
-            var b = Object.getPrototypeOf(p);
-            while (!nil(b)) {
-                var n;
-                if (!nil(p.constructor)) {
-                    n = asString(p.constructor.name, "");
-                    if (n.length > 0) {
-                        if (n == "Object" && nil(Object.getPrototypeOf(p)))
-                            break;
-                        return n;
-                    }
-                }
-                n = asString(p.name, "");
-                if (n.length > 0)
-                    return n;
-                p = b;
-                b = Object.getPrototypeOf(p);
+        if (!defined(value))
+            return "undefined";
+        if (value === null)
+            return "null";
+        var prototype, constructor;
+        if (isFunction(value)) {
+            constructor = value;
+            prototype = value.prototype;
+        } else {
+            prototype = Object.getPrototypeOf(value);
+            constructor = prototype.constructor;
+            while (!isFunction(constructor)) {
+                prototype = Object.getPrototypeOf(prototype);
+                if (nil(prototype))
+                    return typeof(value);
+                constructor = prototype.constructor;
             }
         }
-        return typeof(value);
-    }
-    function derivesFrom(value, classFunc) {
-        if (!defined(classFunc))
-            return !defined(value);
-        if (!defined(value))
-            return false;
-        if (classFunc === null)
-            return value === null && typeof(value) == typeof(classFunc);
-        if (value === null)
-            return false;
-        if (!isFunction(classFunc)) {
-            classFunc = Object.getPrototypeOf(classFunc);
-            if (nil(classFunc))
-                return false;
-            classFunc = classFunc.constructor;
-            if (nil(classFunc))
-                return false;
+        if (isString(constructor.name) && constructor.name.length > 0)
+            return constructor.name;
+        basePrototype = Object.getPrototypeOf(prototype);
+        if (nil(basePrototype)) {
+            if (isString(prototype.name) && prototype.name.length > 0)
+                return prototype.name;
+            if (isString(value.name) && value.name.length > 0)
+                return value.name;
+            return typeof(value);
         }
-        if (value instanceof classFunc)
+        var name = getClassName(basePrototype);
+        if (name == "Object") {
+            if (isString(prototype.name) && prototype.name.length > 0)
+                return prototype.name;
+            if (isString(value.name) && value.name.length > 0)
+                return value.name;
+        }
+        return name;
+    }
+    
+    function getInheritanceChain(value) {
+        if (!defined(value))
+            return ["undefined"];
+        if (value === null)
+            return ["null"];
+        var prototype, constructor;
+        if (isFunction(value)) {
+            constructor = value;
+            prototype = value.prototype;
+        } else {
+            prototype = Object.getPrototypeOf(value);
+            constructor = prototype.constructor;
+            while (!isFunction(constructor)) {
+                prototype = Object.getPrototypeOf(prototype);
+                if (nil(prototype))
+                    return typeof(value);
+                constructor = prototype.constructor;
+            }
+        }
+        
+        basePrototype = Object.getPrototypeOf(prototype);
+        if (nil(basePrototype)) {
+            if (isString(constructor.name) && constructor.name.length > 0)
+                return [constructor.name];
+            if (isString(prototype.name) && prototype.name.length > 0)
+                return [prototype.name];
+            if (isString(value.name) && value.name.length > 0)
+                return [value.name];
+            return [typeof(value)];
+        }
+        var arr = getInheritanceChain(basePrototype);
+        if (isString(constructor.name) && constructor.name.length > 0)
+            return arr.unshift(constructor.name);
+        if (isString(prototype.name) && prototype.name.length > 0)
+            return arr.unshift(prototype.name);
+        if (arr.length > 0)
+            return arr;
+        
+        if (isString(value.name) && value.name.length > 0)
+            return [value.name];
+        
+        return [typeof(value)];
+    }
+    
+    function derivesFrom(value, classConstructor) {
+        if (!defined(value))
+            return !defined(classConstructor);
+        if (!defined(classConstructor))
+            return false;
+        if (value === null)
+            return classConstructor === null;
+        var classProto;
+        if (isFunction(classConstructor)) {
+            classProto = classConstructor.prototype;
+        } else {
+            classProto = Object.getPrototypeOf(classConstructor);
+            classConstructor = classProto.constructor;
+            while (!isFunction(classConstructor)) {
+                classProto = Object.getPrototypeOf(classProto);
+                if (nil(classProto))
+                    break;
+                classConstructor = classProto.constructor;
+            }
+        }
+
+        if (value instanceof classConstructor)
             return true;
-        var p = (isFunction(value.constructor)) ? value : Object.getPrototypeOf(value);
-        while (!nil(p)) {
-            if (isFunction(p.constructor) && p.constructor == classFunc)
+            
+        var valueProto, valueConstructor;
+        if (isFunction(value)) {
+            valueConstructor = value;
+            valueProto = value.prototype;
+        } else {
+            valueProto = Object.getPrototypeOf(value);
+            valueConstructor = valueProto.constructor;
+            while (!isFunction(valueConstructor)) {
+                valueProto = Object.getPrototypeOf(valueProto);
+                if (nil(valueProto))
+                    break;
+                valueConstructor = valueProto.constructor;
+            }
+        }
+        if (nil(valueConstructor))
+            return (nil(classConstructor) && nil(classProto) == nil(valueProto));
+        if (valueConstructor === classConstructor)
+            return true;
+        if (nil(valueProto))
+            return (nil(classProto) && valueConstructor === classConstructor);
+        
+        var constructorChain = [];
+        do {
+            if (valueProto instanceof classConstructor)
+                return true;
+            constructorChain.push(valueConstructor);
+            valueConstructor = null;
+            do {
+                valueProto = Object.getPrototypeOf(valueProto);
+                if (nil(valueProto))
+                    break;
+                valueConstructor = valueProto.constructor;
+            } while (nil(valueConstructor));
+        } while (!nil(valueConstructor));
+        for (var i = 0; i < constructorChain.length; i++) {
+            if (constructorChain[i] === classConstructor)
                 return true;
         }
         return false;
     }
-    function typeOfX(value) {
+    
+    function typeOfExt(value) {
         var t = typeof(value);
         if (t == "object") {
             if (value === null)
@@ -175,21 +296,169 @@ var AssertionTesting = AssertionTesting || {};
             return t;
         return t + " " + n;
     }
-    function stringifyX(obj) {
+    
+    function indentText(text, indent, skipLineCount) {
+        var arr;
+        if (typeof(text) == "object" && text != null && Array.isArray(text)) {
+            if (text.length == 0)
+                return "";
+            if (text.length == 1)
+                text = asString(text[0], "");
+            else
+                text = arr.join(newLineString);
+        } else
+            text = asString(text, "");
+        if (text.length == 0)
+            return text;
+        indent = asString(indent, "\t");
+        skipLineCount = asInteger(skipLineCount, 0);
+        text = text.split(lineSplitRegex).map(function(s) { return trimEnd(s); });
+        if (text.length == 1) {
+            if (skipLineCount < 1 && text[0].length > 1)
+                return indent + text[0];
+            return text[0];
+        }
+        return text.map(function(s, i) {
+            if (i < skipLineCount || s.length == 0)
+                return s;
+            return indent + s;
+        }).join(newLineString);
+    }
+    
+    function __asPropertyValueString(obj) {
         if (!defined(obj))
             return "undefined";
         if (obj === null)
             return "null";
-        if (typeof(obj) == "number")
-            return (isNaN(obj)) ? "NaN" : JSON.stringify(obj, undefined, "\t");
-        if (typeof(obj.toJSON) == "function" || typeof(obj) == "boolean" || typeof(obj) == "string")
-            return JSON.stringify(obj, undefined, "\t");
+        var type = typeof(obj);
+        if (type == "number")
+            return (isNaN(obj)) ? "NaN" : JSON.stringify(obj);
+        if (type == "boolean" || type == "string")
+            return JSON.stringify(obj);
+        var className = getClassName(obj);
+        if (typeof(obj.toJSON) != "function") {
+            if (type == "object") {
+                if (derivesFrom(obj, Error)) {
+
+                }
+            }
+        }
+        if (typeof(obj.toJSON) == "function" || type == "object")
+            return JSON.stringify({
+                className: className,
+                type: type,
+                data: obj.toJSON()
+            }, undefined, "\t");
+        return JSON.stringify({
+            className: className,
+            type: type,
+            data: obj.toString()
+        }, undefined, "\t");
+    }
+    
+    function asPropertyValueString(obj) {
+        if (!defined(obj))
+            return "undefined";
+        if (obj === null)
+            return "null";
+        var type = typeof(obj);
+        if (type == "number")
+            return (isNaN(obj)) ? "NaN" : JSON.stringify(obj);
+        if (type == "boolean" || type == "string")
+            return JSON.stringify(obj);
+        var className = getClassName(obj);
+        var n;
+        if (typeof(obj.toJSON) != "function") {
+            if (type == "object") {
+                var elements = [];
+                var propertyLines = [];
+                var byName = {};
+                if (Array.isArray(obj)) {
+                    elements = obj.map(function(e) { return __asPropertyValueString(e); });
+                    for (n in obj) {
+                        if ((!isNumber(n) && n !== "length") || n < 0 || n > obj.length) {
+                            byName[n] = __asPropertyValueString(obj[n]);
+                            propertyLines.push(JSON.stringify(n) + ": " + __asPropertyValueString(obj[n]));
+                        }
+                    }
+                } else {
+                    for (n in obj) {
+                        if (n !== "length") {
+                            byName[n] = __asPropertyValueString(obj[n]);
+                            propertyLines.push(JSON.stringify(n) + ": " + __asPropertyValueString(obj[n]));
+                        }
+                    }
+                }
+                if (derivesFrom(obj, Error)) {
+                    if (!nil(obj.columnNumber) && nil(byName.columnNumber))
+                        propertyLines = propertyLines.unshift("\"columnNumber\": " + __asPropertyValueString(obj.columnNumber));
+                    if (!nil(obj.lineNumber) && nil(byName.lineNumber))
+                        propertyLines = propertyLines.unshift("\"lineNumber\": " + __asPropertyValueString(obj.lineNumber));
+                    if (!nil(obj.fileName) && nil(byName.fileName))
+                        propertyLines = propertyLines.unshift("\"fileName\": " + __asPropertyValueString(obj.fileName));
+                    if (!nil(obj.number) && nil(byName.number))
+                        propertyLines = propertyLines.unshift("\"number\": " + __asPropertyValueString(obj.number));
+                    if (!nil(obj.name) && nil(byName.name))
+                        propertyLines = propertyLines.unshift("\"name\": " + __asPropertyValueString(obj.name));
+                    if (!nil(obj.description) && nil(byName.description)) {
+                        if (nil(obj.message) || (isString(obj.message) && isString(obj.description) && obj.description.length > obj.message.length && obj.message.trim().length == 0)) {
+                            byName.message = obj.description;
+                            propertyLines = propertyLines.unshift("\"message\": " + __asPropertyValueString(obj.description));
+                        }
+                        else
+                            propertyLines = propertyLines.unshift("\"description\": " + __asPropertyValueString(obj.description));
+                    }
+
+                    if (!nil(obj.message) && nil(byName.message))
+                        propertyLines = propertyLines.unshift("\"message\": " + __asPropertyValueString(obj.message));
+                }
+                if (propertyLines.length == 0) {
+                    if (Array.isArray(obj)) {
+                        if (elements.length == 0) {
+                            if (className == "Array")
+                                return "[]";
+                            return "{" + newLineString + "\t\"className\": " + JSON.stringify(className) + "," + newLineString + "\t\"type\": " + JSON.stringify(type) + "," + newLineString +
+                                "\t\"elements\": []" + newLineString + ", \t\"properties\": {}" + newLineString + "}";
+                        }
+                        if (elements.length == 1) {
+                            if (className == "Array")
+                                return "[ " + trimEnd(elements[0]) + " ]";
+                            return "{" + newLineString + "\t\"className\": " + JSON.stringify(className) + "," + newLineString + "\t\"type\": " + JSON.stringify(type) + "," + newLineString +
+                                "\t\"elements\": [ " + indentText(e, "\t", 1) + " ]" + newLineString + ", \t\"properties\": {}" + newLineString + "}";
+                        }
+                        if (className == "Array")
+                            return "[" + newLineString + elements.map(function(e) { return indentText(e); }).join(newLineString) + newLineString + "]";
+                        return "{" + newLineString + "\t\"className\": " + JSON.stringify(className) + "," + newLineString + "\t\"type\": " + JSON.stringify(type) + "," + newLineString +
+                            "\t\"elements\": [" + newLineString + elements.map(function(e) { return indentText(e, "\t\t"); }).join(newLineString) + newLineString + "]" + newLineString + ", \t\"properties\": {}" + newLineString + "}";
+                    }
+                    if (className == "Object")
+                        return "{ \"type\": " + JSON.stringify(type) + ", \"properties\": {} }";
+                    return "{ \"className\": " + JSON.stringify(className) + ", t\"type\": " + JSON.stringify(type) + ", \"properties\": {} }";
+                }
+            }
+            return JSON.stringify({
+                className: className,
+                type: type,
+                value: obj.toString()
+            }, undefined, "\t");
+        }
+
+        if (typeof(obj.toJSON) == "function")
+            return JSON.stringify({
+                className: className,
+                type: type,
+                data: obj.toJSON()
+            }, undefined, "\t");
         if (typeof(obj) != "object")
-            return obj.toString();
+            return JSON.stringify({
+                className: className,
+                type: type,
+                data: obj.toString()
+            }, undefined, "\t");
         if (Array.isArray(obj)) {
             if (obj.length == 0)
                 return "[]";
-            return "[\n" + obj.map(function(e) {
+            return "[" + newLineString + obj.map(function(e) {
                 if (!defined(e))
                     return "undefined";
                 if (e === null)
@@ -201,11 +470,11 @@ var AssertionTesting = AssertionTesting || {};
                     return JSON.stringify(e, undefined, "\t");
                 return e.toString();
             }).map(function(s) {
-                s.split(/\r\n?|\n/).map(function(l) { return "\t" + l; }).join("\n");
-            }).join(",\n") + "\n]";
+                s.split(/\r\n?|\n/).map(function(l) { return "\t" + l; }).join(newLineString);
+            }).join(",") + newLineString + newLineString + "]";
         }
         var lines = [];
-        for (var n in obj) {
+        for (n in obj) {
             var v = obj[n];
             if (!defined(v))
                 lines.push(JSON.stringify(n) + ": undefined");
@@ -221,11 +490,11 @@ var AssertionTesting = AssertionTesting || {};
         }
         if (lines.length == 0)
             return "{}";
-        return "{\n" + lines.map(function(s) {
-            s.split(/\r\n?|\n/).map(function(l) { return "\t" + l; }).join("\n");
-        }).join(",\n") + "\n}";
+        return "{" + newLineString + lines.map(function(s) {
+            s.split(/\r\n?|\n/).map(function(l) { return "\t" + l; }).join(newLineString);
+        }).join("," + newLineString) + newLineString + "}";
     }
-    var ucFirstRegex = /^([^a-zA-Z\d]*[a-z])(.+)?$/g;
+
     function ucFirst(value) {
         if (!nil(value)) {
             var mg = ucFirstRegex.exec(asString(value, ""));
@@ -252,9 +521,14 @@ var AssertionTesting = AssertionTesting || {};
         asInteger: asInteger,
         asBoolean: asBoolean,
         getClassName: getClassName,
-        derivesFrom: derivesFrom
+        derivesFrom: derivesFrom,
+        typeOfExt: typeOfExt,
+        ucFirst: ucFirst,
+        asPropertyValueString: asPropertyValueString
     };
+
     AssertionTesting.util = util;
+
     if (isFunction(Object.defineProperty)) {
         for (var n in AssertionTesting)
             Object.defineProperty(util, n, { enumerable: false, configurable: false, writable: false });
@@ -262,7 +536,7 @@ var AssertionTesting = AssertionTesting || {};
         Object.defineProperty(AssertionTesting, "util", { enumerable: true, configurable: false, writable: false });
     } else
         util.name = "name";
-
+    
     function ResultStatus(value, message) {
         if (isFunction(Object.defineProperties)) {
             var statusValue = asNumber(value, ResultStatus.allTypeValuePairs[0].value);
@@ -337,29 +611,17 @@ var AssertionTesting = AssertionTesting || {};
         .filter(function(a) { return isNumber(a.value) && a.type != "length"; })
         .sort(function(a, b) { return a.value - b.value; });
     ResultStatus.getType = function(value) {
-        // console.log("ResultStatus.getType = function(%s)", JSON.stringify(value));
         value = asNumber(value, null);
-        // console.log("%s = asNumber(value, null)", JSON.stringify(value));
         var prev = ResultStatus.allTypeValuePairs[0];
-        if (!isNumber(value) || value <= prev.value) {
-            // console.log("(!isNumber(%s) || %s <= prev.value) == true", JSON.stringify(value), JSON.stringify(value));
-            // console.log("return %s", JSON.stringify(prev.type));
+        if (!isNumber(value) || value <= prev.value)
             return prev.type;
-        }
         for (var i = 1; i < ResultStatus.allTypeValuePairs.length; i++) {
-            if (ResultStatus.allTypeValuePairs[i].value == value) {
-                // console.log("ResultStatus.allTypeValuePairs[i].value == %s == true", JSON.stringify(value));
-                // console.log("return %s", ResultStatus.allTypeValuePairs[i].type);
+            if (ResultStatus.allTypeValuePairs[i].value == value)
                 return ResultStatus.allTypeValuePairs[i].type;
-            }
-            if (ResultStatus.allTypeValuePairs[i].value > value) {
-                // console.log("ResultStatus.allTypeValuePairs[i].value > %s == true", JSON.stringify(value));
+            if (ResultStatus.allTypeValuePairs[i].value > value)
                 break;
-            }
             prev = ResultStatus.allTypeValuePairs[i];
-            // console.log("prev = %s", JSON.stringify(prev));
         }
-        // console.log("return %s", JSON.stringify(prev.type));
         return prev.type;
     };
     ResultStatus.getTitle = function(value) {
@@ -391,15 +653,26 @@ var AssertionTesting = AssertionTesting || {};
     }
     ResultStatus.isResultStatus = function(e) { return !nil(e) && e instanceof ResultStatus; };
     AssertionTesting.ResultStatus = ResultStatus;
-/*
+    
     function TestResultBase(message) {
-        this.message = asString(message, "");
+        if (isFunction(Object.defineProperties)) {
+            var messageText = asString(message, "");
+            if (messageText.trim().length == 0)
+                messageText = ResultStatus.getTitle(statusValue);
+            Object.defineProperties(this, {
+                message: {
+                    enumerable: true, configurable: false,
+                    get: function() { return messageText; },
+                    set: function(message) { messageText = asString(message, ""); }
+                }
+            });
+        } else {
+            this.message = asString(message, "");
+            if (this.message.trim().length == 0)
+                this.message = this.message.getTitle(this.value);
+        }
     }
-    TestResultBase.prototype.normalize = function() {
-        this.message = asString(this.message, "");
-    };
     TestResultBase.prototype.toJSON = function(name) {
-        this.normalize();
         var jo = { message: this.message };
         for (var pn in this) {
             if (nil(this[pn]))
@@ -422,9 +695,87 @@ var AssertionTesting = AssertionTesting || {};
             }
         }
         jo.message = this.message;
-        return jo; // passed to stringify
+        return jo;
     };
+    
     function ErrorResults(error) {
+        if (isFunction(Object.defineProperties)) {
+            var isWarning = false, errorName = "", number = null, fileName = null, lineNumber = null, columnNumber = null, stack = null;
+            if (typeof(error) !== "object" || error === null || Array.isArray(error))
+                TestResultBase.call(this, error);
+            else
+                TestResultBase.call(this, asString(error.message, error.description));
+            Object.defineProperties(this, {
+                isWarning: {
+                    enumerable: true, configurable: false,
+                    get: function() { return isWarning; },
+                    set: function(value) { isWarning = asBoolean(value, false); }
+                },
+                errorName: {
+                    enumerable: true, configurable: false,
+                    get: function() { return errorName; },
+                    set: function(value) { number = asString(value, ""); }
+                },
+                number: {
+                    enumerable: true, configurable: false,
+                    get: function() { return number; },
+                    set: function(value) { number = asNumber(value, null); }
+                },
+                fileName: {
+                    enumerable: true, configurable: false,
+                    get: function() { return number; },
+                    set: function(value) { number = asString(value, null); }
+                },
+                lineNumber: {
+                    enumerable: true, configurable: false,
+                    get: function() { return number; },
+                    set: function(value) { number = asNumber(value, null); }
+                },
+                columnNumber: {
+                    enumerable: true, configurable: false,
+                    get: function() { return number; },
+                    set: function(value) { number = asNumber(value, null); }
+                },
+                stack: {
+                    enumerable: true, configurable: false,
+                    get: function() { return number; },
+                    set: function(value) { number = asString(value, null); }
+                },
+                innerError: {
+                    enumerable: true, configurable: false,
+                    get: function() { return innerError; },
+                    set: function(error) {
+                        if (nil(error))
+                            this.innerError = null;
+                        else if (derivesFrom(error, ErrorResults))
+                            this.innerError = error;
+                        else
+                            this.innerError = new ErrorResults(error);
+                    }
+                }
+            });
+            if (nil(error)) {
+                this.errorName = typeof(error);
+                return;
+            }
+            this.errorName = error.name;
+            if (this.errorName.trim().length == 0)
+                this.errorName = asString(error.errorName, this.errorName);
+            if (isBoolean(error.isWarning))
+                this.isWarning = error.isWarning;
+            else {
+                var w = this.errorName.trim();
+                this.isWarning = w.length > 3 && w.substr(0, 4).toLowerCase() == "warn";
+            }
+            this.number = error.number;
+            this.fileName = error.fileName;
+            this.lineNumber = error.lineNumber;
+            this.columnNumber = error.columnNumber;
+            this.stack = error.stack;
+            this.innerError = error.innerError;
+            return;
+        }
+
         if (typeof(error) !== "object" || error === null || Array.isArray(error)) {
             TestResultBase.call(this, error);
             if (nil(error)) {
@@ -460,20 +811,8 @@ var AssertionTesting = AssertionTesting || {};
         else
             this.innerError = new ErrorResults(error.innerError);
     }
-    ErrorResults.prototype = TestResultBase.prototype;
+    ErrorResults.prototype = new TestResultBase();
     ErrorResults.prototype.constructor = ErrorResults;
-    ErrorResults.prototype.normalize = function() {
-        TestResultBase.prototype.normalize.call(this);
-        this.isWarning = asBoolean(this.isWarning, false);
-        this.errorName = asString(this.errorName, "");
-        this.number = asNumber(this.number, null);
-        this.fileName = asString(this.fileName, null);
-        this.lineNumber = asNumber(this.lineNumber, null);
-        this.columnNumber = asNumber(this.columnNumber, null);
-        this.stack = asString(this.stack, null);
-        this.innerError = (nil(this.innerError)) ? null : ((ErrorResults.isErrorResults(this.innerError)) ? this.innerError :
-            new ErrorResults(this.innerError));
-    };
     ErrorResults.prototype.toJSON = function(name) {
         var jo = TestResultBase.prototype.toJSON.call(this, name);
         jo.isWarning = this.isWarning;
@@ -484,13 +823,61 @@ var AssertionTesting = AssertionTesting || {};
         jo.columnNumber = this.columnNumber;
         jo.stack = this.stack;
         jo.innerError = this.innerError;
-        return jo; // passed to stringify
+        return jo;
     };
     ErrorResults.isErrorResults = function(e) { return !nil(e) && e instanceof ErrorResults; };
     AssertionTesting.ErrorResults = ErrorResults;
 
     function AssertionError(message, data, index, testId, description, resultStatus) {
         Error.call(this, message);
+        if (isFunction(Object.defineProperties)) {
+            var dataObj, testIndex, testIdString, descriptionText, resultStatusObj;
+            dataObj = (defined(data)) ? data : null;;
+            testIndex = asNumber(index, null);
+            testIdString = asString(testId, null);
+            descriptionText = asString(description, null);
+            if (nil(resultStatus))
+                resultStatusObj = ResultStatus.fail;
+            else if (derivesFrom(resultStatus, ResultStatus))
+                resultStatusObj = resultStatus;
+            else
+                resultStatusObj = new ResultStatus(resultStatus);
+            Object.defineProperties(this, {
+                data: {
+                    enumerable: true, configurable: false,
+                    get: function() { return dataObj; },
+                    set: function(value) { dataObj = defined(value) ? value : null; }
+                },
+                index: {
+                    enumerable: true, configurable: false,
+                    get: function() { return testIndex; },
+                    set: function(value) { testIndex = asNumber(value, null); }
+                },
+                testId: {
+                    enumerable: true, configurable: false,
+                    get: function() { return testIdString; },
+                    set: function(value) { testIdString = asString(value, null); }
+                },
+                description: {
+                    enumerable: true, configurable: false,
+                    get: function() { return descriptionText; },
+                    set: function(value) { descriptionText = asString(value, null); }
+                },
+                resultStatus: {
+                    enumerable: true, configurable: false,
+                    get: function() { return resultStatusObj; },
+                    set: function(status) {
+                        if (nil(resultStatus))
+                            resultStatusObj = new ResultStatus(ResultStatus.fail);
+                        else if (derivesFrom(status, ResultStatus))
+                            resultStatusObj = status;
+                        else
+                            resultStatusObj = new ResultStatus(status);
+                    }
+                }
+            });
+            return;
+        }
         this.data = data;
         this.index = asNumber(index, null);
         this.testId = asString(testId, null);
@@ -502,9 +889,63 @@ var AssertionTesting = AssertionTesting || {};
         else
             this.resultStatus = new ResultStatus(resultStatus);
     }
-    AssertionError.prototype = Error.prototype;
+    AssertionError.prototype = new Error();
     AssertionError.prototype.constructor = AssertionError;
 
+    function TestInfo(runFunc, id, data, enumerateData) {
+        if (!isFunction(runFunc))
+            throw new TypeError("runFunc must be a function");
+        id = asString(id, "");
+        enumerateData = asBoolean(enumerateData);
+        if (isFunction(Object.defineProperties)) {
+            this.id = asString(id, "");
+            this.data = data;
+            this.enumerateData = asBoolean(enumerateData);
+            this.lastResultStatus = new ResultStatus();
+            this.lastResultMessage = this.lastResultStatus.toString();
+            this.lastResult = null;
+
+
+
+            Object.defineProperties(this, {
+                runFunc: {
+                    enumerable: true, configurable: false,
+                    get: function() { return runFunc; }
+                },
+                id: {
+                    enumerable: true, configurable: false,
+                    get: function() { return id; }
+                },
+                data: {
+                    enumerable: true, configurable: false,
+                    get: function() { return data; }
+                },
+                enumerateData: {
+                    enumerable: true, configurable: false,
+                    get: function() { return enumerateData; }
+                },
+                lastResultStatus: {
+                    enumerable: true, configurable: false,
+                    get: function() { return lastResultStatus; }
+                },
+                lastResultMessage: {
+                    enumerable: true, configurable: false,
+                    get: function() { return lastResultMessage; }
+                }
+            });
+            return;
+        }
+
+        if (!isFunction(runFunc))
+            throw new TypeError("runFunc must be a function");
+        this.id = asString(id, "");
+        this.data = data;
+        this.enumerateData = asBoolean(enumerateData);
+        this.lastResultStatus = new ResultStatus();
+        this.lastResultMessage = this.lastResultStatus.toString();
+        this.lastResult = null;
+    }
+/*
     function TestInfo(runFunc, id, data, enumerateData) {
         if (!isFunction(runFunc))
             throw new TypeError("runFunc must be a function");
@@ -640,7 +1081,7 @@ var AssertionTesting = AssertionTesting || {};
 
                 }
             }
-                return new TestResults(ucFirst(typeOfX(testInfo)) + " element at index " + testIndex +
+                return new TestResults(ucFirst(typeOfExt(testInfo)) + " element at index " + testIndex +
                     " does not derive from AssertionTesting.TestInfo", ResultStatus.notRun, null, null, null, testInfo);
             var testInfo = new TestInfo(function() { }, "id", []);
             try {
@@ -747,43 +1188,461 @@ var AssertionTesting = AssertionTesting || {};
     ErrorResults.isTestResults = function(e) { return !nil(e) && e instanceof TestResults; };
     AssertionTesting.ErrorResults = ErrorResults;
 */
-var s = ResultStatus.getType(ResultStatus.notEvaluated);
-if (s !== "notEvaluated")
-    console.error("Expected ResultStatus.getType(ResultStatus.notEvaluated): \"notEvaluated\"; Actual: %s", JSON.stringify(s));
-s = ResultStatus.getType(ResultStatus.inconclusive);
-if (s !== "inconclusive")
-    console.error("Expected ResultStatus.getType(ResultStatus.inconclusive): \"inconclusive\"; Actual: %s", JSON.stringify(s));
-s = ResultStatus.getType(ResultStatus.pass);
-if (s !== "pass")
-    console.error("Expected ResultStatus.getType(ResultStatus.pass): \"pass\"; Actual: %s", JSON.stringify(s));
-s = ResultStatus.getType(ResultStatus.fail);
-if (s !== "fail")
-    console.error("Expected ResultStatus.getType(ResultStatus.fail): \"fail\"; Actual: %s", JSON.stringify(s));
-s = ResultStatus.getType(ResultStatus.error);
-if (s !== "error")
-    console.error("Expected ResultStatus.getType(ResultStatus.error): \"error\"; Actual: %s", JSON.stringify(s));
-if (ResultStatus.fail !== 2)
-    console.error("Expected ResultStatus.fail: 2; Actual: %s", JSON.stringify(ResultStatus.fail));
 
-var rs = new ResultStatus(ResultStatus.pass);
-if (rs.value !== 1)
-    console.error("Expected value: -1; Actual: %s", JSON.stringify(rs.value));
-if (rs.type !== "pass")
-    console.error("Expected type: \"pass\"; Actual: %s", JSON.stringify(rs.type));
-if (rs.message !== "Passed")
-    console.error("Expected message: \"Passed\"; Actual: %s", JSON.stringify(rs.message));
 
-rs.value = ResultStatus.fail;
-if (rs.value !== 2)
-    console.error("Change failed - expected value: 2; Actual: %s", JSON.stringify(rs.value));
-if (rs.type !== "fail")
-    console.error("Change failed - expected type: \"fail\"; Actual: %s", JSON.stringify(rs.type));
-if (rs.message !== "Failed")
-    console.error("Change failed - expected message: \"Failed\"; Actual: %s", JSON.stringify(rs.message));
-var arr = ResultStatus.allTypeValuePairs.map(function(tvp, i) { return { expected: i - 1, actual: tvp }; })
-    .filter(function(a) { return a.actual.value !== a.expected; });
-if (arr.length > 0) {
-
-}
-ResultStatus.allTypeValuePairs.filter(function(tvp, i) { return ResultStatus[tvp.type] !== (i - 1); });
 })();
+
+function stringifyArgs(arr) {
+    return arr.map(function(a) {
+        if (typeof(a) == "undefined")
+            return "undefined";
+        if (a === null)
+            return "null";
+        if (typeof(a) == "number") {
+            if (isNaN(a))
+                return "NaN";
+        } else if (typeof(a) == "function")
+            return a.toString();
+        else if (Array.isArray(a)) {
+            if (a.length == 0)
+                return "[]";
+            return "[ " + a.map(function(a) {
+                if (typeof(a) == "undefined")
+                    return "undefined";
+                if (a === null)
+                    return "null";
+                if (typeof(a) == "number") {
+                    if (isNaN(a))
+                        return "NaN";
+                } else if (typeof(a) == "function")
+                    return a.toString();
+                return JSON.stringify(a);
+            }).join(", ") + " ]";
+        }
+        return JSON.stringify(a);
+    }).join(", ");
+}
+
+function ValidateUtilNamspace() {
+    if (typeof(AssertionTesting) === "undefined")
+        return ["AssertionTesting namespace not found"];
+    if (typeof(AssertionTesting) != "object")
+        return ["AssertionTesting namespace is not an object"];
+    if (typeof(AssertionTesting.util) === "undefined")
+        return ["AssertionTesting.util namespace not found"];
+    if (typeof(AssertionTesting.util) != "object")
+        return ["AssertionTesting.util namespace is not an object"];
+
+    function ExampleBaseClass() {
+        this.name = "ignoreThis";
+    }
+    function ExampleDerivedClass() {
+        ExampleBaseClass.call(this);
+        this.name = "ignoreAsWell";
+    }
+    ExampleDerivedClass.prototype = new ExampleBaseClass();
+    ExampleDerivedClass.prototype.constructor = ExampleDerivedClass;
+    function ExampleDeepNestedClass() {
+        ExampleDerivedClass.call(this);
+        this.name = "DeepNested";
+    }
+    ExampleDeepNestedClass.prototype = new ExampleDerivedClass();
+    ExampleDeepNestedClass.prototype.constructor = ExampleDeepNestedClass;
+    function ExampleErrorDerived(message) {
+        Error.call(this, message);
+        this.name = "exampleErrorDerived";
+    }
+    ExampleErrorDerived.prototype = new Error();
+    ExampleErrorDerived.prototype.constructor = ExampleErrorDerived;
+
+    var util = AssertionTesting.util;
+    var preCheckErrors = [];
+    [
+        {
+            name: "defined", method: util.defined,
+            data: [
+                { expected: false, args: [ [], [undefined] ]},
+                { expected: true, args: [ [null], [NaN], [false], [[]], [{}], [""], [0] ] }
+            ]
+        }, {
+            name: "nil", method: util.nil,
+            data: [
+                { expected: true, args: [ [], [undefined], [null] ]},
+                { expected: false, args: [ [NaN], [false], [[]], [{}], [""], [0] ] }
+            ]
+        }, {
+            name: "isString", method: util.isString,
+            data: [
+                { expected: true, args: [ [""] ]},
+                { expected: false, args: [ [], [undefined], [null], [NaN], [false], [[""]], [{}], [0] ] }
+            ]
+        }, {
+            name: "isFunction", method: util.isFunction,
+            data: [
+                { expected: true, args: [ [function() { }] ]},
+                { expected: false, args: [ [], [undefined], [null], [NaN], [false], [[]], [{}], [[function() { }]], [0] ] }
+            ]
+        }, {
+            name: "isBoolean", method: util.isBoolean,
+            data: [
+                { expected: true, args: [ [true], [false] ]},
+                { expected: false, args: [ [], [undefined], [null], [NaN], [function() { return true; }], [[true]], [{}], [0], [1], ["true"], ["false"] ] }
+            ]
+        }, {
+            name: "isNumber", method: util.isNumber,
+            data: [
+                { expected: true, args: [ [Number.NEGATIVE_INFINITY], [Number.POSITIVE_INFINITY], [-1], [0], [1] ]},
+                { expected: false, args: [ [], [undefined], [null], [NaN], [function() { return true; }], [[5]], [{}], [true], [false], ["1"], ["0"] ] }
+            ]
+        }, {
+            name: "isNilOrEmptyString", method: util.isNilOrEmptyString,
+            data: [
+                { expected: true, args: [ [], [undefined], [null], [""] ]},
+                { expected: false, args: [ [" "], [" test"], [NaN], [false], [[""]], [{}], [["."]], [{ name: ""}], [0] ] }
+            ]
+        }, {
+            name: "isNilOrWhitespace", method: util.isNilOrWhitespace,
+            data: [
+                { expected: true, args: [ [], [undefined], [null], [""], [" "], [" \n \t "] ]},
+                { expected: false, args: [ [" test"], [NaN], [false], [" \n \t ."], [["."]], [[""]], [{}], [{ name: "" }], [0] ] }
+            ]
+        }, {
+            name: "asString", method: util.asString,
+            data: [
+                { expected: undefined, args: [ [], [undefined] ] },
+                { expected: null, args: [ [null] ] },
+                { expected: "", args: [ [undefined, ""], [null, ""], [""], ["", ""] , [[], ""] ] },
+                { expected: "12", args: [ [12], [12.0], ["12"], [undefined, 12], [undefined, 12.0], [undefined, "12"], [null, 12], [null, 12.0], [null, "12"], ["", 12], ["", 12.0], ["", "12"] ] },
+                { expected: "true", args: [ [true], ["true"], [undefined, true], [ undefined, "true"], [null, true], [ null, "true"], ["", true], [ "", "true"] ] },
+                { expected: "function () { return true; }", args: [ [function() { return true; } ] ] },
+                { expected: "NaN", args: [ [NaN], [undefined, NaN], [null, NaN] ] },
+                { expected: "1\n7", args: [ [[1,"7"]] ] }
+            ]
+        }, {
+            name: "asNumber", method: util.asNumber,
+            data: [
+                { expected: undefined, args: [ [], [undefined] ] },
+                { expected: null, args: [ [null] ] },
+                { expected: NaN, args: [ [""], ["one"], [undefined, "two"], ["", "two"], ["one", "two"] ] },
+                { expected: 0, args: [ [0], [0, 1], [0, ""], [undefined, 0], [null, 0], ["", 0], ["one", 0], [[], 0], [false], [false, ""], [undefined, false], [null, false], ["", false], ["one", false] , [[], false] ] },
+                { expected: 12, args: [ [12], [12.0], ["12"], [undefined, 12], [undefined, 12.0], [undefined, "12"], [null, 12], [null, 12.0], [null, "12"], ["", 12], ["", 12.0], ["", "12"] ] },
+                { expected: -12.45, args: [ [-12.45], ["-0012.45"], [undefined, -12.45], [undefined, "-012.450"], [null, -12.45], [null, "-12.45"], ["", -12.45], ["", "-12.45"] ] },
+                { expected: 1, args: [ [true], [1], [undefined, true], [ undefined, 1], [null, true], [ null, 1], ["", true], [ "", 1] ] }
+            ]
+        }, {
+            name: "asInteger", method: util.asInteger,
+            data: [
+                { expected: undefined, args: [ [], [undefined] ] },
+                { expected: null, args: [ [null] ] },
+                { expected: NaN, args: [ [""], ["one"], [undefined, "two"], ["", "two"], ["one", "two"] ] },
+                { expected: 0, args: [ [0], [0, 1], [0, ""], [undefined, 0], [null, 0], ["", 0], ["one", 0], [[], 0], [false], [false, ""], [undefined, false], [null, false], ["", false], ["one", false] , [[], false] ] },
+                { expected: 12, args: [ [12], [12.0], ["12"], [undefined, 12], [undefined, 12.0], [undefined, "12"], [null, 12], [null, 12.0], [null, "12"], ["", 12], ["", 12.0], ["", "12"] ] },
+                { expected: -12, args: [ [-12.45], ["-0012.45"], [undefined, -12.45], [undefined, "-012.450"], [null, -12.45], [null, "-12.45"], ["", -12.45], ["", "-12.45"] ] },
+                { expected: -13, args: [ [-12.55], ["-0012.55"], [undefined, -12.55], [undefined, "-012.550"], [null, -12.55], [null, "-12.55"], ["", -12.55], ["", "-12.55"] ] },
+                { expected: 1, args: [ [true], [1], [undefined, true], [ undefined, 1], [null, true], [ null, 1], ["", true], [ "", 1] ] }
+            ]
+        }, {
+            name: "asBoolean", method: util.asBoolean,
+            data: [
+                { expected: undefined, args: [ [], [undefined], [""], ["one"], [undefined, "two"], ["", "two"], ["one", "two"] ] },
+                { expected: null, args: [ [null], ["", null], [null, null], [null, ""], [null, "one"] ] },
+                { expected: false, args: [ [0], [0, 1], [0, ""], [undefined, 0], [null, 0], ["", 0], ["one", 0], [[], 0], [false], [false, ""], [undefined, false], [null, false], ["", false], ["one", false] , [[], false] ] },
+                { expected: true, args: [ [12], [12.0], ["12"], [undefined, 12], [undefined, 12.0], [undefined, "12"], [null, 12], [null, 12.0], [null, "12"], ["", 12], ["", 12.0], ["", "12"] ] },
+                { expected: true, args: [ [-12.45], ["-0012.45"], [undefined, -12.45], [undefined, "-012.450"], [null, -12.45], [null, "-12.45"], ["", -12.45], ["", "-12.45"] ] },
+                { expected: true, args: [ [true], [1], [undefined, true], [ undefined, 1], [null, true], [ null, 1], ["", true], [ "", 1] ] }
+            ]
+        }, {
+            name: "getClassName", method: util.getClassName,
+            data: [
+                { expected: "undefined", args: [ [], [undefined] ] },
+                { expected: "null", args: [ [null] ] },
+                { expected: "Function", args: [ [ExampleBaseClass], [ExampleDeepNestedClass], [ExampleErrorDerived], [RangeError], [Error] ] },
+                { expected: "ExampleBaseClass", args: [ [new ExampleBaseClass()] ] },
+                { expected: "ExampleDeepNestedClass", args: [ [new ExampleDeepNestedClass()] ] },
+                { expected: "ExampleErrorDerived", args: [ [new ExampleErrorDerived("test")] ] },
+                { expected: "RangeError", args: [ [new RangeError("test")] ] },
+                { expected: "Error", args: [ [new Error("test")] ] },
+                { expected: "Function", args: [ [function() { this.name = "test"; }] ] },
+                { expected: "String", args: [ ["test"] ] },
+                { expected: "Boolean", args: [ [true] ] },
+                { expected: "Array", args: [ [[true]] ] }
+            ]
+        }, {
+            name: "derivesFrom", method: util.derivesFrom,
+            data: [
+                { expected: true, args: [ [], [undefined, undefined], [null, null], ["", String], [true, Boolean], [7, Number],
+                    [new ExampleBaseClass(), ExampleBaseClass], [new ExampleDerivedClass(), ExampleBaseClass], [new ExampleDeepNestedClass(), ExampleBaseClass],
+                    [new ExampleDerivedClass(), ExampleDerivedClass], [new ExampleDeepNestedClass(), ExampleDerivedClass],
+                    [new ExampleDeepNestedClass(), ExampleDeepNestedClass],
+                    [new ExampleErrorDerived(), Error], [new RangeError(), Error], [new Error(), Error],
+                    [new ExampleBaseClass(), Object], [new ExampleDerivedClass(), Object], [new ExampleDeepNestedClass(), Object], [new RangeError(), Object],
+                    [new Error(), Object], ["", Object], [false, Object], [7, Object] ] },
+                { expected: false, args: [
+                    [undefined, null], [undefined, String], [undefined, Object], [undefined, ExampleBaseClass], [undefined, ExampleDeepNestedClass], [undefined, ExampleErrorDerived],
+                    [null, undefined], [null, String], [null, Object], [null, ExampleBaseClass], [null, ExampleDeepNestedClass], [null, ExampleErrorDerived],
+                    [true, undefined], [true, null], [true, String], [true, ExampleBaseClass], [true, ExampleDeepNestedClass], [true, ExampleErrorDerived],
+                    [7, undefined], [7, null], [7, String], [7, ExampleBaseClass], [7, ExampleDeepNestedClass], [7, ExampleErrorDerived],
+                    ["", undefined], ["", null], ["", Number], ["", ExampleBaseClass], ["", ExampleDeepNestedClass], ["", ExampleErrorDerived],
+                    [new ExampleBaseClass(), undefined], [new ExampleBaseClass(), null], [new ExampleBaseClass(), String], [new ExampleBaseClass(), ExampleDeepNestedClass], [new ExampleBaseClass(), ExampleErrorDerived],
+                    [new ExampleErrorDerived(), undefined], [new ExampleErrorDerived(), null], [new ExampleErrorDerived(), String], [new ExampleErrorDerived(), ExampleDeepNestedClass]
+                ] },
+                { expected: "Function", args: [ [ExampleBaseClass], [ExampleDeepNestedClass], [ExampleErrorDerived], [RangeError], [Error] ] },
+                { expected: "ExampleBaseClass", args: [ [new ExampleBaseClass()] ] },
+                { expected: "ExampleDeepNestedClass", args: [ [new ExampleDeepNestedClass()] ] },
+                { expected: "ExampleErrorDerived", args: [ [new ExampleErrorDerived("test")] ] },
+                { expected: "RangeError", args: [ [new RangeError("test")] ] },
+                { expected: "Error", args: [ [new Error("test")] ] },
+                { expected: "Function", args: [ [function() { this.name = "test"; }] ] },
+                { expected: "String", args: [ ["test"] ] },
+                { expected: "Boolean", args: [ [true] ] },
+                { expected: "Array", args: [ [[true]] ] }
+            ]
+        }
+        /*
+            derivesFrom: ,
+            typeOfExt: typeOfExt,
+            ucFirst: ucFirst,
+            asPropertyValueString: asPropertyValueString
+    */
+    ].forEach(function(t) {
+        if (typeof(t.method) == "undefined")
+            preCheckErrors.push("util." + t.name + " not found.");
+        else if (typeof(t.method) != "function")
+            preCheckErrors.push("util." + t.name + " is not a function.");
+        else {
+            t.data.forEach(function(d) {
+                d.args.forEach(function(a) {
+                    var actual = t.method.apply(this, a);
+                    if (typeof(d.expected) == "undefined") {
+                        if (typeof(actual) == "undefined")
+                            return;
+                    } else if (typeof(actual) != "undefined") {
+                        if (d.expected === null) {
+                            if (actual === null)
+                                return;
+                        } else if (typeof(d.expected) == "number") {
+                            if (typeof(actual) == "number") {
+                                if (isNaN(d.expected)) {
+                                    if (isNaN(actual))
+                                        return;
+                                } else if (!isNaN(actual) && d.expected === actual)
+                                    return;
+                            }
+                        } else if (actual !== null && d.expected === actual)
+                            return;
+                    }
+                    preCheckErrors.push("util." + t.name + "(" + stringifyArgs(a) + ") failed - Expected: " + stringifyArgs([d.expected]) + "; Actual: " +
+                        stringifyArgs([actual]));
+                });
+            });
+        }
+    });
+
+    return preCheckErrors;
+}
+
+function ValidateResultStatus() {
+    if (AssertionTesting.util.nil(AssertionTesting.ResultStatus))
+        return ["AssertionTesting.ResultStatus class not found"];
+    if (!AssertionTesting.util.isFunction(AssertionTesting.ResultStatus))
+        return ["AssertionTesting.ResultStatus class is not a function"];
+    ResultStatus = AssertionTesting.ResultStatus;
+    var preCheckErrors = [];
+
+    var types = [
+        [ "notEvaluated", "Not Evaluated" ],
+        [ "inconclusive", "Inconclusive" ],
+        [ "pass", "Passed" ],
+        [ "fail", "Failed" ],
+        [ "error", "Unexpected Error"]
+    ].map(function(a, index) { return { index: index, value: index - 1, type: a[0], title: a[1] }; });
+    var initialTypeArr = [];
+    types.map(function(t) {
+        var actual = ResultStatus.allTypeValuePairs[t.index].value;
+        if (t.value !== actual)
+            preCheckErrors.push("Expected ResultStatus.allTypeValuePairs[" + t.index + "].value: " + t.value + "; Actual: " + ((defined(actual)) ? JSON.stringify(actual) : "undefined"));
+
+        actual = ResultStatus.allTypeValuePairs[t.index].type;
+        if (t.type !== actual) {
+            preCheckErrors.push("Expected ResultStatus.allTypeValuePairs[" + t.index + "].type: " + JSON.stringify(t.type) + "; Actual: " + ((defined(actual)) ? JSON.stringify(actual) : "undefined"));
+            return;
+        }
+        
+        actual = ResultStatus[t.type];
+        if (t.value !== actual) {
+            preCheckErrors.push("Expected ResultStatus." + t.type + ": " + t.value + "; Actual: " + ((defined(actual)) ? JSON.stringify(actual) : "undefined"));
+            return;
+        }
+
+        actual = ResultStatus.getType(t.value);
+        if (t.type !== actual) {
+            preCheckErrors.push("Expected ResultStatus.getType(" + t.value  + "): " + JSON.stringify(t.type) + "; Actual: " + ((defined(actual)) ? JSON.stringify(actual) : "undefined"));
+            return;
+        }
+
+        actual = ResultStatus.getTitle(t.value);
+        if (t.title !== actual) {
+            preCheckErrors.push("Expected ResultStatus.getTitle(" + t.value  + "): " + JSON.stringify(t.title) + "; Actual: " + ((defined(actual)) ? JSON.stringify(actual) : "undefined"));
+            return;
+        }
+
+        actual = new ResultStatus(t.value);
+        initialTypeArr.push(actual);
+        if (t.value !== actual.value)
+            preCheckErrors.push("Expected new ResultStatus(" + t.value  + ").value: " + t.value + "; Actual: " + ((defined(actual.value)) ? JSON.stringify(actual.value) :
+                "undefined"));
+        if (t.type !== actual.type)
+            preCheckErrors.push("Expected new ResultStatus(" + t.value  + ").type: " + JSON.stringify(t.type) + "; Actual: " + ((defined(actual)) ? JSON.stringify(actual.type) :
+                "undefined"));
+        if (t.title !== actual.message)
+            preCheckErrors.push("Expected new ResultStatus(" + t.value  + ").message: " + JSON.stringify(t.title) + "; Actual: " + ((defined(actual.message)) ?
+                JSON.stringify(actual.message) : "undefined"));
+        
+        [null, "", " "].forEach(function(m) {
+            actual = new ResultStatus(t.value, m);
+            initialTypeArr.push(actual);
+            if (t.value !== actual.value)
+                preCheckErrors.push("Expected new ResultStatus(" + t.value  + ", " + JSON.stringify(m) + ").value: " + t.value + "; Actual: " + ((defined(actual.value)) ?
+                    JSON.stringify(actual.value) : "undefined"));
+            if (t.type !== actual.type)
+                preCheckErrors.push("Expected new ResultStatus(" + t.value  + ", " + JSON.stringify(m) + ").type: " + JSON.stringify(t.type) + "; Actual: " +
+                    ((defined(actual.type)) ? JSON.stringify(actual.type) : "undefined"));
+            if (t.title !== actual.message)
+                preCheckErrors.push("Expected new ResultStatus(" + t.value  + ", " + JSON.stringify(m) + ").message: " + JSON.stringify(t.title) + "; Actual: " +
+                    ((defined(actual.message)) ? JSON.stringify(actual.message) : "undefined"));
+        });
+        [".", "My Message", "  My Message "].forEach(function(m) {
+            actual = new ResultStatus(t.value, m);
+            initialTypeArr.push(actual);
+            if (t.value !== actual.value)
+                preCheckErrors.push("Expected new ResultStatus(" + t.value  + ", " + JSON.stringify(m) + ").value: " + t.value + "; Actual: " + ((defined(actual.value)) ?
+                    JSON.stringify(actual.value) : "undefined"));
+            if (t.type !== actual.type)
+                preCheckErrors.push("Expected new ResultStatus(" + t.value  + ", " + JSON.stringify(m) + ").type: " + JSON.stringify(t.type) + "; Actual: " +
+                    ((defined(actual.type)) ? JSON.stringify(actual.type) : "undefined"));
+            if (m !== actual.message)
+                preCheckErrors.push("Expected new ResultStatus(" + t.value  + ", " + JSON.stringify(m) + ").message: " + JSON.stringify(m) + "; Actual: " +
+                    ((defined(actual.message)) ? JSON.stringify(actual.message) : "undefined"));
+        });
+    });
+    var emptyConstructorStatus = new ResultStatus();
+    initialTypeArr.push(emptyConstructorStatus);
+    if (types[0].value !== emptyConstructorStatus.value)
+        preCheckErrors.push("Expected new ResultStatus(" + types[0].value  + ").value: " + types[0].value + "; Actual: " + ((defined(emptyConstructorStatus.value)) ?
+            JSON.stringify(emptyConstructorStatus.value) : "undefined"));
+    if (types[0].type !== emptyConstructorStatus.type)
+        preCheckErrors.push("Expected new ResultStatus(" + types[0].value  + ").type: " + JSON.stringify(types[0].type) + "; Actual: " + ((defined(emptyConstructorStatus.type)) ?
+            JSON.stringify(emptyConstructorStatus.type) : "undefined"));
+    if (types[0].title !== emptyConstructorStatus.message)
+        preCheckErrors.push("Expected new ResultStatus(" + types[0].value  + ").message: " + JSON.stringify(types[0].title) + "; Actual: " + ((defined(emptyConstructorStatus.message)) ?
+            JSON.stringify(emptyConstructorStatus.message) : "undefined"));
+
+    if (preCheckErrors.length > 0)
+        return preCheckErrors;
+    
+    initialTypeArr.forEach(function(initialType) {
+        var expectedMessage = initialType.message;
+        var currentType = types.filter(function(t) { return t.value == initialType.value; })[0];
+        var autoMsg = currentType.title == expectedMessage;
+        types.filter(function(t) { return t.value != initialType.value; }).forEach(function(t) {
+            if (autoMsg)
+                expectedMessage = t.title;
+            
+            initialType.value = t.value;
+
+            if (t.value !== initialType.value)
+                preCheckErrors.push("Expected resultStatus.value = " + t.value  + " => resultStatus.value: " + t.value + "; Actual: " + ((defined(initialType.value)) ?
+                    JSON.stringify(initialType.value) : "undefined"));
+            if (t.type !== initialType.type)
+                preCheckErrors.push("Expected resultStatus.value = " + t.value  + " => resultStatus.type: " + JSON.stringify(t.type) + "; Actual: " +
+                    ((defined(initialType.type)) ? JSON.stringify(initialType.type) : "undefined"));
+            if (expectedMessage !== initialType.message)
+                preCheckErrors.push("Expected resultStatus.value = " + t.value  + " => resultStatus.message: " + JSON.stringify(expectedMessage) + "; Actual: " +
+                    ((defined(initialType.message)) ? JSON.stringify(initialType.message) : "undefined"));
+        });
+        
+        if (autoMsg)
+            expectedMessage = currentType.title;
+        
+        initialType.value = currentType.value;
+
+        if (currentType.value !== initialType.value)
+            preCheckErrors.push("Expected restore resultStatus.value = " + currentType.value  + " => resultStatus.value: " + currentType.value + "; Actual: " + ((defined(initialType.value)) ?
+                JSON.stringify(initialType.value) : "undefined"));
+        if (currentType.type !== initialType.type)
+            preCheckErrors.push("Expected restore resultStatus.value = " + currentType.value  + " => resultStatus.type: " + JSON.stringify(currentType.type) + "; Actual: " +
+                ((defined(initialType.type)) ? JSON.stringify(initialType.type) : "undefined"));
+        if (expectedMessage !== initialType.message)
+            preCheckErrors.push("Expected restore resultStatus.value = " + currentType.value  + " => resultStatus.message: " + JSON.stringify(expectedMessage) + "; Actual: " +
+                ((defined(initialType.message)) ? JSON.stringify(initialType.message) : "undefined"));
+        
+        if (autoMsg)
+            return;
+        var customMsg = initialType.message;
+        [null, "", " "].forEach(function(m) {
+            initialType.message = m;
+            if (currentType.value !== initialType.value)
+                preCheckErrors.push("Expected resultStatus.message = " + JSON.stringify(m)  + " => resultStatus.value: " + currentType.value + "; Actual: " +
+                    ((defined(initialType.value)) ? JSON.stringify(initialType.value) : "undefined"));
+            if (currentType.type !== initialType.type)
+                preCheckErrors.push("Expected resultStatus.message = " + JSON.stringify(m)  + " => resultStatus.type: " + JSON.stringify(currentType.type) + "; Actual: " +
+                    ((defined(initialType.type)) ? JSON.stringify(initialType.type) : "undefined"));
+            if (currentType.title !== initialType.message)
+                preCheckErrors.push("Expected resultStatus.message = " + JSON.stringify(m)  + " => resultStatus.message: " + JSON.stringify(currentType.title) +
+                    "; Actual: " + ((defined(initialType.message)) ? JSON.stringify(initialType.message) : "undefined"));
+                    
+            initialType.message = customMsg;
+            if (currentType.value !== initialType.value)
+                preCheckErrors.push("Expected restore resultStatus.message = " + JSON.stringify(customMsg)  + " => resultStatus.value: " + currentType.value +
+                    "; Actual: " + ((defined(initialType.value)) ? JSON.stringify(initialType.value) : "undefined"));
+            if (currentType.type !== initialType.type)
+                preCheckErrors.push("Expected restore resultStatus.message = " + JSON.stringify(customMsg)  + " => resultStatus.type: " + JSON.stringify(currentType.type) +
+                    "; Actual: " + ((defined(initialType.type)) ? JSON.stringify(initialType.type) : "undefined"));
+            if (customMsg !== initialType.message)
+                preCheckErrors.push("Expected restore resultStatus.message = " + JSON.stringify(customMsg)  + " => resultStatus.message: " + JSON.stringify(customMsg) +
+                    "; Actual: " + ((defined(initialType.message)) ? JSON.stringify(initialType.message) : "undefined"));
+        });
+    });
+
+    return preCheckErrors;
+}
+
+var preCheckErrors = ValidateUtilNamspace();
+if (preCheckErrors.length == 0)
+    preCheckErrors = ValidateResultStatus();
+
+if (preCheckErrors.length == 0)
+    preCheckErrors.push({ value: 1, type: "pass", message: "No pre-check errors." });
+else {
+    preCheckErrors = preCheckErrors.map(function(m) {
+        if (typeof(m) == "string")
+            return { value: 2, type: "fail", message: m };
+        if (typeof(m.toJSON) == "function" || typeof(m) == "number" || typeof(m) == "boolean" || Array.isArray(m))
+            return { value: (AssertionTesting.util.derivesFrom(m, Error)) ? 3 : 2, type: (AssertionTesting.util.derivesFrom(m, Error)) ? "error" : "fail", message: JSON.stringify(m) };
+        if (typeof(m) != "object")
+            return { value: (AssertionTesting.util.derivesFrom(m, Error)) ? 3 : 2, type: (AssertionTesting.util.derivesFrom(m, Error)) ? "error" : "fail", message: m.totring() };
+        var obj = { };
+        if (AssertionTesting.util.derivesFrom(m, Error)) {
+            obj.message = m.message;
+            obj.name = m.name;
+            obj.number = m.number;
+            obj.lineNumber = m.lineNumber;
+            obj.columnNumber = m.columnNumber;
+            obj.message = m.stack;
+        }
+        for (var p in m) {
+            if (AssertionTesting.util.defined(m[p]) && !AssertionTesting.util.isFunction(m[p]))
+                obj[p] = m[p];
+        }
+        return { value: (AssertionTesting.util.derivesFrom(m, Error)) ? 3 : 2, type: (AssertionTesting.util.derivesFrom(m, Error)) ? "error" : "fail",
+            message: JSON.stringify(obj) };
+     });
+}
+preCheckErrors.forEach(function(e) {
+    if (e.value == 1)
+        console.log(JSON.stringify(e));
+    else
+        console.error(JSON.stringify(e));
+});
+if (preCheckErrors.length > 1 || preCheckErrors[0].value != 1)
+    console.log("%d errors.", preCheckErrors.length);

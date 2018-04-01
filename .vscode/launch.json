@@ -23,7 +23,7 @@
         "request": "launch",
         "name": "Debug in node",
         "args": [
-            "${workspaceFolder}/src/test.js"
+            "${workspaceFolder}/Testing/test.js"
         ]
     }
     ]

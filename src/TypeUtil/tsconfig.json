@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+        "declaration": true,
+        "outDir": "../../dist/es5",
+        "lib": [
+            "es2015"
+        ]
+    },
+    "files": [
+        "util.ts",
+        "IErrorLike.ts",
+        "ErrorInfo.ts"
+    ]
+}

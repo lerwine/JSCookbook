@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es3",
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+        "declaration": true,
+        "outDir": "../../dist/es3"
+    },
+    "files": [
+        "util.ts",
+        "IErrorLike.ts",
+        "ErrorInfo.ts"
+    ]
+}
