@@ -9,6 +9,7 @@ namespace TypeUtil {
     let lineSplitRegex: RegExp = /\r\n?|\n/g;
     let boolRegex: RegExp = /^(?:(t(?:rue)?|y(?:es)?|[+-]?(?:0*[1-9]\d*(?:\.\d+)?|0+\.0*[1-9]\d*)|\+)|(f(?:alse)?|no?|[+-]?0+(?:\.0+)?|-))$/i;
     let ucFirstRegex: RegExp = /^([^a-zA-Z\d]*[a-z])(.+)?$/g;
+    let abnormalWhitespaceRegex = /( |(?=[^ ]))\s+/g;
 
     /**
      * Indicates whether a value is defined.
@@ -87,7 +88,7 @@ namespace TypeUtil {
      * @param {boolean} [ignoreWhitespace] If true, and the converted value contains only whitespace, then it is treated as though it was converted to an empty string by returning the default value.
      * @returns {string|null=} Value converted to a string.
      * @description     If the value is converted to an empty string, and the default value is null, then a null value will be returned.
-     * If any array is passed, then the 'join' method is called with a newline character as the parameter.
+     * If an array is passed, then the 'join' method is called with a newline character as the parameter.
      * Otherwise, this method first attempts to call the value's "valueOf" function it is an object type, then it comply calls the "toString" method to convert it to a string.
      */
     export function asString(value: any, defaultValue? : string|null, ignoreWhitespace? : boolean) : string {
@@ -131,6 +132,22 @@ namespace TypeUtil {
                 return d;
         }
         return s;
+    }
+    
+    /**
+     * Convert a value to a string with normalized whitespace.
+     * @param value Value to convert.
+     * @param {string|null} [defaultValue] Default value to return if the value was undefined, null or if it converts to an empty string. If this is not defined, then an undefined value is returned when the value was undefined or null.
+     * @returns {string|null=} Value converted to a string.
+     * @description     If the value is converted to an empty string, and the default value is null, then a null value will be returned.
+     * If an array is passed, then the 'join' method is called with a newline character as the parameter.
+     * Otherwise, this method first attempts to call the value's "valueOf" function it is an object type, then it comply calls the "toString" method to convert it to a string.
+     */
+    export function asNormalizedString(value: any, defaultValue?: string) {
+        value = asString(value, defaultValue, true).trim();
+        if (nil(value) || value.length == 0)
+            return value;
+        return value.replace(abnormalWhitespaceRegex, ' ');
     }
 
     /**

@@ -18,6 +18,7 @@ declare namespace TypeUtil {
     function isNilOrEmptyString(value?: string | null): boolean;
     function isNilOrWhitespace(value?: string | null): boolean;
     function asString(value: any, defaultValue?: string | null, ignoreWhitespace?: boolean): string;
+    function asNormalizedString(value: any, defaultValue?: string): any;
     function trimEnd(text: string): string;
     function asNumber(value: any, defaultValue?: number): number;
     function asInteger(value: any, defaultValue?: number): number;

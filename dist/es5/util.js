@@ -7,6 +7,7 @@ var TypeUtil;
     var lineSplitRegex = /\r\n?|\n/g;
     var boolRegex = /^(?:(t(?:rue)?|y(?:es)?|[+-]?(?:0*[1-9]\d*(?:\.\d+)?|0+\.0*[1-9]\d*)|\+)|(f(?:alse)?|no?|[+-]?0+(?:\.0+)?|-))$/i;
     var ucFirstRegex = /^([^a-zA-Z\d]*[a-z])(.+)?$/g;
+    var abnormalWhitespaceRegex = /( |(?=[^ ]))\s+/g;
     function defined(value) { return typeof (value) !== "undefined"; }
     TypeUtil.defined = defined;
     function isObjectType(value) { return typeof (value) === "object" && value !== null; }
@@ -72,6 +73,13 @@ var TypeUtil;
         return s;
     }
     TypeUtil.asString = asString;
+    function asNormalizedString(value, defaultValue) {
+        value = asString(value, defaultValue, true).trim();
+        if (nil(value) || value.length == 0)
+            return value;
+        return value.replace(abnormalWhitespaceRegex, ' ');
+    }
+    TypeUtil.asNormalizedString = asNormalizedString;
     function trimEnd(text) {
         text = asString(text, "");
         var m = trimEndRegex.exec(text);
