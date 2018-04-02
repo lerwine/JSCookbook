@@ -1,15 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var TypeUtil;
+export var TypeUtil;
 (function (TypeUtil) {
     ;
-    var newLineString = "\n";
-    var whitespaceRegex = /^\s*$/;
-    var trimEndRegex = /^(\s*\S+(\s+\S+)*)/;
-    var lineSplitRegex = /\r\n?|\n/g;
-    var boolRegex = /^(?:(t(?:rue)?|y(?:es)?|[+-]?(?:0*[1-9]\d*(?:\.\d+)?|0+\.0*[1-9]\d*)|\+)|(f(?:alse)?|no?|[+-]?0+(?:\.0+)?|-))$/i;
-    var ucFirstRegex = /^([^a-zA-Z\d]*[a-z])(.+)?$/g;
-    var abnormalWhitespaceRegex = /( |(?=[^ ]))\s+/g;
+    let newLineString = "\n";
+    let whitespaceRegex = /^\s*$/;
+    let trimEndRegex = /^(\s*\S+(\s+\S+)*)/;
+    let lineSplitRegex = /\r\n?|\n/g;
+    let boolRegex = /^(?:(t(?:rue)?|y(?:es)?|[+-]?(?:0*[1-9]\d*(?:\.\d+)?|0+\.0*[1-9]\d*)|\+)|(f(?:alse)?|no?|[+-]?0+(?:\.0+)?|-))$/i;
+    let ucFirstRegex = /^([^a-zA-Z\d]*[a-z])(.+)?$/g;
+    let abnormalWhitespaceRegex = /( |(?=[^ ]))\s+/g;
     function defined(value) { return typeof (value) !== "undefined"; }
     TypeUtil.defined = defined;
     function isObjectType(value) { return typeof (value) === "object" && value !== null; }
@@ -41,12 +39,12 @@ var TypeUtil;
                 return value;
             return asString(defaultValue);
         }
-        var s;
+        let s;
         if (!isString(value))
             s = (Array.isArray(value)) ? value.join(newLineString) : (function () {
                 if (isObjectType(value) && isFunction(value.valueOf)) {
                     try {
-                        var v = value.valueOf();
+                        let v = value.valueOf();
                         if (isString(v))
                             return v;
                         if (!nil(v)) {
@@ -58,9 +56,9 @@ var TypeUtil;
                     catch (e) { }
                 }
                 try {
-                    var s_1 = value.toString();
-                    if (isString(s_1))
-                        return s_1;
+                    let s = value.toString();
+                    if (isString(s))
+                        return s;
                 }
                 catch (e) { }
                 return value + "";
@@ -68,7 +66,7 @@ var TypeUtil;
         else
             s = value;
         if ((ignoreWhitespace) ? whitespaceRegex.test(s) : s.length == 0) {
-            var d = asString(defaultValue);
+            let d = asString(defaultValue);
             if (isString(d))
                 return d;
         }
@@ -84,7 +82,7 @@ var TypeUtil;
     TypeUtil.asNormalizedString = asNormalizedString;
     function trimEnd(text) {
         text = asString(text, "");
-        var m = trimEndRegex.exec(text);
+        let m = trimEndRegex.exec(text);
         if (nil(m))
             return "";
         return m[1];
@@ -101,11 +99,11 @@ var TypeUtil;
                 return value;
             return asNumber(defaultValue, value);
         }
-        var n = null;
+        let n = null;
         if (typeof (value) !== "number") {
             if (isObjectType(value) && isFunction(value.valueOf)) {
                 try {
-                    var i = value.valueOf();
+                    let i = value.valueOf();
                     if (isNumber(i))
                         return i;
                     if (!nil(i))
@@ -126,7 +124,7 @@ var TypeUtil;
     }
     TypeUtil.asNumber = asNumber;
     function asInteger(value, defaultValue) {
-        var v = asNumber(value, defaultValue);
+        let v = asNumber(value, defaultValue);
         if (nil(v) || isNaN(v) || Number.isInteger(v))
             return v;
         return Math.round(v);
@@ -149,7 +147,7 @@ var TypeUtil;
             return !isNaN(value) && value != 0;
         if (isObjectType(value) && isFunction(value.valueOf)) {
             try {
-                var n = value.valueOf();
+                let n = value.valueOf();
                 if (isNumber(n))
                     return n != 0;
                 if (isBoolean(value))
@@ -159,7 +157,7 @@ var TypeUtil;
             }
             catch (e) { }
         }
-        var mg = boolRegex.exec(asString(value, "").trim());
+        let mg = boolRegex.exec(asString(value, "").trim());
         if (nil(mg))
             return asBoolean(defaultValue);
         return nil(mg[2]);
@@ -178,7 +176,7 @@ var TypeUtil;
             return "undefined";
         if (value === null)
             return "null";
-        var prototype, constructor;
+        let prototype, constructor;
         if (isFunction(value)) {
             constructor = value;
             prototype = value.prototype;
@@ -195,7 +193,7 @@ var TypeUtil;
         }
         if (isString(constructor.name) && constructor.name.length > 0)
             return constructor.name;
-        var basePrototype = Object.getPrototypeOf(prototype);
+        let basePrototype = Object.getPrototypeOf(prototype);
         if (nil(basePrototype)) {
             if (isString(prototype.name) && prototype.name.length > 0)
                 return prototype.name;
@@ -203,7 +201,7 @@ var TypeUtil;
                 return value.name;
             return typeof (value);
         }
-        var name = getClassName(basePrototype);
+        let name = getClassName(basePrototype);
         if (name == "Object") {
             if (isString(prototype.name) && prototype.name.length > 0)
                 return prototype.name;
@@ -218,7 +216,7 @@ var TypeUtil;
             return ["undefined"];
         if (value === null)
             return ["null"];
-        var prototype, constructor;
+        let prototype, constructor;
         if (isFunction(value)) {
             constructor = value;
             prototype = value.prototype;
@@ -233,7 +231,7 @@ var TypeUtil;
                 constructor = prototype.constructor;
             }
         }
-        var basePrototype = Object.getPrototypeOf(prototype);
+        let basePrototype = Object.getPrototypeOf(prototype);
         if (nil(basePrototype)) {
             if (isString(constructor.name) && constructor.name.length > 0)
                 return [constructor.name];
@@ -243,7 +241,7 @@ var TypeUtil;
                 return [value.name];
             return [typeof (value)];
         }
-        var arr = getInheritanceChain(basePrototype);
+        let arr = getInheritanceChain(basePrototype);
         if (isString(constructor.name) && constructor.name.length > 0) {
             arr.unshift(constructor.name);
             return arr;
@@ -266,7 +264,7 @@ var TypeUtil;
             return false;
         if (value === null)
             return classConstructor === null;
-        var classProto;
+        let classProto;
         if (isFunction(classConstructor)) {
             classProto = classConstructor.prototype;
         }
@@ -282,7 +280,7 @@ var TypeUtil;
         }
         if (value instanceof classConstructor)
             return true;
-        var valueProto, valueConstructor;
+        let valueProto, valueConstructor;
         if (isFunction(value)) {
             valueConstructor = value;
             valueProto = value.prototype;
@@ -303,7 +301,7 @@ var TypeUtil;
             return true;
         if (nil(valueProto))
             return (nil(classProto) && valueConstructor === classConstructor);
-        var constructorChain = [];
+        let constructorChain = [];
         do {
             if (valueProto instanceof classConstructor)
                 return true;
@@ -316,7 +314,7 @@ var TypeUtil;
                 valueConstructor = valueProto.constructor;
             } while (nil(valueConstructor));
         } while (!nil(valueConstructor));
-        for (var i = 0; i < constructorChain.length; i++) {
+        for (let i = 0; i < constructorChain.length; i++) {
             if (constructorChain[i] === classConstructor)
                 return true;
         }
@@ -324,7 +322,7 @@ var TypeUtil;
     }
     TypeUtil.derivesFrom = derivesFrom;
     function typeOfExt(value) {
-        var t = typeof (value);
+        let t = typeof (value);
         if (t == "object") {
             if (value === null)
                 return "null";
@@ -334,14 +332,14 @@ var TypeUtil;
                 return "NaN";
             return t;
         }
-        var n = getClassName(value);
+        let n = getClassName(value);
         if (n == t)
             return t;
         return t + " " + n;
     }
     TypeUtil.typeOfExt = typeOfExt;
     function indentText(text, indent, skipLineCount) {
-        var arr, joinedText;
+        let arr, joinedText;
         if (nil(text) || !isObjectType(text) || !Array.isArray(text))
             text = this.asString(text, "");
         if (typeof (text) != "string") {
@@ -377,12 +375,12 @@ var TypeUtil;
             return "undefined";
         if (obj === null)
             return "null";
-        var type = typeof (obj);
+        let type = typeof (obj);
         if (type == "number")
             return (isNaN(obj)) ? "NaN" : JSON.stringify(obj);
         if (type == "boolean" || type == "string")
             return JSON.stringify(obj);
-        var className = getClassName(obj);
+        let className = getClassName(obj);
         if (typeof (obj.toJSON) != "function") {
             if (type == "object") {
                 if (derivesFrom(obj, Error)) {
@@ -394,7 +392,7 @@ var TypeUtil;
                             if (jObj.message.trim().length > 0)
                                 jObj.description = asString(e.description, "");
                             else {
-                                var s = asString(e.description, "");
+                                let s = asString(e.description, "");
                                 if (s.trim().length > 0 || s.length > jObj.message.length)
                                     jObj.message = s;
                             }
@@ -454,23 +452,23 @@ var TypeUtil;
             return "undefined";
         if (obj === null)
             return "null";
-        var type = typeof (obj);
+        let type = typeof (obj);
         if (type == "number")
             return (isNaN(obj)) ? "NaN" : JSON.stringify(obj);
         if (type == "boolean" || type == "string")
             return JSON.stringify(obj);
-        var className = getClassName(obj);
-        var n;
+        let className = getClassName(obj);
+        let n;
         if (typeof (obj.toJSON) != "function") {
             if (type == "object") {
-                var elements = [];
-                var propertyLines = [];
-                var byName = {};
+                let elements = [];
+                let propertyLines = [];
+                let byName = {};
                 if (Array.isArray(obj)) {
                     elements = obj.map(function (e) { return serializeToString(e); });
                     for (n in obj) {
-                        var i = asNumber(n, null);
-                        var v = obj[n];
+                        let i = asNumber(n, null);
+                        let v = obj[n];
                         if ((!nil(i) && n !== "length") || i < 0 || i > obj.length) {
                             byName[n] = serializeToString(obj[n]);
                             propertyLines.push(JSON.stringify(n) + ": " + serializeToString(obj[n]));
@@ -567,9 +565,9 @@ var TypeUtil;
                 s.split(/\r\n?|\n/).map(function (l) { return "\t" + l; }).join(newLineString);
             }).join(",") + newLineString + newLineString + "]";
         }
-        var lines = [];
+        let lines = [];
         for (n in obj) {
-            var v = obj[n];
+            let v = obj[n];
             if (!defined(v))
                 lines.push(JSON.stringify(n) + ": undefined");
             else if (v === null)
@@ -589,8 +587,8 @@ var TypeUtil;
         }).join("," + newLineString) + newLineString + "}";
     }
     TypeUtil.serializeToString = serializeToString;
-    var ErrorInfo = (function () {
-        function ErrorInfo(value, isWarning) {
+    class ErrorInfo {
+        constructor(value, isWarning) {
             this._isWarning = false;
             this._message = "";
             this._description = null;
@@ -612,8 +610,8 @@ var TypeUtil;
                 this.message = value;
                 return;
             }
-            var foundMetaData = false;
-            var metaData = {};
+            let foundMetaData = false;
+            let metaData = {};
             if (Array.isArray(value)) {
                 this.message = asString(value, "");
                 for (var n in value) {
@@ -627,9 +625,9 @@ var TypeUtil;
                 }
             }
             else {
-                var message = null;
-                var description = null;
-                var name = null;
+                let message = null;
+                let description = null;
+                let name = null;
                 for (var n in value) {
                     switch (n) {
                         case "length":
@@ -687,75 +685,34 @@ var TypeUtil;
             if (foundMetaData)
                 this.metaData = metaData;
         }
-        Object.defineProperty(ErrorInfo.prototype, "isWarning", {
-            get: function () { return this._isWarning; },
-            set: function (value) { this._isWarning = asBoolean(value, false); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ErrorInfo.prototype, "message", {
-            get: function () { return this._message; },
-            set: function (value) { this._message = asString(value, ""); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ErrorInfo.prototype, "description", {
-            get: function () { return this._description; },
-            set: function (value) { this._description = asString(value, null); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ErrorInfo.prototype, "name", {
-            get: function () { return this._name; },
-            set: function (value) { this._name = asString(value, "undefined"); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ErrorInfo.prototype, "number", {
-            get: function () { return this._number; },
-            set: function (value) { this._number = asNumber(value, null); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ErrorInfo.prototype, "fileName", {
-            get: function () { return this._fileName; },
-            set: function (value) { this._fileName = asString(value, null); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ErrorInfo.prototype, "lineNumber", {
-            get: function () { return this._lineNumber; },
-            set: function (value) { this._lineNumber = asNumber(value, null); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ErrorInfo.prototype, "columnNumber", {
-            get: function () { return this._columnNumber; },
-            set: function (value) { this._columnNumber = asNumber(value, null); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ErrorInfo.prototype, "stack", {
-            get: function () { return this._stack; },
-            set: function (value) { this._stack = asString(value, null); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ErrorInfo.prototype, "innerError", {
-            get: function () { return this._innerError; },
-            set: function (value) { this._innerError = ErrorInfo.asErrorInfo(value); },
-            enumerable: true,
-            configurable: true
-        });
-        ErrorInfo.asErrorInfo = function (value) {
+        get isWarning() { return this._isWarning; }
+        set isWarning(value) { this._isWarning = asBoolean(value, false); }
+        get message() { return this._message; }
+        set message(value) { this._message = asString(value, ""); }
+        get description() { return this._description; }
+        set description(value) { this._description = asString(value, null); }
+        get name() { return this._name; }
+        set name(value) { this._name = asString(value, "undefined"); }
+        get number() { return this._number; }
+        set number(value) { this._number = asNumber(value, null); }
+        get fileName() { return this._fileName; }
+        set fileName(value) { this._fileName = asString(value, null); }
+        get lineNumber() { return this._lineNumber; }
+        set lineNumber(value) { this._lineNumber = asNumber(value, null); }
+        get columnNumber() { return this._columnNumber; }
+        set columnNumber(value) { this._columnNumber = asNumber(value, null); }
+        get stack() { return this._stack; }
+        set stack(value) { this._stack = asString(value, null); }
+        get innerError() { return this._innerError; }
+        set innerError(value) { this._innerError = ErrorInfo.asErrorInfo(value); }
+        static asErrorInfo(value) {
             if (!defined(value))
                 return null;
             if (derivesFrom(value, ErrorInfo))
                 return value;
             return new ErrorInfo(value);
-        };
-        return ErrorInfo;
-    }());
+        }
+    }
     TypeUtil.ErrorInfo = ErrorInfo;
-})(TypeUtil = exports.TypeUtil || (exports.TypeUtil = {}));
+})(TypeUtil || (TypeUtil = {}));
 //# sourceMappingURL=TypeUtil.js.map

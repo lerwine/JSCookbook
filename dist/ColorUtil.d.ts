@@ -1,4 +1,4 @@
-export declare module ColorInfo {
+export declare namespace ColorUtil {
     interface IRGB {
         r: number;
         g: number;

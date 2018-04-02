@@ -1,6 +1,6 @@
-import util = require('./TypeUtil');
+import { TypeUtil as typeUtil } from './TypeUtil';
 
-module AssertionTesting {
+export namespace AssertionTesting {
     export enum ResultStatusValue {
         notEvaluated = -1,
         inconclusive = 0,
@@ -13,7 +13,70 @@ module AssertionTesting {
     const NotEvaluated_Type = "notEvaluated";
     const NotEvaluated_Title = "Not Evaluated";
     
-    export class ResultStatus {
+    export function isIResultStatus(value: any) : value is IResultStatus {
+        return typeUtil.isNonArrayObject(value) && typeUtil.isNumber(value.statusValue) && typeUtil.isString(value.message);
+    }
+    
+    export interface IResultStatus {
+        statusValue: ResultStatusValue;
+        message: string
+    }
+
+    export class AssertionError extends Error {
+        private _isInconclusive: boolean = false;
+        get isInconclusive(): boolean { return this._isInconclusive; }
+        constructor(message: string, isInconclusive?: boolean) {
+            super(message);
+            if (typeUtil.isBoolean(isInconclusive))
+                this._isInconclusive = isInconclusive;
+        }
+    }
+
+    export function inconclusive(message: string) { throw new AssertionError(message, true);}
+
+    export function fail(message: string) { throw new AssertionError(message); }
+
+    export function areEqual(expected: any, actual: any, message?: string) {
+        if (expected === actual)
+            return;
+        
+        if (typeUtil.isNilOrWhitespace(message))
+            fail("Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual));
+            
+        fail("Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual) + " (" + message + ")");
+    }
+
+    export function areAlike(expected: any, actual: any, message?: string) {
+        if (expected == actual)
+            return;
+        
+        if (typeUtil.isNilOrWhitespace(message))
+            fail("Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual));
+            
+        fail("Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual) + " (" + message + ")");
+    }
+
+    export function areNotEqual(expected: any, actual: any, message?: string) {
+        if (expected !== actual)
+            return;
+        
+        if (typeUtil.isNilOrWhitespace(message))
+            fail("Not Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual));
+            
+        fail("Not Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual) + " (" + message + ")");
+    }
+
+    export function areNotAlike(expected: any, actual: any, message?: string) {
+        if (expected != actual)
+            return;
+        
+        if (typeUtil.isNilOrWhitespace(message))
+            fail("Not Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual));
+            
+        fail("Not Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual) + " (" + message + ")");
+    }
+
+    export class ResultStatus implements IResultStatus {
         private _statusValue: ResultStatusValue = NotEvaluated_Value;
         private _rawValue: number = NotEvaluated_Value;
         private _message: string = NotEvaluated_Title;
@@ -27,7 +90,7 @@ module AssertionTesting {
     
         set rawValue(value : number) {
             var oldValue: number = this._statusValue;
-            this._rawValue = util.TypeUtil.asNumber(value, NotEvaluated_Value);
+            this._rawValue = typeUtil.asNumber(value, NotEvaluated_Value);
             this._statusValue = ResultStatus.asStatusValue(this._rawValue);
             if (this._statusValue == oldValue)
                 return;
@@ -40,7 +103,7 @@ module AssertionTesting {
         get message(): string { return this._message; }
         
         set message(value: string) {
-            this._message = util.TypeUtil.asString(value, "");
+            this._message = typeUtil.asString(value, "");
             if (this._message.trim().length == 0)
                 this._message = ResultStatus.getTitle(this._statusValue);
         }
@@ -48,15 +111,15 @@ module AssertionTesting {
         get type() : string { return this._type; }
     
         constructor(value?: number, message?: string) {
-            if (!util.TypeUtil.nil(value))
+            if (!typeUtil.nil(value))
                 this.rawValue = value;
-            let m = util.TypeUtil.asString(message, "");
+            let m = typeUtil.asString(message, "");
             if (m.trim().length > 0)
                 this.message = m;
         }
         
         static asStatusValue(value: number) : ResultStatusValue {
-            let v : number = util.TypeUtil.asNumber(value, NotEvaluated_Value);
+            let v : number = typeUtil.asNumber(value, NotEvaluated_Value);
             switch (v) {
                 case ResultStatusValue.inconclusive:
                 case ResultStatusValue.pass:
@@ -104,97 +167,98 @@ module AssertionTesting {
         private _testIndex: number|null = null;
         private _dataIndex: number|null = null;
         private _description: string = "";
-        private _error: util.TypeUtil.ErrorInfo|null = null;
+        private _error: typeUtil.ErrorInfo|null = null;
     
         get status(): ResultStatus { return this._status; }
         get testId(): string { return this._testId; }
         get testIndex() : number|null { return this._testIndex; }
         get dataIndex() : number|null { return this._dataIndex; }
         get description(): string { return this._description; }
-        get error(): util.TypeUtil.ErrorInfo|null { return this._error; }
+        get error(): typeUtil.ErrorInfo|null { return this._error; }
     
-        constructor(value?: string|TestDefinition, error?: util.TypeUtil.ErrorInfo|null, status?: ResultStatusValue|number|null, testIndex?: number|null, dataIndex?: number|null) {
-            if (util.TypeUtil.nil(status)) {
-                if (util.TypeUtil.nil(error))
-                    this._status = new ResultStatus((util.TypeUtil.nil(value)) ? ResultStatusValue.notEvaluated : ResultStatusValue.pass);
+        constructor(value?: string|TestDefinition, error?: typeUtil.ErrorInfo|null, status?: ResultStatus|ResultStatusValue|number|null, testIndex?: number|null, dataIndex?: number|null) {
+            if (typeUtil.nil(status)) {
+                if (typeUtil.nil(error))
+                    this._status = new ResultStatus((typeUtil.nil(value)) ? ResultStatusValue.notEvaluated : ResultStatusValue.pass);
                 else
                     this._status = new ResultStatus((error.isWarning) ? ResultStatusValue.inconclusive : ResultStatusValue.error, error.message);
-            } else if (util.TypeUtil.nil(error))
+            } else if (!typeUtil.isNumber(status))
+                this._status = status;
+            else if (typeUtil.nil(error))
                 this._status = new ResultStatus(status);
             else
                 this._status = new ResultStatus(status, error.message);
-            if (!util.TypeUtil.nil(value)) {
-                if (util.TypeUtil.derivesFrom<TestDefinition>(value, TestDefinition)) {
+            if (!typeUtil.nil(value)) {
+                if (typeUtil.derivesFrom<TestDefinition>(value, TestDefinition)) {
     
                 } else
-                    this._description = util.TypeUtil.asString(value, "");
+                    this._description = typeUtil.asString(value, "");
             }
-            if (!util.TypeUtil.nil(error))
+            if (!typeUtil.nil(error))
                 this._error = error;
         }
     }
 
-    export interface TestInvokeThisObj {
+    export interface TestInvocationInfo {
         test: {
             id: string;
             lastResult: ResultStatus;
             index?: number|null;
-            data?: any;
+            description?: string|null;
         };
-        description?: string|null;
         iteration: {
             index?: number|null;
             description?: string|null;
             metaData?: { [key: string]: any };
-            data?: any;
         }
-        result?: string|ResultStatusValue|number|util.TypeUtil.ErrorInfo|Error|{
+        result?: string|ResultStatusValue|number|typeUtil.ErrorInfo|Error|{
             message?: string|null;
             status?: ResultStatusValue|number|null;
-            error?: util.TypeUtil.ErrorInfo|null;
+            error?: typeUtil.ErrorInfo|null;
         }|null;
-        data?: any;
     }
     
     export interface MethodSettings {
-        callback: util.TypeUtil.AnyFunction;
+        callback: TestMethod;
         description?: string;
     }
-    
+
     export interface IterationSettings {
         args: any[];
         description?: string;
         metaData?: { [key: string]: any };
     }
+
+    export interface TestMethod { (args: any[], testInfo: TestInvocationInfo): any; }
     
     export class TestDefinition {
         private _testId: string;
         private _description: string = "";
-        private _testMethod: util.TypeUtil.AnyFunction;
+        private _testMethod: TestMethod;
         private _iterations: IterationSettings[];
         private _lastResult: ResultStatus = new ResultStatus();
     
         get testId() : string { return this._testId; }
         
         get description() : string { return this._description; }
-        set description(value : string) { this._description = util.TypeUtil.asString(value, ""); }
+        set description(value : string) { this._description = typeUtil.asString(value, ""); }
     
         get iterations() : IterationSettings[] { return this._iterations; }
-        set iterations(value : IterationSettings[]) { this._iterations = (util.TypeUtil.nil(value)) ? [] : ((Array.isArray(value)) ? value : [value]); }
+        set iterations(value : IterationSettings[]) { this._iterations = (typeUtil.nil(value)) ? [] : ((Array.isArray(value)) ? value : [value]); }
     
         get lastResult() : ResultStatus { return this._lastResult; }
         
-        constructor(testId: string, testMethod: MethodSettings|util.TypeUtil.AnyFunction, iteration?: IterationSettings[]|IterationSettings) {
-            this._testId = util.TypeUtil.asString(testId, "");
-            if (util.TypeUtil.nil(testMethod))
+        constructor(testId: string, testMethod: MethodSettings|TestMethod, iteration?: IterationSettings[]|IterationSettings) {
+            this._testId = typeUtil.asString(testId, "");
+            if (typeUtil.nil(testMethod))
                 throw new Error("Test method must be defined.");
-            if (util.TypeUtil.isFunction(testMethod))
+            if (typeUtil.isFunction(testMethod))
                 this._testMethod = testMethod;
             else {
                 this._testMethod = testMethod.callback;
-                this._description = util.TypeUtil.asString(testMethod.description, "");
+                this._description = typeUtil.asString(testMethod.description, "");
             }
-            if (util.TypeUtil.nil(iteration))
+            if (typeUtil.nil(iteration))
                 this._iterations = [{ args: [] }];
             else if (Array.isArray(iteration))
                 this._iterations = iteration;
@@ -203,121 +267,63 @@ module AssertionTesting {
         }
     
         invoke(testIndex?: number|null, thisObj?: { [key: string]: any }) : ResultStatusValue {
-            if (util.TypeUtil.nil(thisObj))
-                thisObj = {
-                    test: {
-                        id: this._testId,
-                        lastResult: this._lastResult,
-                        index: testIndex
-                    },
-                    description: this._description,
-                    iteration: { }
-                };
-            else if (util.TypeUtil.isNonArrayObject(thisObj)) {
-                if (!util.TypeUtil.isNonArrayObject(thisObj.test)) {
-                    thisObj.test = {
-                        id: this._testId,
-                        lastResult: this._lastResult,
-                        index: testIndex,
-                        data: thisObj.test
-                    };
-                }
-                if (!util.TypeUtil.isNonArrayObject(thisObj.iteration))
-                    thisObj.iteration = { data: thisObj.iteration };
-            } else
-                thisObj = {
-                    test: {
-                        id: this._testId,
-                        lastResult: this._lastResult,
-                        index: testIndex
-                    },
-                    description: this._description,
-                    iteration: { },
-                    data: thisObj
-                };
+            if (typeUtil.nil(thisObj))
+                thisObj = { };
+            else if (!typeUtil.isNonArrayObject(thisObj))
+            thisObj = { thisObj: thisObj };
             let iterations: IterationSettings[] = this._iterations;
             if (iterations.length == 0)
                 iterations.push({ args: [] });
             for (var iterationIndex = 0; iterationIndex < iterations.length; iterationIndex++) {
                 let iterationSettings = iterations[iterationIndex];
-                if (util.TypeUtil.nil(iterationSettings))
+                if (typeUtil.nil(iterationSettings))
                     iterationSettings = { args: [] };
-                else if (!util.TypeUtil.isNonArrayObject(iterationSettings)) {
+                else if (!typeUtil.isNonArrayObject(iterationSettings)) {
                     if (Array.isArray(iterationSettings))
                         iterationSettings = { args: iterationSettings };
                     else
                         iterationSettings = { args: [], metaData: { data: iterationSettings } };
-                } else if (util.TypeUtil.nil(iterationSettings.args))
+                } else if (typeUtil.nil(iterationSettings.args))
                     iterationSettings.args = [];
                 else if (!Array.isArray(iterationSettings.args)) {
-                    if (util.TypeUtil.isNonArrayObject(iterationSettings.metaData))
+                    if (typeUtil.isNonArrayObject(iterationSettings.metaData))
                         iterationSettings.metaData.data = iterationSettings.args;
                     else
                         iterationSettings.metaData = { data: iterationSettings.args }
                     iterationSettings.args = [];
                 }
-                if (util.TypeUtil.isNonArrayObject(thisObj.test)) {
-                    thisObj.test.id = this._testId;
-                    thisObj.test.lastResult = this._lastResult;
-                    thisObj.test.index = testIndex;
-                } else
-                    thisObj.test = {
-                        id: this._testId,
-                        lastResult: this._lastResult,
-                        index: testIndex
-                    };
-                thisObj.description = this._description;
-                if (!util.TypeUtil.isNonArrayObject(thisObj.iteration))
-                    thisObj.iteration = {
-                        index: iterationIndex,
-                        description: iterationSettings.description,
-                        metaData: iterationSettings.metaData
-                    };
-                else {
-                    thisObj.iteration.index = iterationIndex;
-                    thisObj.description = iterationSettings.description;
-                    thisObj.metaData = iterationSettings.metaData;
-                }
-                /*string|ResultStatusValue|number|ErrorInfo|Error|{
-            message?: string|null;
-            status?: ResultStatusValue|number|null;
-            error?: ErrorInfo|null;
-        }|null
-                */
-                let result: { [key: string]: any };
+                
+                let result: TestResult;
                 try {
-                    var output = this._testMethod.apply(thisObj, iterationSettings.args);
-                    result = thisObj.result;
-                    if (util.TypeUtil.nil(result))
-                        result = { status: ResultStatusValue.pass };
-                    else if (util.TypeUtil.isString(result))
-                        result = { message: result, status: ResultStatusValue.pass };
-                    else if (util.TypeUtil.isNumber(result))
-                        result = { status: result };
-                    else if (util.TypeUtil.derivesFrom<util.TypeUtil.ErrorInfo>(result, util.TypeUtil.ErrorInfo))
-                        result = { status: (result.isWarning) ? ResultStatusValue.inconclusive : ResultStatusValue.error, error: result };
-                    else if (util.TypeUtil.derivesFrom<Error>(result, Error))
-                        result = { status: ResultStatusValue.error, error: new util.TypeUtil.ErrorInfo(result) }
-                    else if (!util.TypeUtil.isNonArrayObject(result))
-                        result = { status: ResultStatusValue.pass, message: util.TypeUtil.asString(result, null) };
-                    else if (util.TypeUtil.nil(result.status))
-                        result.status = ResultStatusValue.pass;
-                } catch (err) {
-                    result = { status: ResultStatusValue.error, error: err }
-                }
-                if (util.TypeUtil.derivesFrom<Error>(result.error, Error))
-                    result.error = new util.TypeUtil.ErrorInfo(result.error);
-                else if (!util.TypeUtil.nil(result.error) && !util.TypeUtil.derivesFrom<util.TypeUtil.ErrorInfo>(result.error, util.TypeUtil.ErrorInfo))
-                    result.error = new util.TypeUtil.ErrorInfo(result.error);
-                if (util.TypeUtil.nil(result.message) || (result.message = util.TypeUtil.asString(result.message, "")).trim().length == 0) {
-                    if (!util.TypeUtil.nil(result.error) && !util.TypeUtil.nil(result.error.message) && (result.error.message = util.TypeUtil.asString(result.error.message, "").trim()).length > 0)
-                        result.message = result.error.message;
+                    var invocationInfo: TestInvocationInfo = {
+                        test: {
+                            id: this._testId,
+                            index: testIndex,
+                            lastResult: this._lastResult
+                        },
+                        iteration: {
+                            index: iterationIndex,
+                            description: iterationSettings.description,
+                            metaData: iterationSettings.metaData
+                        }
+                    }
+                    var output = this._testMethod.call(thisObj, iterationSettings.args, invocationInfo);
+                    if (typeUtil.nil(invocationInfo.result))
+                        result = new TestResult(this, undefined, ResultStatusValue.pass, testIndex, iterationIndex)
+                    else if (typeUtil.isString(invocationInfo.result))
+                        result = new TestResult(this, undefined, new ResultStatus(ResultStatusValue.pass, invocationInfo.result), testIndex, iterationIndex);
+                    else if (typeUtil.isNumber(invocationInfo.result))
+                        result = new TestResult(this, undefined, invocationInfo.result, testIndex, iterationIndex);
+                    else if (typeUtil.derivesFrom<typeUtil.ErrorInfo>(invocationInfo.result, typeUtil.ErrorInfo))
+                        result = new TestResult(this, invocationInfo.result, (invocationInfo.result.isWarning) ? ResultStatusValue.inconclusive : ResultStatusValue.error, testIndex, iterationIndex);
+                    else if (typeUtil.derivesFrom<Error>(result, Error))
+                        result = new TestResult(this, new typeUtil.ErrorInfo(invocationInfo.result), ResultStatusValue.error, testIndex, iterationIndex);
                     else
-                        result.message = "";
+                        result = new TestResult(this, undefined, new ResultStatus(ResultStatusValue.pass, typeUtil.asString(result, null)), testIndex, iterationIndex);
+                } catch (err) {
+                    result = new TestResult(this, new typeUtil.ErrorInfo(err), ResultStatusValue.error, testIndex, iterationIndex);
                 }
-                if (result.message.trim().length == 0)
-                    result.message = ResultStatus.getTitle(result.status);
-                this._lastResult = new ResultStatus(result.status, result.message);
+                this._lastResult = result.status;
                 if (this._lastResult.statusValue != ResultStatusValue.pass)
                     break;
             }

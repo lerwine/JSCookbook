@@ -1,6 +1,6 @@
-import util = require('./TypeUtil');
+import { TypeUtil as typeUtil } from './TypeUtil';
 
-export module ColorInfo {
+export namespace ColorUtil {
     let floatDigitRegex = /^\d+\.\d+$/i;
     let hexDigitReRegex = /^(?:\#|0x)?([a-f\d]{2}$)/i;
     let hexStringReRegex = /^(?:\#|0x)?(?:([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})|([a-f\d])([a-f\d])([a-f\d]))$/i;
@@ -20,20 +20,21 @@ export module ColorInfo {
     }
 
     export function isRgb(value: any, strict?: boolean) : value is IRGB {
-        return (util.TypeUtil.isNonArrayObject(value) && util.TypeUtil.isNumber(value.r) && util.TypeUtil.isNumber(value.g) && util.TypeUtil.isNumber(value.b) &&
-            (!util.TypeUtil.defined(value.isFloat) || util.TypeUtil.isBoolean(value.isFloat)));
+        
+        return (typeUtil.isNonArrayObject(value) && typeUtil.isNumber(value.r) && typeUtil.isNumber(value.g) && typeUtil.isNumber(value.b) &&
+            (!typeUtil.defined(value.isFloat) || typeUtil.isBoolean(value.isFloat)));
     }
     
     export function isHsv(value: any, strict?: boolean) : value is IHSV {
-        return (util.TypeUtil.isNonArrayObject(value) && util.TypeUtil.isNumber(value.h) && util.TypeUtil.isNumber(value.s) && util.TypeUtil.isNumber(value.v) &&
-            (!util.TypeUtil.defined(value.is8Bit) || util.TypeUtil.isBoolean(value.is8Bit)));
+        return (typeUtil.isNonArrayObject(value) && typeUtil.isNumber(value.h) && typeUtil.isNumber(value.s) && typeUtil.isNumber(value.v) &&
+            (!typeUtil.defined(value.is8Bit) || typeUtil.isBoolean(value.is8Bit)));
     }
     
     function parseHexString(text: string) {
         var m = hexStringReRegex.exec(text);
-        if (util.TypeUtil.nil(m))
+        if (typeUtil.nil(m))
             throw new Error("Invalid hexidecimal color string");
-        if (!util.TypeUtil.nil(m[1]))
+        if (!typeUtil.nil(m[1]))
             return new RgbColorValues(parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16));
 
         return new RgbColorValues(parseInt(m[4]+m[4], 16), parseInt(m[5]+m[5], 16), parseInt(m[6]+m[6], 16));
@@ -46,31 +47,31 @@ export module ColorInfo {
 
         get r() { return this._r; }
         set r(value: number) {
-            if (!util.TypeUtil.isNumber(value) || value < 0 || value > 255)
+            if (!typeUtil.isNumber(value) || value < 0 || value > 255)
                 throw new Error("Red value must be a number from 0 to 255, inclusive.");
             this._r = (Number.isInteger(value)) ? value : Math.round(value);
         }
 
         get g() { return this._g; }
         set g(value: number) {
-            if (!util.TypeUtil.isNumber(value) || value < 0 || value > 100.0)
+            if (!typeUtil.isNumber(value) || value < 0 || value > 100.0)
                 throw new Error("Green value must be a number from 0 to 255, inclusive.");
             this._g = (Number.isInteger(value)) ? value : Math.round(value);
         }
 
         get b() { return this._b; }
         set b(value: number) {
-            if (!util.TypeUtil.isNumber(value) || value < 0 || value > 100.0)
+            if (!typeUtil.isNumber(value) || value < 0 || value > 100.0)
                 throw new Error("Blue value must be a number from 0 to 255, inclusive.");
             this._b = (Number.isInteger(value)) ? value : Math.round(value);
         }
 
         constructor(r?: number, g?: number, b?: number) {
-            if (util.TypeUtil.isNumber(r))
+            if (typeUtil.isNumber(r))
                 this.r = r;
-            if (util.TypeUtil.isNumber(b))
+            if (typeUtil.isNumber(b))
                 this.g = g;
-            if (util.TypeUtil.isNumber(g))
+            if (typeUtil.isNumber(g))
                 this.b = b;
         }
 
@@ -114,31 +115,31 @@ export module ColorInfo {
 
         get h() { return this._h; }
         set h(value: number) {
-            if (!util.TypeUtil.isNumber(value) || value < 0.0 || value > 360.0)
+            if (!typeUtil.isNumber(value) || value < 0.0 || value > 360.0)
                 throw new Error("Hue value must be a number from 0.0 to 360.0, inclusive.");
             this._h = (value == 360) ? 0 : value;
         }
 
         get s() { return this._s; }
         set s(value: number) {
-            if (!util.TypeUtil.isNumber(value) || value < 0.0 || value > 100.0)
+            if (!typeUtil.isNumber(value) || value < 0.0 || value > 100.0)
                 throw new Error("Saturation value must be a number from 0.0 to 100.0, inclusive.");
             this._s = value;
         }
 
         get v() { return this._v; }
         set v(value: number) {
-            if (!util.TypeUtil.isNumber(value) || value < 0.0 || value > 100.0)
+            if (!typeUtil.isNumber(value) || value < 0.0 || value > 100.0)
                 throw new Error("Brightness value must be a number from 0.0 to 100.0, inclusive.");
             this._v = value;
         }
 
         constructor(h?: number, s?: number, v?: number) {
-            if (util.TypeUtil.isNumber(h))
+            if (typeUtil.isNumber(h))
                 this.h = h;
-            if (util.TypeUtil.isNumber(s))
+            if (typeUtil.isNumber(s))
                 this.s = s;
-            if (util.TypeUtil.isNumber(v))
+            if (typeUtil.isNumber(v))
                 this.v = v;
         }
 
@@ -184,14 +185,14 @@ export module ColorInfo {
         private _hsv?: HsvColorValues|null = null;
 
         get r() {
-            if (util.TypeUtil.nil(this._rgb))
+            if (typeUtil.nil(this._rgb))
                 this._rgb = this._hsv.toRgb();
             return this._rgb.r;
         }
         set r(value: number) {
-            if (!util.TypeUtil.isNumber(value) || value < 0 || value > 255)
+            if (!typeUtil.isNumber(value) || value < 0 || value > 255)
                 throw new Error("Red value must be a number from 0 to 255, inclusive.");
-            if (util.TypeUtil.nil(this._rgb))
+            if (typeUtil.nil(this._rgb))
                 this._rgb = this._hsv.toRgb();
             if (this._rgb.r == value)
                 return;
@@ -200,14 +201,14 @@ export module ColorInfo {
         }
 
         get g() {
-            if (util.TypeUtil.nil(this._rgb))
+            if (typeUtil.nil(this._rgb))
                 this._rgb = this._hsv.toRgb();
             return this._rgb.g;
         }
         set g(value: number) {
-            if (!util.TypeUtil.isNumber(value) || value < 0 || value > 100.0)
+            if (!typeUtil.isNumber(value) || value < 0 || value > 100.0)
                 throw new Error("Green value must be a number from 0 to 255, inclusive.");
-            if (util.TypeUtil.nil(this._rgb))
+            if (typeUtil.nil(this._rgb))
                 this._rgb = this._hsv.toRgb();
             if (this._rgb.g == value)
                 return;
@@ -216,14 +217,14 @@ export module ColorInfo {
         }
 
         get b() {
-            if (util.TypeUtil.nil(this._rgb))
+            if (typeUtil.nil(this._rgb))
                 this._rgb = this._hsv.toRgb();
             return this._rgb.b;
         }
         set b(value: number) {
-            if (!util.TypeUtil.isNumber(value) || value < 0 || value > 100.0)
+            if (!typeUtil.isNumber(value) || value < 0 || value > 100.0)
                 throw new Error("Blue value must be a number from 0 to 255, inclusive.");
-            if (util.TypeUtil.nil(this._rgb))
+            if (typeUtil.nil(this._rgb))
                 this._rgb = this._hsv.toRgb();
             if (this._rgb.b == value)
                 return;
@@ -232,16 +233,16 @@ export module ColorInfo {
         }
 
         get h() {
-            if (util.TypeUtil.nil(this._hsv))
+            if (typeUtil.nil(this._hsv))
                 this._hsv = this._rgb.toHsv();
             return this._hsv.h;
         }
         set h(value: number) {
-            if (!util.TypeUtil.isNumber(value) || value < 0.0 || value > 360.0)
+            if (!typeUtil.isNumber(value) || value < 0.0 || value > 360.0)
                 throw new Error("Hue value must be a number from 0.0 to 360.0, inclusive.");
             if (value == 360)
                 value = 0;
-            if (util.TypeUtil.nil(this._hsv))
+            if (typeUtil.nil(this._hsv))
                 this._hsv = this._rgb.toHsv();
             if (this._hsv.h == value)
                 return;
@@ -250,14 +251,14 @@ export module ColorInfo {
         }
 
         get s() {
-            if (util.TypeUtil.nil(this._hsv))
+            if (typeUtil.nil(this._hsv))
                 this._hsv = this._rgb.toHsv();
             return this._hsv.s;
         }
         set s(value: number) {
-            if (!util.TypeUtil.isNumber(value) || value < 0.0 || value > 100.0)
+            if (!typeUtil.isNumber(value) || value < 0.0 || value > 100.0)
                 throw new Error("Saturation value must be a number from 0.0 to 100.0, inclusive.");
-            if (util.TypeUtil.nil(this._hsv))
+            if (typeUtil.nil(this._hsv))
                 this._hsv = this._rgb.toHsv();
             if (this._hsv.s == value)
                 return;
@@ -266,14 +267,14 @@ export module ColorInfo {
         }
 
         get v() {
-            if (util.TypeUtil.nil(this._hsv))
+            if (typeUtil.nil(this._hsv))
                 this._hsv = this._rgb.toHsv();
             return this._hsv.v;
         }
         set v(value: number) {
-            if (!util.TypeUtil.isNumber(value) || value < 0.0 || value > 100.0)
+            if (!typeUtil.isNumber(value) || value < 0.0 || value > 100.0)
                 throw new Error("Brightness value must be a number from 0.0 to 100.0, inclusive.");
-            if (util.TypeUtil.nil(this._hsv))
+            if (typeUtil.nil(this._hsv))
                 this._hsv = this._rgb.toHsv();
             if (this._hsv.v == value)
                 return;
@@ -292,7 +293,7 @@ export module ColorInfo {
                     this._hsv = new HsvColorValues((color.h * 3.6) / 2.55, color.s / 2.55, color.v / 2.55);
                 else
                     this._hsv = new HsvColorValues(color.h, color.s, color.v);
-            } else if (util.TypeUtil.isString(color))
+            } else if (typeUtil.isString(color))
                 this._rgb = parseHexString(color);
             else
                 this._rgb = new RgbColorValues();

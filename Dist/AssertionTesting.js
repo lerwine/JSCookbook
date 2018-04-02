@@ -1,9 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var util = require("./TypeUtil");
-var AssertionTesting;
+import { TypeUtil as typeUtil } from './TypeUtil';
+export var AssertionTesting;
 (function (AssertionTesting) {
-    var ResultStatusValue;
+    let ResultStatusValue;
     (function (ResultStatusValue) {
         ResultStatusValue[ResultStatusValue["notEvaluated"] = -1] = "notEvaluated";
         ResultStatusValue[ResultStatusValue["inconclusive"] = 0] = "inconclusive";
@@ -11,60 +9,94 @@ var AssertionTesting;
         ResultStatusValue[ResultStatusValue["fail"] = 2] = "fail";
         ResultStatusValue[ResultStatusValue["error"] = 3] = "error";
     })(ResultStatusValue = AssertionTesting.ResultStatusValue || (AssertionTesting.ResultStatusValue = {}));
-    var NotEvaluated_Value = ResultStatusValue.notEvaluated;
-    var NotEvaluated_Type = "notEvaluated";
-    var NotEvaluated_Title = "Not Evaluated";
-    var ResultStatus = (function () {
-        function ResultStatus(value, message) {
+    const NotEvaluated_Value = ResultStatusValue.notEvaluated;
+    const NotEvaluated_Type = "notEvaluated";
+    const NotEvaluated_Title = "Not Evaluated";
+    function isIResultStatus(value) {
+        return typeUtil.isNonArrayObject(value) && typeUtil.isNumber(value.statusValue) && typeUtil.isString(value.message);
+    }
+    AssertionTesting.isIResultStatus = isIResultStatus;
+    class AssertionError extends Error {
+        constructor(message, isInconclusive) {
+            super(message);
+            this._isInconclusive = false;
+            if (typeUtil.isBoolean(isInconclusive))
+                this._isInconclusive = isInconclusive;
+        }
+        get isInconclusive() { return this._isInconclusive; }
+    }
+    AssertionTesting.AssertionError = AssertionError;
+    function inconclusive(message) { throw new AssertionError(message, true); }
+    AssertionTesting.inconclusive = inconclusive;
+    function fail(message) { throw new AssertionError(message); }
+    AssertionTesting.fail = fail;
+    function areEqual(expected, actual, message) {
+        if (expected === actual)
+            return;
+        if (typeUtil.isNilOrWhitespace(message))
+            fail("Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual));
+        fail("Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual) + " (" + message + ")");
+    }
+    AssertionTesting.areEqual = areEqual;
+    function areAlike(expected, actual, message) {
+        if (expected == actual)
+            return;
+        if (typeUtil.isNilOrWhitespace(message))
+            fail("Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual));
+        fail("Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual) + " (" + message + ")");
+    }
+    AssertionTesting.areAlike = areAlike;
+    function areNotEqual(expected, actual, message) {
+        if (expected !== actual)
+            return;
+        if (typeUtil.isNilOrWhitespace(message))
+            fail("Not Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual));
+        fail("Not Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual) + " (" + message + ")");
+    }
+    AssertionTesting.areNotEqual = areNotEqual;
+    function areNotAlike(expected, actual, message) {
+        if (expected != actual)
+            return;
+        if (typeUtil.isNilOrWhitespace(message))
+            fail("Not Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual));
+        fail("Not Expected: " + typeUtil.serializeToString(expected) + "; Actual: " + typeUtil.serializeToString(actual) + " (" + message + ")");
+    }
+    AssertionTesting.areNotAlike = areNotAlike;
+    class ResultStatus {
+        constructor(value, message) {
             this._statusValue = NotEvaluated_Value;
             this._rawValue = NotEvaluated_Value;
             this._message = NotEvaluated_Title;
             this._type = NotEvaluated_Type;
-            if (!util.TypeUtil.nil(value))
+            if (!typeUtil.nil(value))
                 this.rawValue = value;
-            var m = util.TypeUtil.asString(message, "");
+            let m = typeUtil.asString(message, "");
             if (m.trim().length > 0)
                 this.message = m;
         }
-        Object.defineProperty(ResultStatus.prototype, "statusValue", {
-            get: function () { return this._statusValue; },
-            set: function (value) { this.rawValue = ResultStatus.asStatusValue(value); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ResultStatus.prototype, "rawValue", {
-            get: function () { return this._rawValue; },
-            set: function (value) {
-                var oldValue = this._statusValue;
-                this._rawValue = util.TypeUtil.asNumber(value, NotEvaluated_Value);
-                this._statusValue = ResultStatus.asStatusValue(this._rawValue);
-                if (this._statusValue == oldValue)
-                    return;
-                this._type = ResultStatus.getType(this._statusValue);
-                var m = ResultStatus.getTitle(oldValue);
-                if (this._message.trim().toLowerCase() == m)
-                    this._message = m;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ResultStatus.prototype, "message", {
-            get: function () { return this._message; },
-            set: function (value) {
-                this._message = util.TypeUtil.asString(value, "");
-                if (this._message.trim().length == 0)
-                    this._message = ResultStatus.getTitle(this._statusValue);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ResultStatus.prototype, "type", {
-            get: function () { return this._type; },
-            enumerable: true,
-            configurable: true
-        });
-        ResultStatus.asStatusValue = function (value) {
-            var v = util.TypeUtil.asNumber(value, NotEvaluated_Value);
+        get statusValue() { return this._statusValue; }
+        set statusValue(value) { this.rawValue = ResultStatus.asStatusValue(value); }
+        get rawValue() { return this._rawValue; }
+        set rawValue(value) {
+            var oldValue = this._statusValue;
+            this._rawValue = typeUtil.asNumber(value, NotEvaluated_Value);
+            this._statusValue = ResultStatus.asStatusValue(this._rawValue);
+            if (this._statusValue == oldValue)
+                return;
+            this._type = ResultStatus.getType(this._statusValue);
+            let m = ResultStatus.getTitle(oldValue);
+            if (this._message.trim().toLowerCase() == m)
+                this._message = m;
+        }
+        get message() { return this._message; }
+        set message(value) {
+            this._message = typeUtil.asString(value, "");
+            if (this._message.trim().length == 0)
+                this._message = ResultStatus.getTitle(this._statusValue);
+        }
+        get type() { return this._type; }
+        static asStatusValue(value) {
+            let v = typeUtil.asNumber(value, NotEvaluated_Value);
             switch (v) {
                 case ResultStatusValue.inconclusive:
                 case ResultStatusValue.pass:
@@ -75,8 +107,8 @@ var AssertionTesting;
             if (v > ResultStatusValue.error)
                 return ResultStatusValue.error;
             return ResultStatusValue.notEvaluated;
-        };
-        ResultStatus.getType = function (value) {
+        }
+        static getType(value) {
             switch (ResultStatus.asStatusValue(value)) {
                 case ResultStatusValue.inconclusive:
                     return "inconclusive";
@@ -88,8 +120,8 @@ var AssertionTesting;
                     return "error";
             }
             return NotEvaluated_Type;
-        };
-        ResultStatus.getTitle = function (value) {
+        }
+        static getTitle(value) {
             switch (ResultStatus.asStatusValue(value)) {
                 case ResultStatusValue.inconclusive:
                     return "Inconclusive";
@@ -101,232 +133,136 @@ var AssertionTesting;
                     return "Unexpected Error";
             }
             return NotEvaluated_Title;
-        };
-        return ResultStatus;
-    }());
+        }
+    }
     AssertionTesting.ResultStatus = ResultStatus;
-    var TestResult = (function () {
-        function TestResult(value, error, status, testIndex, dataIndex) {
+    class TestResult {
+        constructor(value, error, status, testIndex, dataIndex) {
             this._testId = "";
             this._testIndex = null;
             this._dataIndex = null;
             this._description = "";
             this._error = null;
-            if (util.TypeUtil.nil(status)) {
-                if (util.TypeUtil.nil(error))
-                    this._status = new ResultStatus((util.TypeUtil.nil(value)) ? ResultStatusValue.notEvaluated : ResultStatusValue.pass);
+            if (typeUtil.nil(status)) {
+                if (typeUtil.nil(error))
+                    this._status = new ResultStatus((typeUtil.nil(value)) ? ResultStatusValue.notEvaluated : ResultStatusValue.pass);
                 else
                     this._status = new ResultStatus((error.isWarning) ? ResultStatusValue.inconclusive : ResultStatusValue.error, error.message);
             }
-            else if (util.TypeUtil.nil(error))
+            else if (!typeUtil.isNumber(status))
+                this._status = status;
+            else if (typeUtil.nil(error))
                 this._status = new ResultStatus(status);
             else
                 this._status = new ResultStatus(status, error.message);
-            if (!util.TypeUtil.nil(value)) {
-                if (util.TypeUtil.derivesFrom(value, TestDefinition)) {
+            if (!typeUtil.nil(value)) {
+                if (typeUtil.derivesFrom(value, TestDefinition)) {
                 }
                 else
-                    this._description = util.TypeUtil.asString(value, "");
+                    this._description = typeUtil.asString(value, "");
             }
-            if (!util.TypeUtil.nil(error))
+            if (!typeUtil.nil(error))
                 this._error = error;
         }
-        Object.defineProperty(TestResult.prototype, "status", {
-            get: function () { return this._status; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TestResult.prototype, "testId", {
-            get: function () { return this._testId; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TestResult.prototype, "testIndex", {
-            get: function () { return this._testIndex; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TestResult.prototype, "dataIndex", {
-            get: function () { return this._dataIndex; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TestResult.prototype, "description", {
-            get: function () { return this._description; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TestResult.prototype, "error", {
-            get: function () { return this._error; },
-            enumerable: true,
-            configurable: true
-        });
-        return TestResult;
-    }());
+        get status() { return this._status; }
+        get testId() { return this._testId; }
+        get testIndex() { return this._testIndex; }
+        get dataIndex() { return this._dataIndex; }
+        get description() { return this._description; }
+        get error() { return this._error; }
+    }
     AssertionTesting.TestResult = TestResult;
-    var TestDefinition = (function () {
-        function TestDefinition(testId, testMethod, iteration) {
+    class TestDefinition {
+        constructor(testId, testMethod, iteration) {
             this._description = "";
             this._lastResult = new ResultStatus();
-            this._testId = util.TypeUtil.asString(testId, "");
-            if (util.TypeUtil.nil(testMethod))
+            this._testId = typeUtil.asString(testId, "");
+            if (typeUtil.nil(testMethod))
                 throw new Error("Test method must be defined.");
-            if (util.TypeUtil.isFunction(testMethod))
+            if (typeUtil.isFunction(testMethod))
                 this._testMethod = testMethod;
             else {
                 this._testMethod = testMethod.callback;
-                this._description = util.TypeUtil.asString(testMethod.description, "");
+                this._description = typeUtil.asString(testMethod.description, "");
             }
-            if (util.TypeUtil.nil(iteration))
+            if (typeUtil.nil(iteration))
                 this._iterations = [{ args: [] }];
             else if (Array.isArray(iteration))
                 this._iterations = iteration;
             else
                 this._iterations = [iteration];
         }
-        Object.defineProperty(TestDefinition.prototype, "testId", {
-            get: function () { return this._testId; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TestDefinition.prototype, "description", {
-            get: function () { return this._description; },
-            set: function (value) { this._description = util.TypeUtil.asString(value, ""); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TestDefinition.prototype, "iterations", {
-            get: function () { return this._iterations; },
-            set: function (value) { this._iterations = (util.TypeUtil.nil(value)) ? [] : ((Array.isArray(value)) ? value : [value]); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TestDefinition.prototype, "lastResult", {
-            get: function () { return this._lastResult; },
-            enumerable: true,
-            configurable: true
-        });
-        TestDefinition.prototype.invoke = function (testIndex, thisObj) {
-            if (util.TypeUtil.nil(thisObj))
-                thisObj = {
-                    test: {
-                        id: this._testId,
-                        lastResult: this._lastResult,
-                        index: testIndex
-                    },
-                    description: this._description,
-                    iteration: {}
-                };
-            else if (util.TypeUtil.isNonArrayObject(thisObj)) {
-                if (!util.TypeUtil.isNonArrayObject(thisObj.test)) {
-                    thisObj.test = {
-                        id: this._testId,
-                        lastResult: this._lastResult,
-                        index: testIndex,
-                        data: thisObj.test
-                    };
-                }
-                if (!util.TypeUtil.isNonArrayObject(thisObj.iteration))
-                    thisObj.iteration = { data: thisObj.iteration };
-            }
-            else
-                thisObj = {
-                    test: {
-                        id: this._testId,
-                        lastResult: this._lastResult,
-                        index: testIndex
-                    },
-                    description: this._description,
-                    iteration: {},
-                    data: thisObj
-                };
-            var iterations = this._iterations;
+        get testId() { return this._testId; }
+        get description() { return this._description; }
+        set description(value) { this._description = typeUtil.asString(value, ""); }
+        get iterations() { return this._iterations; }
+        set iterations(value) { this._iterations = (typeUtil.nil(value)) ? [] : ((Array.isArray(value)) ? value : [value]); }
+        get lastResult() { return this._lastResult; }
+        invoke(testIndex, thisObj) {
+            if (typeUtil.nil(thisObj))
+                thisObj = {};
+            else if (!typeUtil.isNonArrayObject(thisObj))
+                thisObj = { thisObj: thisObj };
+            let iterations = this._iterations;
             if (iterations.length == 0)
                 iterations.push({ args: [] });
             for (var iterationIndex = 0; iterationIndex < iterations.length; iterationIndex++) {
-                var iterationSettings = iterations[iterationIndex];
-                if (util.TypeUtil.nil(iterationSettings))
+                let iterationSettings = iterations[iterationIndex];
+                if (typeUtil.nil(iterationSettings))
                     iterationSettings = { args: [] };
-                else if (!util.TypeUtil.isNonArrayObject(iterationSettings)) {
+                else if (!typeUtil.isNonArrayObject(iterationSettings)) {
                     if (Array.isArray(iterationSettings))
                         iterationSettings = { args: iterationSettings };
                     else
                         iterationSettings = { args: [], metaData: { data: iterationSettings } };
                 }
-                else if (util.TypeUtil.nil(iterationSettings.args))
+                else if (typeUtil.nil(iterationSettings.args))
                     iterationSettings.args = [];
                 else if (!Array.isArray(iterationSettings.args)) {
-                    if (util.TypeUtil.isNonArrayObject(iterationSettings.metaData))
+                    if (typeUtil.isNonArrayObject(iterationSettings.metaData))
                         iterationSettings.metaData.data = iterationSettings.args;
                     else
                         iterationSettings.metaData = { data: iterationSettings.args };
                     iterationSettings.args = [];
                 }
-                if (util.TypeUtil.isNonArrayObject(thisObj.test)) {
-                    thisObj.test.id = this._testId;
-                    thisObj.test.lastResult = this._lastResult;
-                    thisObj.test.index = testIndex;
-                }
-                else
-                    thisObj.test = {
-                        id: this._testId,
-                        lastResult: this._lastResult,
-                        index: testIndex
-                    };
-                thisObj.description = this._description;
-                if (!util.TypeUtil.isNonArrayObject(thisObj.iteration))
-                    thisObj.iteration = {
-                        index: iterationIndex,
-                        description: iterationSettings.description,
-                        metaData: iterationSettings.metaData
-                    };
-                else {
-                    thisObj.iteration.index = iterationIndex;
-                    thisObj.description = iterationSettings.description;
-                    thisObj.metaData = iterationSettings.metaData;
-                }
-                var result = void 0;
+                let result;
                 try {
-                    var output = this._testMethod.apply(thisObj, iterationSettings.args);
-                    result = thisObj.result;
-                    if (util.TypeUtil.nil(result))
-                        result = { status: ResultStatusValue.pass };
-                    else if (util.TypeUtil.isString(result))
-                        result = { message: result, status: ResultStatusValue.pass };
-                    else if (util.TypeUtil.isNumber(result))
-                        result = { status: result };
-                    else if (util.TypeUtil.derivesFrom(result, util.TypeUtil.ErrorInfo))
-                        result = { status: (result.isWarning) ? ResultStatusValue.inconclusive : ResultStatusValue.error, error: result };
-                    else if (util.TypeUtil.derivesFrom(result, Error))
-                        result = { status: ResultStatusValue.error, error: new util.TypeUtil.ErrorInfo(result) };
-                    else if (!util.TypeUtil.isNonArrayObject(result))
-                        result = { status: ResultStatusValue.pass, message: util.TypeUtil.asString(result, null) };
-                    else if (util.TypeUtil.nil(result.status))
-                        result.status = ResultStatusValue.pass;
+                    var invocationInfo = {
+                        test: {
+                            id: this._testId,
+                            index: testIndex,
+                            lastResult: this._lastResult
+                        },
+                        iteration: {
+                            index: iterationIndex,
+                            description: iterationSettings.description,
+                            metaData: iterationSettings.metaData
+                        }
+                    };
+                    var output = this._testMethod.call(thisObj, iterationSettings.args, invocationInfo);
+                    if (typeUtil.nil(invocationInfo.result))
+                        result = new TestResult(this, undefined, ResultStatusValue.pass, testIndex, iterationIndex);
+                    else if (typeUtil.isString(invocationInfo.result))
+                        result = new TestResult(this, undefined, new ResultStatus(ResultStatusValue.pass, invocationInfo.result), testIndex, iterationIndex);
+                    else if (typeUtil.isNumber(invocationInfo.result))
+                        result = new TestResult(this, undefined, invocationInfo.result, testIndex, iterationIndex);
+                    else if (typeUtil.derivesFrom(invocationInfo.result, typeUtil.ErrorInfo))
+                        result = new TestResult(this, invocationInfo.result, (invocationInfo.result.isWarning) ? ResultStatusValue.inconclusive : ResultStatusValue.error, testIndex, iterationIndex);
+                    else if (typeUtil.derivesFrom(result, Error))
+                        result = new TestResult(this, new typeUtil.ErrorInfo(invocationInfo.result), ResultStatusValue.error, testIndex, iterationIndex);
+                    else
+                        result = new TestResult(this, undefined, new ResultStatus(ResultStatusValue.pass, typeUtil.asString(result, null)), testIndex, iterationIndex);
                 }
                 catch (err) {
-                    result = { status: ResultStatusValue.error, error: err };
+                    result = new TestResult(this, new typeUtil.ErrorInfo(err), ResultStatusValue.error, testIndex, iterationIndex);
                 }
-                if (util.TypeUtil.derivesFrom(result.error, Error))
-                    result.error = new util.TypeUtil.ErrorInfo(result.error);
-                else if (!util.TypeUtil.nil(result.error) && !util.TypeUtil.derivesFrom(result.error, util.TypeUtil.ErrorInfo))
-                    result.error = new util.TypeUtil.ErrorInfo(result.error);
-                if (util.TypeUtil.nil(result.message) || (result.message = util.TypeUtil.asString(result.message, "")).trim().length == 0) {
-                    if (!util.TypeUtil.nil(result.error) && !util.TypeUtil.nil(result.error.message) && (result.error.message = util.TypeUtil.asString(result.error.message, "").trim()).length > 0)
-                        result.message = result.error.message;
-                    else
-                        result.message = "";
-                }
-                if (result.message.trim().length == 0)
-                    result.message = ResultStatus.getTitle(result.status);
-                this._lastResult = new ResultStatus(result.status, result.message);
+                this._lastResult = result.status;
                 if (this._lastResult.statusValue != ResultStatusValue.pass)
                     break;
             }
             return this._lastResult.statusValue;
-        };
-        return TestDefinition;
-    }());
+        }
+    }
     AssertionTesting.TestDefinition = TestDefinition;
 })(AssertionTesting || (AssertionTesting = {}));
 //# sourceMappingURL=AssertionTesting.js.map

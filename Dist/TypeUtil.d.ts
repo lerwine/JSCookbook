@@ -1,4 +1,4 @@
-export declare module TypeUtil {
+export declare namespace TypeUtil {
     interface AnyFunction {
         (...args: any[]): any;
     }
