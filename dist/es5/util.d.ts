@@ -1,22 +1,31 @@
-export declare abstract class util {
-    static defined(value: any): boolean;
-    static isString(value: any): boolean;
-    static isFunction(value: any): boolean;
-    static isBoolean(value: any): boolean;
-    static isNumber(value: any): boolean;
-    static nil(value: any): boolean;
-    static isNilOrEmptyString(s: string): boolean;
-    static isNilOrWhitespace(s: string): boolean;
-    static asString(value: any, defaultValue?: string, ignoreWhitespace?: boolean): any;
-    static trimEnd(v: string): string;
-    static asNumber(value: any, defaultValue?: number): number;
-    static asInteger(value: any, defaultValue?: number): number;
-    static asBoolean(value: any, defaultValue?: boolean): boolean;
-    static getClassName(value: any): string;
-    static getInheritanceChain(value: any): string[];
-    static derivesFrom(value: any, classConstructor: Function): boolean;
-    static typeOfExt(value: any): string;
-    static indentText(text: string | string[], indent?: string, skipLineCount?: number): string;
-    private static __asPropertyValueString(obj);
-    static asPropertyValueString(obj: any): string;
+declare namespace TypeUtil {
+    interface AnyFunction {
+        (...args: any[]): any;
+    }
+    interface AnyConstructor<T> {
+        new (...args: any[]): T;
+    }
+    function defined(value?: any): boolean;
+    function isObjectType(value?: any): value is object;
+    function isNonArrayObject(value: any): value is {
+        [key: string]: any;
+    };
+    function isString(value?: any): value is string;
+    function isFunction(value?: any): value is AnyFunction;
+    function isBoolean(value?: any): value is boolean;
+    function isNumber(value?: any): value is number;
+    function nil(value?: any): value is undefined | null;
+    function isNilOrEmptyString(value?: string | null): boolean;
+    function isNilOrWhitespace(value?: string | null): boolean;
+    function asString(value: any, defaultValue?: string | null, ignoreWhitespace?: boolean): string;
+    function trimEnd(text: string): string;
+    function asNumber(value: any, defaultValue?: number): number;
+    function asInteger(value: any, defaultValue?: number): number;
+    function asBoolean(value: any, defaultValue?: boolean): boolean;
+    function getClassName(value: any): string;
+    function getInheritanceChain(value: any): string[];
+    function derivesFrom<T>(value: any, classConstructor: AnyConstructor<T>): value is T;
+    function typeOfExt(value: any): string;
+    function indentText(text: string | string[], indent?: string, skipLineCount?: number): string;
+    function serializeToString(obj: any): string;
 }

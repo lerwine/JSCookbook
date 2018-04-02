@@ -33,53 +33,55 @@
             "tsconfig": "src/AssertionTesting/tsconfig-es3.json",
             "problemMatcher": [ "$tsc" ],
             "group": "build"
-        }, {
-            "label": "Build JSUnitTesting Min",
-            "type": "shell",
-            "command": "uglifyjs",
-            "identifier": "buildJSUnitTestingMin",
-            "group": "build",
-            "args": [
-                "./src/JSUnitTesting/Utility.js",
-                "./src/JSUnitTesting/TypeSpec.js",
-                "./src/JSUnitTesting/TestResult.js",
-                "./src/JSUnitTesting/UnitTest.js",
-                "./src/JSUnitTesting/TestCollection.js",
-                "./src/JSUnitTesting/AssertionError.js",
-                "./src/JSUnitTesting/Assert.js",
-                "-o",
-                "./Dist/JSUnitTesting.min.js",
-                "--source-map",
-                "--source-map-root",
-                "https://github.com/lerwine/JSCookbook/tree/master/src/JSUnitTesting",
-                "-c",
-                "-m"
-            ],
-            "problemMatcher":"$jshint"
-        }, {
-            "label": "Build JSUnitTesting",
-            "identifier": "buildJSUnitTesting",
-            "dependsOn": ["buildJSUnitTestingMin"],
-            "type": "shell",
-            "command": "uglifyjs",
-            "group": "build",
-            "args": [
-                "./src/JSUnitTesting/Utility.js",
-                "./src/JSUnitTesting/TypeSpec.js",
-                "./src/JSUnitTesting/TestResult.js",
-                "./src/JSUnitTesting/UnitTest.js",
-                "./src/JSUnitTesting/TestCollection.js",
-                "./src/JSUnitTesting/AssertionError.js",
-                "./src/JSUnitTesting/Assert.js",
-                "-o",
-                "./Dist/JSUnitTesting.js",
-                "--source-map",
-                "--source-map-root",
-                "https://github.com/lerwine/JSCookbook/tree/master/src/JSUnitTesting",
-                "-b"
-            ],
-            "problemMatcher":"$jshint"
-        }, {
+        },
+        // }, {
+        //     "label": "Build JSUnitTesting Min",
+        //     "type": "shell",
+        //     "command": "uglifyjs",
+        //     "identifier": "buildJSUnitTestingMin",
+        //     "group": "build",
+        //     "args": [
+        //         "./src/JSUnitTesting/Utility.js",
+        //         "./src/JSUnitTesting/TypeSpec.js",
+        //         "./src/JSUnitTesting/TestResult.js",
+        //         "./src/JSUnitTesting/UnitTest.js",
+        //         "./src/JSUnitTesting/TestCollection.js",
+        //         "./src/JSUnitTesting/AssertionError.js",
+        //         "./src/JSUnitTesting/Assert.js",
+        //         "-o",
+        //         "./Dist/JSUnitTesting.min.js",
+        //         "--source-map",
+        //         "--source-map-root",
+        //         "https://github.com/lerwine/JSCookbook/tree/master/src/JSUnitTesting",
+        //         "-c",
+        //         "-m"
+        //     ],
+        //     "problemMatcher":"$jshint"
+        // }, {
+        //     "label": "Build JSUnitTesting",
+        //     "identifier": "buildJSUnitTesting",
+        //     "dependsOn": ["buildJSUnitTestingMin"],
+        //     "type": "shell",
+        //     "command": "uglifyjs",
+        //     "group": "build",
+        //     "args": [
+        //         "./src/JSUnitTesting/Utility.js",
+        //         "./src/JSUnitTesting/TypeSpec.js",
+        //         "./src/JSUnitTesting/TestResult.js",
+        //         "./src/JSUnitTesting/UnitTest.js",
+        //         "./src/JSUnitTesting/TestCollection.js",
+        //         "./src/JSUnitTesting/AssertionError.js",
+        //         "./src/JSUnitTesting/Assert.js",
+        //         "-o",
+        //         "./Dist/JSUnitTesting.js",
+        //         "--source-map",
+        //         "--source-map-root",
+        //         "https://github.com/lerwine/JSCookbook/tree/master/src/JSUnitTesting",
+        //         "-b"
+        //     ],
+        //     "problemMatcher":"$jshint"
+        // },
+        {
             "label": "Start web server",
             "type": "shell",
             "group": {

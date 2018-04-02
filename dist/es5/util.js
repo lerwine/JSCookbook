@@ -1,230 +1,263 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var newLineString = "\n";
-var whitespaceRegex = /^\s*$/;
-var trimEndRegex = /^(\s*\S+(\s+\S+)*)/;
-var lineSplitRegex = /\r\n?|\n/g;
-var boolRegex = /^(?:(t(?:rue)?|y(?:es)?|[+-]?(?:0*[1-9]\d*(?:\.\d+)?|0+\.0*[1-9]\d*)|\+)|(f(?:alse)?|no?|[+-]?0+(?:\.0+)?|-))$/i;
-var ucFirstRegex = /^([^a-zA-Z\d]*[a-z])(.+)?$/g;
-var util = (function () {
-    function util() {
-    }
-    util.defined = function (value) { return typeof (value) !== "undefined"; };
-    util.isString = function (value) { return typeof (value) === "string"; };
-    util.isFunction = function (value) { return typeof (value) === "function"; };
-    util.isBoolean = function (value) { return typeof (value) === "boolean"; };
-    util.isNumber = function (value) { return typeof (value) === "number" && !isNaN(value); };
-    util.nil = function (value) { return !util.defined(value) || value === null; };
-    util.isNilOrEmptyString = function (s) { return util.nil(s) || (util.isString(s) && s.length == 0); };
-    util.isNilOrWhitespace = function (s) { return util.nil(s) || (util.isString(s) && whitespaceRegex.test(s)); };
-    util.asString = function (value, defaultValue, ignoreWhitespace) {
-        if (!util.defined(value)) {
-            if (util.nil(defaultValue))
+var TypeUtil;
+(function (TypeUtil) {
+    ;
+    var newLineString = "\n";
+    var whitespaceRegex = /^\s*$/;
+    var trimEndRegex = /^(\s*\S+(\s+\S+)*)/;
+    var lineSplitRegex = /\r\n?|\n/g;
+    var boolRegex = /^(?:(t(?:rue)?|y(?:es)?|[+-]?(?:0*[1-9]\d*(?:\.\d+)?|0+\.0*[1-9]\d*)|\+)|(f(?:alse)?|no?|[+-]?0+(?:\.0+)?|-))$/i;
+    var ucFirstRegex = /^([^a-zA-Z\d]*[a-z])(.+)?$/g;
+    function defined(value) { return typeof (value) !== "undefined"; }
+    TypeUtil.defined = defined;
+    function isObjectType(value) { return typeof (value) === "object" && value !== null; }
+    TypeUtil.isObjectType = isObjectType;
+    function isNonArrayObject(value) { return typeof (value) == "object" && value !== null && !Array.isArray(value); }
+    TypeUtil.isNonArrayObject = isNonArrayObject;
+    function isString(value) { return typeof (value) === "string"; }
+    TypeUtil.isString = isString;
+    function isFunction(value) { return typeof (value) === "function"; }
+    TypeUtil.isFunction = isFunction;
+    function isBoolean(value) { return typeof (value) === "boolean"; }
+    TypeUtil.isBoolean = isBoolean;
+    function isNumber(value) { return typeof (value) === "number" && !isNaN(value); }
+    TypeUtil.isNumber = isNumber;
+    function nil(value) { return !defined(value) || value === null; }
+    TypeUtil.nil = nil;
+    function isNilOrEmptyString(value) { return nil(value) || (isString(value) && value.length == 0); }
+    TypeUtil.isNilOrEmptyString = isNilOrEmptyString;
+    function isNilOrWhitespace(value) { return nil(value) || (isString(value) && whitespaceRegex.test(value)); }
+    TypeUtil.isNilOrWhitespace = isNilOrWhitespace;
+    function asString(value, defaultValue, ignoreWhitespace) {
+        if (!defined(value)) {
+            if (nil(defaultValue))
                 return defaultValue;
-            return util.asString(defaultValue);
+            return asString(defaultValue);
         }
         if (value === null) {
-            if (util.nil(defaultValue))
+            if (nil(defaultValue))
                 return value;
-            return util.asString(defaultValue);
+            return asString(defaultValue);
         }
-        if (!util.isString(value))
-            value = (Array.isArray(value)) ? value.join(newLineString) : (function () {
+        var s;
+        if (!isString(value))
+            s = (Array.isArray(value)) ? value.join(newLineString) : (function () {
+                if (isObjectType(value) && isFunction(value.valueOf)) {
+                    try {
+                        var v = value.valueOf();
+                        if (isString(v))
+                            return v;
+                        if (!nil(v)) {
+                            if (Array.isArray(v))
+                                return v.join(newLineString);
+                            value = v;
+                        }
+                    }
+                    catch (e) { }
+                }
                 try {
-                    var s = value.toString();
-                    if (util.isString(s))
-                        return s;
+                    var s_1 = value.toString();
+                    if (isString(s_1))
+                        return s_1;
                 }
                 catch (e) { }
                 return value + "";
             })();
-        if ((ignoreWhitespace) ? whitespaceRegex.test(value) : value.length == 0) {
-            var d = util.asString(defaultValue);
-            if (util.isString(d))
+        else
+            s = value;
+        if ((ignoreWhitespace) ? whitespaceRegex.test(s) : s.length == 0) {
+            var d = asString(defaultValue);
+            if (isString(d))
                 return d;
         }
-        return value;
-    };
-    util.trimEnd = function (v) {
-        var s = util.asString(v, "");
-        var m = trimEndRegex.exec(s);
-        if (util.nil(m))
+        return s;
+    }
+    TypeUtil.asString = asString;
+    function trimEnd(text) {
+        text = asString(text, "");
+        var m = trimEndRegex.exec(text);
+        if (nil(m))
             return "";
         return m[1];
-    };
-    util.asNumber = function (value, defaultValue) {
-        if (!util.defined(value)) {
-            if (util.nil(defaultValue))
-                return (util.defined(defaultValue)) ? defaultValue : value;
-            return util.asNumber(defaultValue);
+    }
+    TypeUtil.trimEnd = trimEnd;
+    function asNumber(value, defaultValue) {
+        if (!defined(value)) {
+            if (nil(defaultValue))
+                return (defined(defaultValue)) ? defaultValue : value;
+            return asNumber(defaultValue);
         }
         if (value === null) {
-            if (util.nil(defaultValue))
+            if (nil(defaultValue))
                 return value;
-            return util.asNumber(defaultValue, value);
+            return asNumber(defaultValue, value);
         }
         var n = null;
         if (typeof (value) !== "number") {
-            if (util.isFunction(value.valueOf)) {
+            if (isObjectType(value) && isFunction(value.valueOf)) {
                 try {
                     var i = value.valueOf();
-                    if (util.isNumber(i))
+                    if (isNumber(i))
                         return i;
-                    if (!util.nil(i))
-                        n = i;
+                    if (!nil(i))
+                        value = i;
                 }
                 catch (e) { }
             }
-            if (util.isBoolean(value))
+            if (isBoolean(value))
                 return (value) ? 1 : 0;
-            value = util.asString(value, "").trim();
+            value = asString(value, "").trim();
             n = (value.length == 0) ? NaN : parseFloat(value);
         }
         else
             n = value;
-        if (isNaN(n) && !util.nil(defaultValue))
-            return util.asNumber(defaultValue);
+        if (isNaN(n) && !nil(defaultValue))
+            return asNumber(defaultValue);
         return n;
-    };
-    util.asInteger = function (value, defaultValue) {
-        var v = util.asNumber(value, defaultValue);
-        if (util.nil(v) || isNaN(v) || Number.isInteger(v))
+    }
+    TypeUtil.asNumber = asNumber;
+    function asInteger(value, defaultValue) {
+        var v = asNumber(value, defaultValue);
+        if (nil(v) || isNaN(v) || Number.isInteger(v))
             return v;
         return Math.round(v);
-    };
-    util.asBoolean = function (value, defaultValue) {
+    }
+    TypeUtil.asInteger = asInteger;
+    function asBoolean(value, defaultValue) {
         if (typeof (value) === "boolean")
             return value;
-        if (!util.defined(value)) {
-            if (util.nil(defaultValue))
+        if (!defined(value)) {
+            if (nil(defaultValue))
                 return defaultValue;
-            return util.asBoolean(defaultValue);
+            return asBoolean(defaultValue);
         }
         if (value === null) {
-            if (util.nil(defaultValue))
-                return (util.defined(defaultValue)) ? defaultValue : value;
-            return util.asBoolean(defaultValue, value);
+            if (nil(defaultValue))
+                return (defined(defaultValue)) ? defaultValue : value;
+            return asBoolean(defaultValue, value);
         }
         if (typeof (value) === "number")
             return !isNaN(value) && value != 0;
-        if (util.isFunction(value.valueOf)) {
+        if (isObjectType(value) && isFunction(value.valueOf)) {
             try {
                 var n = value.valueOf();
-                if (util.isNumber(n))
+                if (isNumber(n))
                     return n != 0;
-                if (util.isBoolean(value))
+                if (isBoolean(value))
                     return value;
-                if (!util.nil(n))
+                if (!nil(n))
                     value = n;
             }
             catch (e) { }
         }
-        var mg = boolRegex.exec(util.asString(value, "").trim());
-        if (util.nil(mg))
-            return util.asBoolean(defaultValue);
-        return util.nil(mg[2]);
-    };
-    util.getClassName = function (value) {
-        if (!util.defined(value))
+        var mg = boolRegex.exec(asString(value, "").trim());
+        if (nil(mg))
+            return asBoolean(defaultValue);
+        return nil(mg[2]);
+    }
+    TypeUtil.asBoolean = asBoolean;
+    function getClassName(value) {
+        if (!defined(value))
             return "undefined";
         if (value === null)
             return "null";
         var prototype, constructor;
-        if (util.isFunction(value)) {
+        if (isFunction(value)) {
             constructor = value;
             prototype = value.prototype;
         }
         else {
             prototype = Object.getPrototypeOf(value);
             constructor = prototype.constructor;
-            while (!util.isFunction(constructor)) {
+            while (!isFunction(constructor)) {
                 prototype = Object.getPrototypeOf(prototype);
-                if (util.nil(prototype))
+                if (nil(prototype))
                     return typeof (value);
                 constructor = prototype.constructor;
             }
         }
-        if (util.isString(constructor.name) && constructor.name.length > 0)
+        if (isString(constructor.name) && constructor.name.length > 0)
             return constructor.name;
         var basePrototype = Object.getPrototypeOf(prototype);
-        if (util.nil(basePrototype)) {
-            if (util.isString(prototype.name) && prototype.name.length > 0)
+        if (nil(basePrototype)) {
+            if (isString(prototype.name) && prototype.name.length > 0)
                 return prototype.name;
-            if (util.isString(value.name) && value.name.length > 0)
+            if (isString(value.name) && value.name.length > 0)
                 return value.name;
             return typeof (value);
         }
-        var name = util.getClassName(basePrototype);
+        var name = getClassName(basePrototype);
         if (name == "Object") {
-            if (util.isString(prototype.name) && prototype.name.length > 0)
+            if (isString(prototype.name) && prototype.name.length > 0)
                 return prototype.name;
-            if (util.isString(value.name) && value.name.length > 0)
+            if (isString(value.name) && value.name.length > 0)
                 return value.name;
         }
         return name;
-    };
-    util.getInheritanceChain = function (value) {
-        if (!util.defined(value))
+    }
+    TypeUtil.getClassName = getClassName;
+    function getInheritanceChain(value) {
+        if (!defined(value))
             return ["undefined"];
         if (value === null)
             return ["null"];
         var prototype, constructor;
-        if (util.isFunction(value)) {
+        if (isFunction(value)) {
             constructor = value;
             prototype = value.prototype;
         }
         else {
             prototype = Object.getPrototypeOf(value);
             constructor = prototype.constructor;
-            while (!util.isFunction(constructor)) {
+            while (!isFunction(constructor)) {
                 prototype = Object.getPrototypeOf(prototype);
-                if (util.nil(prototype))
+                if (nil(prototype))
                     return [typeof (value)];
                 constructor = prototype.constructor;
             }
         }
         var basePrototype = Object.getPrototypeOf(prototype);
-        if (util.nil(basePrototype)) {
-            if (util.isString(constructor.name) && constructor.name.length > 0)
+        if (nil(basePrototype)) {
+            if (isString(constructor.name) && constructor.name.length > 0)
                 return [constructor.name];
-            if (util.isString(prototype.name) && prototype.name.length > 0)
+            if (isString(prototype.name) && prototype.name.length > 0)
                 return [prototype.name];
-            if (util.isString(value.name) && value.name.length > 0)
+            if (isString(value.name) && value.name.length > 0)
                 return [value.name];
             return [typeof (value)];
         }
-        var arr = util.getInheritanceChain(basePrototype);
-        if (util.isString(constructor.name) && constructor.name.length > 0) {
+        var arr = getInheritanceChain(basePrototype);
+        if (isString(constructor.name) && constructor.name.length > 0) {
             arr.unshift(constructor.name);
             return arr;
         }
-        if (util.isString(prototype.name) && prototype.name.length > 0) {
+        if (isString(prototype.name) && prototype.name.length > 0) {
             arr.unshift(prototype.name);
             return arr;
         }
         if (arr.length > 0)
             return arr;
-        if (util.isString(value.name) && value.name.length > 0)
+        if (isString(value.name) && value.name.length > 0)
             return [value.name];
         return [typeof (value)];
-    };
-    util.derivesFrom = function (value, classConstructor) {
-        if (!util.defined(value))
-            return !util.defined(classConstructor);
-        if (!util.defined(classConstructor))
+    }
+    TypeUtil.getInheritanceChain = getInheritanceChain;
+    function derivesFrom(value, classConstructor) {
+        if (!defined(value))
+            return !defined(classConstructor);
+        if (!defined(classConstructor))
             return false;
         if (value === null)
             return classConstructor === null;
         var classProto;
-        if (util.isFunction(classConstructor)) {
+        if (isFunction(classConstructor)) {
             classProto = classConstructor.prototype;
         }
         else {
             classProto = Object.getPrototypeOf(classConstructor);
             classConstructor = classProto.constructor;
-            while (!util.isFunction(classConstructor)) {
+            while (!isFunction(classConstructor)) {
                 classProto = Object.getPrototypeOf(classProto);
-                if (util.nil(classProto))
+                if (nil(classProto))
                     break;
                 classConstructor = classProto.constructor;
             }
@@ -232,26 +265,26 @@ var util = (function () {
         if (value instanceof classConstructor)
             return true;
         var valueProto, valueConstructor;
-        if (util.isFunction(value)) {
+        if (isFunction(value)) {
             valueConstructor = value;
             valueProto = value.prototype;
         }
         else {
             valueProto = Object.getPrototypeOf(value);
             valueConstructor = valueProto.constructor;
-            while (!util.isFunction(valueConstructor)) {
+            while (!isFunction(valueConstructor)) {
                 valueProto = Object.getPrototypeOf(valueProto);
-                if (util.nil(valueProto))
+                if (nil(valueProto))
                     break;
                 valueConstructor = valueProto.constructor;
             }
         }
-        if (util.nil(valueConstructor))
-            return (util.nil(classConstructor) && util.nil(classProto) == util.nil(valueProto));
+        if (nil(valueConstructor))
+            return (nil(classConstructor) && nil(classProto) == nil(valueProto));
         if (valueConstructor === classConstructor)
             return true;
-        if (util.nil(valueProto))
-            return (util.nil(classProto) && valueConstructor === classConstructor);
+        if (nil(valueProto))
+            return (nil(classProto) && valueConstructor === classConstructor);
         var constructorChain = [];
         do {
             if (valueProto instanceof classConstructor)
@@ -260,18 +293,19 @@ var util = (function () {
             valueConstructor = null;
             do {
                 valueProto = Object.getPrototypeOf(valueProto);
-                if (util.nil(valueProto))
+                if (nil(valueProto))
                     break;
                 valueConstructor = valueProto.constructor;
-            } while (util.nil(valueConstructor));
-        } while (!util.nil(valueConstructor));
+            } while (nil(valueConstructor));
+        } while (!nil(valueConstructor));
         for (var i = 0; i < constructorChain.length; i++) {
             if (constructorChain[i] === classConstructor)
                 return true;
         }
         return false;
-    };
-    util.typeOfExt = function (value) {
+    }
+    TypeUtil.derivesFrom = derivesFrom;
+    function typeOfExt(value) {
         var t = typeof (value);
         if (t == "object") {
             if (value === null)
@@ -282,14 +316,17 @@ var util = (function () {
                 return "NaN";
             return t;
         }
-        var n = util.getClassName(value);
+        var n = getClassName(value);
         if (n == t)
             return t;
         return t + " " + n;
-    };
-    util.indentText = function (text, indent, skipLineCount) {
+    }
+    TypeUtil.typeOfExt = typeOfExt;
+    function indentText(text, indent, skipLineCount) {
         var arr, joinedText;
-        if (typeof (text) == "object" && text != null && Array.isArray(text)) {
+        if (nil(text) || !isObjectType(text) || !Array.isArray(text))
+            text = this.asString(text, "");
+        if (typeof (text) != "string") {
             arr = text;
             if (arr.length == 0)
                 return "";
@@ -303,8 +340,8 @@ var util = (function () {
         if (joinedText.length == 0)
             return joinedText;
         indent = asString(indent, "\t");
-        skipLineCount = util.asInteger(skipLineCount, 0);
-        arr = joinedText.split(lineSplitRegex).map(function (s) { return util.trimEnd(s); });
+        skipLineCount = asInteger(skipLineCount, 0);
+        arr = joinedText.split(lineSplitRegex).map(function (s) { return trimEnd(s); });
         if (arr.length == 1) {
             if (skipLineCount < 1 && arr[0].length > 1)
                 return indent + arr[0];
@@ -315,9 +352,10 @@ var util = (function () {
                 return s;
             return indent + s;
         }).join(newLineString);
-    };
-    util.__asPropertyValueString = function (obj) {
-        if (!util.defined(obj))
+    }
+    TypeUtil.indentText = indentText;
+    function _serializeToString(obj) {
+        if (!defined(obj))
             return "undefined";
         if (obj === null)
             return "null";
@@ -326,38 +364,38 @@ var util = (function () {
             return (isNaN(obj)) ? "NaN" : JSON.stringify(obj);
         if (type == "boolean" || type == "string")
             return JSON.stringify(obj);
-        var className = util.getClassName(obj);
+        var className = getClassName(obj);
         if (typeof (obj.toJSON) != "function") {
             if (type == "object") {
-                if (util.derivesFrom(obj, Error)) {
+                if (derivesFrom(obj, Error)) {
                     var e = obj;
                     var jObj = {};
-                    if (!util.nil(e.message)) {
-                        jObj.message = util.asString(e.message, "");
-                        if (!util.nil(e.description)) {
+                    if (!nil(e.message)) {
+                        jObj.message = asString(e.message, "");
+                        if (!nil(e.description)) {
                             if (jObj.message.trim().length > 0)
-                                jObj.description = util.asString(e.description, "");
+                                jObj.description = asString(e.description, "");
                             else {
-                                var s = util.asString(e.description, "");
+                                var s = asString(e.description, "");
                                 if (s.trim().length > 0 || s.length > jObj.message.length)
                                     jObj.message = s;
                             }
                         }
                     }
-                    else if (!util.nil(e.description))
-                        jObj.message = util.asString(e.description, "");
-                    if (!util.nil(e.name))
-                        jObj.name = util.asString(e.name);
-                    if (!util.nil(e.number))
-                        jObj.number = util.asNumber(e.number);
-                    if (!util.nil(e.fileName))
-                        jObj.fileName = util.asString(e.fileName);
-                    if (!util.nil(e.lineNumber))
-                        jObj.lineNumber = util.asNumber(e.lineNumber);
-                    if (!util.nil(e.columnNumber))
-                        jObj.columnNumber = util.asNumber(e.columnNumber);
-                    if (!util.nil(e.stack))
-                        jObj.stack = util.asString(e.stack);
+                    else if (!nil(e.description))
+                        jObj.message = asString(e.description, "");
+                    if (!nil(e.name))
+                        jObj.name = asString(e.name);
+                    if (!nil(e.number))
+                        jObj.number = asNumber(e.number);
+                    if (!nil(e.fileName))
+                        jObj.fileName = asString(e.fileName);
+                    if (!nil(e.lineNumber))
+                        jObj.lineNumber = asNumber(e.lineNumber);
+                    if (!nil(e.columnNumber))
+                        jObj.columnNumber = asNumber(e.columnNumber);
+                    if (!nil(e.stack))
+                        jObj.stack = asString(e.stack);
                     return JSON.stringify({
                         className: className,
                         type: type,
@@ -371,17 +409,17 @@ var util = (function () {
                             newLineString + "\t\"elements\": [] }";
                     if (arr.length == 1)
                         return "{" + newLineString + "\t\"className\": " + JSON.stringify(className) + "," + newLineString + "\t\"type\": " + JSON.stringify(type) + "," +
-                            newLineString + "\t\"elements\": " + util.indentText(JSON.stringify(arr), "\t\t", 1) + " }";
+                            newLineString + "\t\"elements\": " + indentText(JSON.stringify(arr), "\t\t", 1) + " }";
                     return "{" + newLineString + "\t\"className\": " + JSON.stringify(className) + "," + newLineString + "\t\"type\": " + JSON.stringify(type) + "," +
-                        newLineString + "\t\"elements\": [" + newLineString + util.indentText(JSON.stringify(arr), "\t\t\t", 1) + newLineString + "\t] }";
+                        newLineString + "\t\"elements\": [" + newLineString + indentText(JSON.stringify(arr), "\t\t\t", 1) + newLineString + "\t] }";
                 }
                 return "{" + newLineString + "\t\"className\": " + JSON.stringify(className) + "," + newLineString + "\t\"type\": " + JSON.stringify(type) + "," +
-                    newLineString + "\t\"properties\": " + util.indentText(JSON.stringify(obj), "\t\t", 1) + " }";
+                    newLineString + "\t\"properties\": " + indentText(JSON.stringify(obj), "\t\t", 1) + " }";
             }
             return "{" + newLineString + "\t\"className\": " + JSON.stringify(className) + "," + newLineString + "\t\"type\": " + JSON.stringify(type) + "," +
                 newLineString + "\t\"value\": " + JSON.stringify(obj.toString()) + " }";
         }
-        if (typeof (obj.toJSON) == "function" || type == "object")
+        if (isFunction(obj.toJSON) || type == "object")
             return JSON.stringify({
                 className: className,
                 type: type,
@@ -392,9 +430,9 @@ var util = (function () {
             type: type,
             data: obj.toString()
         }, undefined, "\t");
-    };
-    util.asPropertyValueString = function (obj) {
-        if (!util.defined(obj))
+    }
+    function serializeToString(obj) {
+        if (!defined(obj))
             return "undefined";
         if (obj === null)
             return "null";
@@ -403,7 +441,7 @@ var util = (function () {
             return (isNaN(obj)) ? "NaN" : JSON.stringify(obj);
         if (type == "boolean" || type == "string")
             return JSON.stringify(obj);
-        var className = util.getClassName(obj);
+        var className = getClassName(obj);
         var n;
         if (typeof (obj.toJSON) != "function") {
             if (type == "object") {
@@ -411,45 +449,45 @@ var util = (function () {
                 var propertyLines = [];
                 var byName = {};
                 if (Array.isArray(obj)) {
-                    elements = obj.map(function (e) { return util.__asPropertyValueString(e); });
+                    elements = obj.map(function (e) { return serializeToString(e); });
                     for (n in obj) {
-                        var i = util.asNumber(n, null);
+                        var i = asNumber(n, null);
                         var v = obj[n];
-                        if ((!util.nil(i) && n !== "length") || i < 0 || i > obj.length) {
-                            byName[n] = util.__asPropertyValueString(obj[n]);
-                            propertyLines.push(JSON.stringify(n) + ": " + util.__asPropertyValueString(obj[n]));
+                        if ((!nil(i) && n !== "length") || i < 0 || i > obj.length) {
+                            byName[n] = serializeToString(obj[n]);
+                            propertyLines.push(JSON.stringify(n) + ": " + serializeToString(obj[n]));
                         }
                     }
                 }
                 else {
                     for (n in obj) {
                         if (n !== "length") {
-                            byName[n] = util.__asPropertyValueString(obj[n]);
-                            propertyLines.push(JSON.stringify(n) + ": " + util.__asPropertyValueString(obj[n]));
+                            byName[n] = serializeToString(obj[n]);
+                            propertyLines.push(JSON.stringify(n) + ": " + serializeToString(obj[n]));
                         }
                     }
                 }
-                if (util.derivesFrom(obj, Error)) {
-                    if (!util.nil(obj.columnNumber) && util.nil(byName.columnNumber))
-                        propertyLines.unshift("\"columnNumber\": " + util.__asPropertyValueString(obj.columnNumber));
-                    if (!util.nil(obj.lineNumber) && util.nil(byName.lineNumber))
-                        propertyLines.unshift("\"lineNumber\": " + util.__asPropertyValueString(obj.lineNumber));
-                    if (!util.nil(obj.fileName) && util.nil(byName.fileName))
-                        propertyLines.unshift("\"fileName\": " + util.__asPropertyValueString(obj.fileName));
-                    if (!util.nil(obj.number) && util.nil(byName.number))
-                        propertyLines.unshift("\"number\": " + util.__asPropertyValueString(obj.number));
-                    if (!util.nil(obj.name) && util.nil(byName.name))
-                        propertyLines.unshift("\"name\": " + util.__asPropertyValueString(obj.name));
-                    if (!util.nil(obj.description) && util.nil(byName.description)) {
-                        if (util.nil(obj.message) || (util.isString(obj.message) && util.isString(obj.description) && obj.description.length > obj.message.length && obj.message.trim().length == 0)) {
+                if (derivesFrom(obj, Error)) {
+                    if (!nil(obj.columnNumber) && nil(byName.columnNumber))
+                        propertyLines.unshift("\"columnNumber\": " + serializeToString(obj.columnNumber));
+                    if (!nil(obj.lineNumber) && nil(byName.lineNumber))
+                        propertyLines.unshift("\"lineNumber\": " + serializeToString(obj.lineNumber));
+                    if (!nil(obj.fileName) && nil(byName.fileName))
+                        propertyLines.unshift("\"fileName\": " + serializeToString(obj.fileName));
+                    if (!nil(obj.number) && nil(byName.number))
+                        propertyLines.unshift("\"number\": " + serializeToString(obj.number));
+                    if (!nil(obj.name) && nil(byName.name))
+                        propertyLines.unshift("\"name\": " + serializeToString(obj.name));
+                    if (!nil(obj.description) && nil(byName.description)) {
+                        if (nil(obj.message) || (isString(obj.message) && isString(obj.description) && obj.description.length > obj.message.length && obj.message.trim().length == 0)) {
                             byName.message = obj.description;
-                            propertyLines.unshift("\"message\": " + util.__asPropertyValueString(obj.description));
+                            propertyLines.unshift("\"message\": " + serializeToString(obj.description));
                         }
                         else
-                            propertyLines.unshift("\"description\": " + util.__asPropertyValueString(obj.description));
+                            propertyLines.unshift("\"description\": " + serializeToString(obj.description));
                     }
-                    if (!util.nil(obj.message) && util.nil(byName.message))
-                        propertyLines.unshift("\"message\": " + util.__asPropertyValueString(obj.message));
+                    if (!nil(obj.message) && nil(byName.message))
+                        propertyLines.unshift("\"message\": " + serializeToString(obj.message));
                 }
                 if (propertyLines.length == 0) {
                     if (Array.isArray(obj)) {
@@ -461,14 +499,14 @@ var util = (function () {
                         }
                         if (elements.length == 1) {
                             if (className == "Array")
-                                return "[ " + util.trimEnd(elements[0]) + " ]";
+                                return "[ " + trimEnd(elements[0]) + " ]";
                             return "{" + newLineString + "\t\"className\": " + JSON.stringify(className) + "," + newLineString + "\t\"type\": " + JSON.stringify(type) + "," + newLineString +
-                                "\t\"elements\": [ " + util.indentText(elements[0], "\t", 1) + " ]" + newLineString + ", \t\"properties\": {}" + newLineString + "}";
+                                "\t\"elements\": [ " + indentText(elements[0], "\t", 1) + " ]" + newLineString + ", \t\"properties\": {}" + newLineString + "}";
                         }
                         if (className == "Array")
-                            return "[" + newLineString + elements.map(function (e) { return util.indentText(e); }).join(newLineString) + newLineString + "]";
+                            return "[" + newLineString + elements.map(function (e) { return indentText(e); }).join(newLineString) + newLineString + "]";
                         return "{" + newLineString + "\t\"className\": " + JSON.stringify(className) + "," + newLineString + "\t\"type\": " + JSON.stringify(type) + "," + newLineString +
-                            "\t\"elements\": [" + newLineString + elements.map(function (e) { return util.indentText(e, "\t\t"); }).join(newLineString) + newLineString + "]" + newLineString + ", \t\"properties\": {}" + newLineString + "}";
+                            "\t\"elements\": [" + newLineString + elements.map(function (e) { return indentText(e, "\t\t"); }).join(newLineString) + newLineString + "]" + newLineString + ", \t\"properties\": {}" + newLineString + "}";
                     }
                     if (className == "Object")
                         return "{ \"type\": " + JSON.stringify(type) + ", \"properties\": {} }";
@@ -497,7 +535,7 @@ var util = (function () {
             if (obj.length == 0)
                 return "[]";
             return "[" + newLineString + obj.map(function (e) {
-                if (!util.defined(e))
+                if (!defined(e))
                     return "undefined";
                 if (e === null)
                     return "null";
@@ -514,7 +552,7 @@ var util = (function () {
         var lines = [];
         for (n in obj) {
             var v = obj[n];
-            if (!util.defined(v))
+            if (!defined(v))
                 lines.push(JSON.stringify(n) + ": undefined");
             else if (v === null)
                 lines.push(n + ((typeof (v) == "number") ? ": NaN" : ": null"));
@@ -531,8 +569,7 @@ var util = (function () {
         return "{" + newLineString + lines.map(function (s) {
             s.split(/\r\n?|\n/).map(function (l) { return "\t" + l; }).join(newLineString);
         }).join("," + newLineString) + newLineString + "}";
-    };
-    return util;
-}());
-exports.util = util;
+    }
+    TypeUtil.serializeToString = serializeToString;
+})(TypeUtil || (TypeUtil = {}));
 //# sourceMappingURL=util.js.map
