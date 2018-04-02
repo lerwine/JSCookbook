@@ -23,6 +23,7 @@ declare namespace TypeUtil {
     function asNumber(value: any, defaultValue?: number): number;
     function asInteger(value: any, defaultValue?: number): number;
     function asBoolean(value: any, defaultValue?: boolean): boolean;
+    function asArray(value: any): any[];
     function getClassName(value: any): string;
     function getInheritanceChain(value: any): string[];
     function derivesFrom<T>(value: any, classConstructor: AnyConstructor<T>): value is T;

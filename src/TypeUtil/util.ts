@@ -265,6 +265,19 @@ namespace TypeUtil {
     }
 
     /**
+     * Converts a value to an array.
+     * @param value Value to convert.
+     * @description If given value is an array, it is simply returned. If it is not defined, then an empty array is returned. Otherwise, the given value is returned within a single-element array.
+     */
+    export function asArray(value: any) : any[] {
+        if (!defined(value))
+            return [];
+        if (Array.isArray(value))
+            return value;
+        return [value];
+    }
+
+    /**
      * Gets the name of a value's constructor function.
      * @param value Value from which to retrieve the constructor class name.
      * @returns {string} The first named constructor function in the prototype inheritance chain or the value's type if a named constructor could not be found.

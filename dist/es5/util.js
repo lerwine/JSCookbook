@@ -163,6 +163,14 @@ var TypeUtil;
         return nil(mg[2]);
     }
     TypeUtil.asBoolean = asBoolean;
+    function asArray(value) {
+        if (!defined(value))
+            return [];
+        if (Array.isArray(value))
+            return value;
+        return [value];
+    }
+    TypeUtil.asArray = asArray;
     function getClassName(value) {
         if (!defined(value))
             return "undefined";
