@@ -1,97 +1,36 @@
-namespace TypeUtil {
-    export interface AnyFunction { (...args: any[]): any; }
-
-    export interface AnyConstructor<T> { new(...args: any[]): T; };
-
-    let newLineString: string = "\n";
-    let whitespaceRegex: RegExp = /^\s*$/;
-    let trimEndRegex: RegExp = /^(\s*\S+(\s+\S+)*)/;
-    let lineSplitRegex: RegExp = /\r\n?|\n/g;
-    let boolRegex: RegExp = /^(?:(t(?:rue)?|y(?:es)?|[+-]?(?:0*[1-9]\d*(?:\.\d+)?|0+\.0*[1-9]\d*)|\+)|(f(?:alse)?|no?|[+-]?0+(?:\.0+)?|-))$/i;
-    let ucFirstRegex: RegExp = /^([^a-zA-Z\d]*[a-z])(.+)?$/g;
-    let abnormalWhitespaceRegex = /( |(?=[^ ]))\s+/g;
-
-    /**
-     * Indicates whether a value is defined.
-     * @param value Value to test.
-     * @returns {boolean} True if the value is defined; otherwise, false if it is undefined. This also returns true if the value is null.
-     */
-    export function defined(value?: any) : boolean { return typeof(value) !== "undefined"; }
-
-    /**
-     * Tests whether a value is an object.
-     * @param value Value to test.
-     * @returns {boolean} True if the value's type is "object" and it is not null; otherwise false.
-     */
-    export function isObjectType(value?: any) : value is object { return typeof(value) === "object" && value !== null; }
-
-    /**
-     * Tests whether a value is an object and is not an array.
-     * @param value Value to test.
-     * @returns {boolean} True if the value's type is "object", it is not null and it is not an array; otherwise false.
-     */
-    export function isNonArrayObject(value: any) : value is { [key: string]: any } { return typeof(value) == "object" && value !== null && !Array.isArray(value); }
-
-    /**
-     * Tests whether a value is a string
-     * @param value Value to test.
-     * @returns {boolean} True if the value is a string; otherwise, false.
-     */
-    export function isString(value?: any) : value is string { return typeof(value) === "string"; }
-    
-    /**
-     * Tests whether a value is a function.
-     * @param value Value to test.
-     * @returns {boolean} True if the value is a function; otherwise, false.
-     */
-    export function isFunction(value?: any) : value is AnyFunction { return typeof(value) === "function"; }
-
-    /**
-     * Tests whether a value is a boolean type.
-     * @param value Value to test.
-     * @returns {boolean} True if the value is boolean; otherwise, false.
-     */
-    export function isBoolean(value?: any) : value is boolean { return typeof(value) === "boolean"; }
-    
-    /**
-     * Tests whether a value is a number type.
-     * @param value Value to test.
-     * @returns {boolean} True if the value is a number and is not NaN; otherwise, false.
-     */
-    export function isNumber(value?: any) : value is number { return typeof(value) === "number" && !isNaN(value); }
-
-    /**
-     * Tests whether a value is undefined or null.
-     * @param value Value to test.
-     * @returns {boolean} True if the value is undefined or null; othwerise, false.
-     */
-    export function nil(value?: any) : value is undefined|null { return !defined(value) || value === null; }
-    
-    /**
-     * Tests whether a string is undefined, null or empty.
-     * @param value String to test.
-     * @returns {boolean} True if the value is undefined, null or empty; otherwise, false.
-     */
-    export function isNilOrEmptyString(value?: string|null) : boolean { return nil(value) || (isString(value) && value.length == 0); }
-
-    /**
-     * Tests whether a string is undefined, null, empty or contains only whitespace characters.
-     * @param value String to test.
-     * @returns {boolean} True if the value is undefined, null, empty or contains only whitespace characters; otherwise, false.
-     */
-    export function isNilOrWhitespace(value?: string|null) : boolean { return nil(value) || (isString(value) && whitespaceRegex.test(value)); }
-
-    /**
-     * Convert a value to a string.
-     * @param value Value to convert.
-     * @param {string|null} [defaultValue] Default value to return if the value was undefined, null or if it converts to an empty string. If this is not defined, then an undefined value is returned when the value was undefined or null.
-     * @param {boolean} [ignoreWhitespace] If true, and the converted value contains only whitespace, then it is treated as though it was converted to an empty string by returning the default value.
-     * @returns {string|null=} Value converted to a string.
-     * @description     If the value is converted to an empty string, and the default value is null, then a null value will be returned.
-     * If an array is passed, then the 'join' method is called with a newline character as the parameter.
-     * Otherwise, this method first attempts to call the value's "valueOf" function it is an object type, then it comply calls the "toString" method to convert it to a string.
-     */
-    export function asString(value: any, defaultValue? : string|null, ignoreWhitespace? : boolean) : string {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var TypeUtil;
+(function (TypeUtil) {
+    ;
+    var newLineString = "\n";
+    var whitespaceRegex = /^\s*$/;
+    var trimEndRegex = /^(\s*\S+(\s+\S+)*)/;
+    var lineSplitRegex = /\r\n?|\n/g;
+    var boolRegex = /^(?:(t(?:rue)?|y(?:es)?|[+-]?(?:0*[1-9]\d*(?:\.\d+)?|0+\.0*[1-9]\d*)|\+)|(f(?:alse)?|no?|[+-]?0+(?:\.0+)?|-))$/i;
+    var ucFirstRegex = /^([^a-zA-Z\d]*[a-z])(.+)?$/g;
+    var abnormalWhitespaceRegex = /( |(?=[^ ]))\s+/g;
+    function defined(value) { return typeof (value) !== "undefined"; }
+    TypeUtil.defined = defined;
+    function isObjectType(value) { return typeof (value) === "object" && value !== null; }
+    TypeUtil.isObjectType = isObjectType;
+    function isNonArrayObject(value) { return typeof (value) == "object" && value !== null && !Array.isArray(value); }
+    TypeUtil.isNonArrayObject = isNonArrayObject;
+    function isString(value) { return typeof (value) === "string"; }
+    TypeUtil.isString = isString;
+    function isFunction(value) { return typeof (value) === "function"; }
+    TypeUtil.isFunction = isFunction;
+    function isBoolean(value) { return typeof (value) === "boolean"; }
+    TypeUtil.isBoolean = isBoolean;
+    function isNumber(value) { return typeof (value) === "number" && !isNaN(value); }
+    TypeUtil.isNumber = isNumber;
+    function nil(value) { return !defined(value) || value === null; }
+    TypeUtil.nil = nil;
+    function isNilOrEmptyString(value) { return nil(value) || (isString(value) && value.length == 0); }
+    TypeUtil.isNilOrEmptyString = isNilOrEmptyString;
+    function isNilOrWhitespace(value) { return nil(value) || (isString(value) && whitespaceRegex.test(value)); }
+    TypeUtil.isNilOrWhitespace = isNilOrWhitespace;
+    function asString(value, defaultValue, ignoreWhitespace) {
         if (!defined(value)) {
             if (nil(defaultValue))
                 return defaultValue;
@@ -102,12 +41,12 @@ namespace TypeUtil {
                 return value;
             return asString(defaultValue);
         }
-        let s: string;
+        var s;
         if (!isString(value))
-            s = (Array.isArray(value)) ? value.join(newLineString) : (function() {
+            s = (Array.isArray(value)) ? value.join(newLineString) : (function () {
                 if (isObjectType(value) && isFunction(value.valueOf)) {
                     try {
-                        let v = value.valueOf();
+                        var v = value.valueOf();
                         if (isString(v))
                             return v;
                         if (!nil(v)) {
@@ -115,64 +54,43 @@ namespace TypeUtil {
                                 return v.join(newLineString);
                             value = v;
                         }
-                    } catch (e) { }
+                    }
+                    catch (e) { }
                 }
                 try {
-                    let s = value.toString();
-                    if (isString(s))
-                        return s;
-                } catch (e) { }
+                    var s_1 = value.toString();
+                    if (isString(s_1))
+                        return s_1;
+                }
+                catch (e) { }
                 return value + "";
             })();
         else
             s = value;
         if ((ignoreWhitespace) ? whitespaceRegex.test(s) : s.length == 0) {
-            let d = asString(defaultValue);
+            var d = asString(defaultValue);
             if (isString(d))
                 return d;
         }
         return s;
     }
-    
-    /**
-     * Convert a value to a string with normalized whitespace.
-     * @param value Value to convert.
-     * @param {string|null} [defaultValue] Default value to return if the value was undefined, null or if it converts to an empty string. If this is not defined, then an undefined value is returned when the value was undefined or null.
-     * @returns {string|null=} Value converted to a string.
-     * @description     If the value is converted to an empty string, and the default value is null, then a null value will be returned.
-     * If an array is passed, then the 'join' method is called with a newline character as the parameter.
-     * Otherwise, this method first attempts to call the value's "valueOf" function it is an object type, then it comply calls the "toString" method to convert it to a string.
-     */
-    export function asNormalizedString(value: any, defaultValue?: string) {
+    TypeUtil.asString = asString;
+    function asNormalizedString(value, defaultValue) {
         value = asString(value, defaultValue, true).trim();
         if (nil(value) || value.length == 0)
             return value;
         return value.replace(abnormalWhitespaceRegex, ' ');
     }
-
-    /**
-     * Trims trailing whitespace from the end of a string.
-     * @param {string} text Text to trim.
-     * @returns {string} String with trailing whitespace removed.
-     */
-    export function trimEnd(text : string) : string {
+    TypeUtil.asNormalizedString = asNormalizedString;
+    function trimEnd(text) {
         text = asString(text, "");
-        let m = trimEndRegex.exec(text);
+        var m = trimEndRegex.exec(text);
         if (nil(m))
             return "";
         return m[1];
     }
-
-    /**
-     * Convert a value to a number.
-     * @param value Convert a value to a number.
-     * @param {number|null} [defaultValue] Default value to return if the value was undefined, null, could not be converted to a number or is a NaN value.
-     * @returns {number|null=} String converted to a number.
-     * @description This method will first attempt to get a number value through the value's "valueOf" method if the value is an object type.
-     * If the value is a boolean type, then it will return 1 for true, and 0 for false. Otherwise, it will convert it to a string and attempt to
-     * parse a number value.
-     */
-    export function asNumber(value: any, defaultValue? : number) : number {
+    TypeUtil.trimEnd = trimEnd;
+    function asNumber(value, defaultValue) {
         if (!defined(value)) {
             if (nil(defaultValue))
                 return (defined(defaultValue)) ? defaultValue : value;
@@ -183,58 +101,40 @@ namespace TypeUtil {
                 return value;
             return asNumber(defaultValue, value);
         }
-        let n : number = null;
-        if (typeof(value) !== "number") {
+        var n = null;
+        if (typeof (value) !== "number") {
             if (isObjectType(value) && isFunction(value.valueOf)) {
                 try {
-                    let i = value.valueOf();
+                    var i = value.valueOf();
                     if (isNumber(i))
                         return i;
                     if (!nil(i))
                         value = i;
-                } catch (e) { }
+                }
+                catch (e) { }
             }
             if (isBoolean(value))
                 return (value) ? 1 : 0;
             value = asString(value, "").trim();
             n = (value.length == 0) ? NaN : parseFloat(value);
-        } else
+        }
+        else
             n = value;
-        
         if (isNaN(n) && !nil(defaultValue))
             return asNumber(defaultValue);
         return n;
     }
-
-    /**
-     * Convert a value to a number rounded to the nearest integer.
-     * @param value Value to be converted.
-     * @param {number|null} [defaultValue] Default value to return if the value was undefined, null, could not be converted to a number or is a NaN value.
-     * @returns {number|null=} Value converted to an integer.
-     * @description This method will first attempt to get a number value through the value's "valueOf" method if the value is an object type.
-     * If the value is a boolean type, then it will return 1 for true, and 0 for false. Otherwise, it will convert it to a string and attempt to
-     * parse a number value. If the number is not an integer, then it will be rounded to the nearest integer value.
-     */
-    export function asInteger(value: any, defaultValue? : number) : number {
-        let v: number = asNumber(value, defaultValue);
+    TypeUtil.asNumber = asNumber;
+    function asInteger(value, defaultValue) {
+        var v = asNumber(value, defaultValue);
         if (nil(v) || isNaN(v) || Number.isInteger(v))
-            return  v;
+            return v;
         return Math.round(v);
     }
-
-    /**
-     * Convert a value to a boolean value.
-     * @param value Value to be converted.
-     * @param {boolean|null} [defaultValue] Default value to return if the value was undefined, null or could not be converted to a boolean value.
-     * @returns {boolean|null=} Value converted to a boolean type.
-     * @description This method will first attempt to get a boolean value through the value's "valueOf" method if the value is an object type.
-     * If the value is a number type (an not a NaN value), then it will return true for non-zero and false for zero. Otherwise, it will convert it to a string and attempt to
-     * parse a true/false, t/f, yes/no, y/n (all case-insensitive) or number value in order to derive a boolean result.
-     */
-    export function asBoolean(value: any, defaultValue? : boolean) : boolean {
-        if (typeof(value) === "boolean")
+    TypeUtil.asInteger = asInteger;
+    function asBoolean(value, defaultValue) {
+        if (typeof (value) === "boolean")
             return value;
-    
         if (!defined(value)) {
             if (nil(defaultValue))
                 return defaultValue;
@@ -245,73 +145,65 @@ namespace TypeUtil {
                 return (defined(defaultValue)) ? defaultValue : value;
             return asBoolean(defaultValue, value);
         }
-        if (typeof(value) === "number")
+        if (typeof (value) === "number")
             return !isNaN(value) && value != 0;
         if (isObjectType(value) && isFunction(value.valueOf)) {
             try {
-                let n = value.valueOf();
+                var n = value.valueOf();
                 if (isNumber(n))
                     return n != 0;
                 if (isBoolean(value))
                     return value;
                 if (!nil(n))
                     value = n;
-            } catch (e) { }
+            }
+            catch (e) { }
         }
-        let mg = boolRegex.exec(asString(value, "").trim());
+        var mg = boolRegex.exec(asString(value, "").trim());
         if (nil(mg))
             return asBoolean(defaultValue);
         return nil(mg[2]);
     }
-
-    /**
-     * Converts a value to an array.
-     * @param value Value to convert.
-     * @description If given value is an array, it is simply returned. If it is not defined, then an empty array is returned. Otherwise, the given value is returned within a single-element array.
-     */
-    export function asArray(value: any) : any[] {
+    TypeUtil.asBoolean = asBoolean;
+    function asArray(value) {
         if (!defined(value))
             return [];
         if (Array.isArray(value))
             return value;
         return [value];
     }
-
-    /**
-     * Gets the name of a value's constructor function.
-     * @param value Value from which to retrieve the constructor class name.
-     * @returns {string} The first named constructor function in the prototype inheritance chain or the value's type if a named constructor could not be found.
-     */
-    export function getClassName(value: any) : string {
+    TypeUtil.asArray = asArray;
+    function getClassName(value) {
         if (!defined(value))
             return "undefined";
         if (value === null)
             return "null";
-        let prototype, constructor;
+        var prototype, constructor;
         if (isFunction(value)) {
             constructor = value;
             prototype = value.prototype;
-        } else {
+        }
+        else {
             prototype = Object.getPrototypeOf(value);
             constructor = prototype.constructor;
             while (!isFunction(constructor)) {
                 prototype = Object.getPrototypeOf(prototype);
                 if (nil(prototype))
-                    return typeof(value);
+                    return typeof (value);
                 constructor = prototype.constructor;
             }
         }
         if (isString(constructor.name) && constructor.name.length > 0)
             return constructor.name;
-        let basePrototype = Object.getPrototypeOf(prototype);
+        var basePrototype = Object.getPrototypeOf(prototype);
         if (nil(basePrototype)) {
             if (isString(prototype.name) && prototype.name.length > 0)
                 return prototype.name;
             if (isString(value.name) && value.name.length > 0)
                 return value.name;
-            return typeof(value);
+            return typeof (value);
         }
-        let name = getClassName(basePrototype);
+        var name = getClassName(basePrototype);
         if (name == "Object") {
             if (isString(prototype.name) && prototype.name.length > 0)
                 return prototype.name;
@@ -320,33 +212,28 @@ namespace TypeUtil {
         }
         return name;
     }
-
-    /**
-     * Gets ordered list of named constructor functions in the value's prototype inheritance chain.
-     * @param value Value from which to extract the inheritance chain.
-     * @returns {string[]} An array of string values with the first element being the first named constructor function in the value's inherited prototypes.
-     */
-    export function getInheritanceChain(value: any) : string[] {
+    TypeUtil.getClassName = getClassName;
+    function getInheritanceChain(value) {
         if (!defined(value))
             return ["undefined"];
         if (value === null)
             return ["null"];
-        let prototype, constructor;
+        var prototype, constructor;
         if (isFunction(value)) {
             constructor = value;
             prototype = value.prototype;
-        } else {
+        }
+        else {
             prototype = Object.getPrototypeOf(value);
             constructor = prototype.constructor;
             while (!isFunction(constructor)) {
                 prototype = Object.getPrototypeOf(prototype);
                 if (nil(prototype))
-                    return [typeof(value)];
+                    return [typeof (value)];
                 constructor = prototype.constructor;
             }
         }
-        
-        let basePrototype = Object.getPrototypeOf(prototype);
+        var basePrototype = Object.getPrototypeOf(prototype);
         if (nil(basePrototype)) {
             if (isString(constructor.name) && constructor.name.length > 0)
                 return [constructor.name];
@@ -354,9 +241,9 @@ namespace TypeUtil {
                 return [prototype.name];
             if (isString(value.name) && value.name.length > 0)
                 return [value.name];
-            return [typeof(value)];
+            return [typeof (value)];
         }
-        let arr = getInheritanceChain(basePrototype);
+        var arr = getInheritanceChain(basePrototype);
         if (isString(constructor.name) && constructor.name.length > 0) {
             arr.unshift(constructor.name);
             return arr;
@@ -365,33 +252,25 @@ namespace TypeUtil {
             arr.unshift(prototype.name);
             return arr;
         }
-
         if (arr.length > 0)
             return arr;
-        
         if (isString(value.name) && value.name.length > 0)
             return [value.name];
-        
-        return [typeof(value)];
+        return [typeof (value)];
     }
-
-    /**
-     * Searches the value's inherited prototype chain for a constructor function.
-     * @param value Value to test.
-     * @param {AnyFunction} classConstructor Constructor function to look for.
-     * @returns {boolean} True if the value is determined to inherit from the specified class; otherwise false.
-     */
-    export function derivesFrom<T>(value: any, classConstructor : AnyConstructor<T>) : value is T {
+    TypeUtil.getInheritanceChain = getInheritanceChain;
+    function derivesFrom(value, classConstructor) {
         if (!defined(value))
             return !defined(classConstructor);
         if (!defined(classConstructor))
             return false;
         if (value === null)
             return classConstructor === null;
-        let classProto;
+        var classProto;
         if (isFunction(classConstructor)) {
             classProto = classConstructor.prototype;
-        } else {
+        }
+        else {
             classProto = Object.getPrototypeOf(classConstructor);
             classConstructor = classProto.constructor;
             while (!isFunction(classConstructor)) {
@@ -401,15 +280,14 @@ namespace TypeUtil {
                 classConstructor = classProto.constructor;
             }
         }
-
         if (value instanceof classConstructor)
             return true;
-            
-        let valueProto, valueConstructor;
+        var valueProto, valueConstructor;
         if (isFunction(value)) {
             valueConstructor = value;
             valueProto = value.prototype;
-        } else {
+        }
+        else {
             valueProto = Object.getPrototypeOf(value);
             valueConstructor = valueProto.constructor;
             while (!isFunction(valueConstructor)) {
@@ -425,8 +303,7 @@ namespace TypeUtil {
             return true;
         if (nil(valueProto))
             return (nil(classProto) && valueConstructor === classConstructor);
-        
-        let constructorChain = [];
+        var constructorChain = [];
         do {
             if (valueProto instanceof classConstructor)
                 return true;
@@ -439,48 +316,35 @@ namespace TypeUtil {
                 valueConstructor = valueProto.constructor;
             } while (nil(valueConstructor));
         } while (!nil(valueConstructor));
-        for (let i = 0; i < constructorChain.length; i++) {
+        for (var i = 0; i < constructorChain.length; i++) {
             if (constructorChain[i] === classConstructor)
                 return true;
         }
         return false;
     }
-
-    /**
-     * Gets extended type string for a value.
-     * @param value Value to determine type.
-     * @returns {string} Value's type. If the value is null, then "null" is returned. If it is NaN, then "NaN" is returned.
-     * Otherwise, the type and class name, separated by a space, is returned. If the class name could not be determined, then just the object type is returned.
-     */
-    export function typeOfExt(value: any) : string {
-        let t = typeof(value);
+    TypeUtil.derivesFrom = derivesFrom;
+    function typeOfExt(value) {
+        var t = typeof (value);
         if (t == "object") {
             if (value === null)
                 return "null";
-        } else if (t != "function") {
+        }
+        else if (t != "function") {
             if (t == "number" && isNaN(value))
                 return "NaN";
             return t;
         }
-    
-        let n = getClassName(value);
+        var n = getClassName(value);
         if (n == t)
             return t;
         return t + " " + n;
     }
-
-    /**
-     * Indents the lines of a text and trims trailing whitespace.
-     * @param text Text to be indented.
-     * @param indent String to use for indenting. Defaults to a single tab character.
-     * @param skipLineCount Number of initial lines to preclude from indentation.
-     * @returns {string} A string containing lines indented with trailing white space removed.
-     */
-    export function indentText(text : string|string[], indent? : string, skipLineCount? : number) : string {
-        let arr : string[], joinedText : string;
+    TypeUtil.typeOfExt = typeOfExt;
+    function indentText(text, indent, skipLineCount) {
+        var arr, joinedText;
         if (nil(text) || !isObjectType(text) || !Array.isArray(text))
             text = this.asString(text, "");
-        if (typeof(text) != "string") {
+        if (typeof (text) != "string") {
             arr = text;
             if (arr.length == 0)
                 return "";
@@ -488,54 +352,55 @@ namespace TypeUtil {
                 joinedText = asString(arr[0], "");
             else
                 joinedText = arr.join(newLineString);
-        } else
+        }
+        else
             joinedText = asString(text, "");
         if (joinedText.length == 0)
             return joinedText;
         indent = asString(indent, "\t");
         skipLineCount = asInteger(skipLineCount, 0);
-        arr = joinedText.split(lineSplitRegex).map(function(s) { return trimEnd(s); });
+        arr = joinedText.split(lineSplitRegex).map(function (s) { return trimEnd(s); });
         if (arr.length == 1) {
             if (skipLineCount < 1 && arr[0].length > 1)
                 return indent + arr[0];
             return arr[0];
         }
-        return arr.map(function(s, i) {
+        return arr.map(function (s, i) {
             if (i < skipLineCount || s.length == 0)
                 return s;
             return indent + s;
         }).join(newLineString);
     }
-    
-    function _serializeToString(obj: any) : string {
+    TypeUtil.indentText = indentText;
+    function _serializeToString(obj) {
         if (!defined(obj))
             return "undefined";
         if (obj === null)
             return "null";
-        let type = typeof(obj);
+        var type = typeof (obj);
         if (type == "number")
             return (isNaN(obj)) ? "NaN" : JSON.stringify(obj);
         if (type == "boolean" || type == "string")
             return JSON.stringify(obj);
-        let className = getClassName(obj);
-        if (typeof(obj.toJSON) != "function") {
-            if (type == "object")
-            {
+        var className = getClassName(obj);
+        if (typeof (obj.toJSON) != "function") {
+            if (type == "object") {
                 if (derivesFrom(obj, Error)) {
-                    var e: {[k: string]: any} = obj;
-                    var jObj: {[k: string]: any} = {};
+                    var e = obj;
+                    var jObj = {};
                     if (!nil(e.message)) {
                         jObj.message = asString(e.message, "");
                         if (!nil(e.description)) {
                             if (jObj.message.trim().length > 0)
                                 jObj.description = asString(e.description, "");
                             else {
-                                let s = asString(e.description, "");
+                                var s = asString(e.description, "");
                                 if (s.trim().length > 0 || s.length > jObj.message.length)
                                     jObj.message = s;
                             }
                         }
-                    } else if (!nil(e.description))
+                    }
+                    else if (!nil(e.description))
                         jObj.message = asString(e.description, "");
                     if (!nil(e.name))
                         jObj.name = asString(e.name);
@@ -556,7 +421,7 @@ namespace TypeUtil {
                     }, undefined, "\t");
                 }
                 if (Array.isArray(obj)) {
-                    var arr : any[] = obj;
+                    var arr = obj;
                     if (arr.length == 0)
                         return "{" + newLineString + "\t\"className\": " + JSON.stringify(className) + "," + newLineString + "\t\"type\": " + JSON.stringify(type) + "," +
                             newLineString + "\t\"elements\": [] }";
@@ -584,40 +449,35 @@ namespace TypeUtil {
             data: obj.toString()
         }, undefined, "\t");
     }
-
-    /**
-     * Serializes an object and its properties in a JSON-like representation.
-     * @param obj Object to serialize.
-     * @returns {string} Object converted to a JSON-like representation.
-     */
-    export function serializeToString(obj: any) : string {
+    function serializeToString(obj) {
         if (!defined(obj))
             return "undefined";
         if (obj === null)
             return "null";
-        let type = typeof(obj);
+        var type = typeof (obj);
         if (type == "number")
             return (isNaN(obj)) ? "NaN" : JSON.stringify(obj);
         if (type == "boolean" || type == "string")
             return JSON.stringify(obj);
-        let className = getClassName(obj);
-        let n;
-        if (typeof(obj.toJSON) != "function") {
+        var className = getClassName(obj);
+        var n;
+        if (typeof (obj.toJSON) != "function") {
             if (type == "object") {
-                let elements : string[] = [];
-                let propertyLines : string[] = [];
-                let byName: {[k: string]: any} = {};
+                var elements = [];
+                var propertyLines = [];
+                var byName = {};
                 if (Array.isArray(obj)) {
-                    elements = obj.map(function(e) { return serializeToString(e); });
+                    elements = obj.map(function (e) { return serializeToString(e); });
                     for (n in obj) {
-                        let i = asNumber(n, null);
-                        let v: any = obj[n];
+                        var i = asNumber(n, null);
+                        var v = obj[n];
                         if ((!nil(i) && n !== "length") || i < 0 || i > obj.length) {
                             byName[n] = serializeToString(obj[n]);
                             propertyLines.push(JSON.stringify(n) + ": " + serializeToString(obj[n]));
                         }
                     }
-                } else {
+                }
+                else {
                     for (n in obj) {
                         if (n !== "length") {
                             byName[n] = serializeToString(obj[n]);
@@ -625,7 +485,7 @@ namespace TypeUtil {
                         }
                     }
                 }
-                if (derivesFrom<{[k: string]: any}>(obj, Error)) {
+                if (derivesFrom(obj, Error)) {
                     if (!nil(obj.columnNumber) && nil(byName.columnNumber))
                         propertyLines.unshift("\"columnNumber\": " + serializeToString(obj.columnNumber));
                     if (!nil(obj.lineNumber) && nil(byName.lineNumber))
@@ -644,7 +504,6 @@ namespace TypeUtil {
                         else
                             propertyLines.unshift("\"description\": " + serializeToString(obj.description));
                     }
-
                     if (!nil(obj.message) && nil(byName.message))
                         propertyLines.unshift("\"message\": " + serializeToString(obj.message));
                 }
@@ -663,9 +522,9 @@ namespace TypeUtil {
                                 "\t\"elements\": [ " + indentText(elements[0], "\t", 1) + " ]" + newLineString + ", \t\"properties\": {}" + newLineString + "}";
                         }
                         if (className == "Array")
-                            return "[" + newLineString + elements.map(function(e) { return indentText(e); }).join(newLineString) + newLineString + "]";
+                            return "[" + newLineString + elements.map(function (e) { return indentText(e); }).join(newLineString) + newLineString + "]";
                         return "{" + newLineString + "\t\"className\": " + JSON.stringify(className) + "," + newLineString + "\t\"type\": " + JSON.stringify(type) + "," + newLineString +
-                            "\t\"elements\": [" + newLineString + elements.map(function(e) { return indentText(e, "\t\t"); }).join(newLineString) + newLineString + "]" + newLineString + ", \t\"properties\": {}" + newLineString + "}";
+                            "\t\"elements\": [" + newLineString + elements.map(function (e) { return indentText(e, "\t\t"); }).join(newLineString) + newLineString + "]" + newLineString + ", \t\"properties\": {}" + newLineString + "}";
                     }
                     if (className == "Object")
                         return "{ \"type\": " + JSON.stringify(type) + ", \"properties\": {} }";
@@ -678,14 +537,13 @@ namespace TypeUtil {
                 value: obj.toString()
             }, undefined, "\t");
         }
-
-        if (typeof(obj.toJSON) == "function")
+        if (typeof (obj.toJSON) == "function")
             return JSON.stringify({
                 className: className,
                 type: type,
                 data: obj.toJSON()
             }, undefined, "\t");
-        if (typeof(obj) != "object")
+        if (typeof (obj) != "object")
             return JSON.stringify({
                 className: className,
                 type: type,
@@ -694,40 +552,210 @@ namespace TypeUtil {
         if (Array.isArray(obj)) {
             if (obj.length == 0)
                 return "[]";
-            return "[" + newLineString + obj.map(function(e) {
+            return "[" + newLineString + obj.map(function (e) {
                 if (!defined(e))
                     return "undefined";
                 if (e === null)
                     return "null";
-                if (typeof(e) == "number")
+                if (typeof (e) == "number")
                     return (isNaN(e)) ? "NaN" : JSON.stringify(e, undefined, "\t");
-                if (typeof(e.toJSON) == "function" || typeof(e) == "boolean" || typeof(e) == "string" ||
-                        typeof(e) == "object")
+                if (typeof (e.toJSON) == "function" || typeof (e) == "boolean" || typeof (e) == "string" ||
+                    typeof (e) == "object")
                     return JSON.stringify(e, undefined, "\t");
                 return e.toString();
-            }).map(function(s) {
-                s.split(/\r\n?|\n/).map(function(l: string) { return "\t" + l; }).join(newLineString);
+            }).map(function (s) {
+                s.split(/\r\n?|\n/).map(function (l) { return "\t" + l; }).join(newLineString);
             }).join(",") + newLineString + newLineString + "]";
         }
-        let lines = [];
+        var lines = [];
         for (n in obj) {
-            let v = obj[n];
+            var v = obj[n];
             if (!defined(v))
                 lines.push(JSON.stringify(n) + ": undefined");
             else if (v === null)
-                lines.push(n + ((typeof(v) == "number") ? ": NaN" : ": null"));
-            else if (typeof(v) == "number")
+                lines.push(n + ((typeof (v) == "number") ? ": NaN" : ": null"));
+            else if (typeof (v) == "number")
                 lines.push(JSON.stringify(n) + ": " + ((isNaN(v)) ? "NaN" : JSON.stringify(v, undefined, "\t")));
-            else if (typeof(v.toJSON) == "function" || typeof(v) == "boolean" || typeof(v) == "string" ||
-                    typeof(v) == "object")
+            else if (typeof (v.toJSON) == "function" || typeof (v) == "boolean" || typeof (v) == "string" ||
+                typeof (v) == "object")
                 lines.push(JSON.stringify(n) + ": " + JSON.stringify(v, undefined, "\t"));
             else
                 lines.push(JSON.stringify(n) + ": " + v.toString());
         }
         if (lines.length == 0)
             return "{}";
-        return "{" + newLineString + lines.map(function(s) {
-            s.split(/\r\n?|\n/).map(function(l) { return "\t" + l; }).join(newLineString);
+        return "{" + newLineString + lines.map(function (s) {
+            s.split(/\r\n?|\n/).map(function (l) { return "\t" + l; }).join(newLineString);
         }).join("," + newLineString) + newLineString + "}";
     }
-}
+    TypeUtil.serializeToString = serializeToString;
+    var ErrorInfo = (function () {
+        function ErrorInfo(value, isWarning) {
+            this._isWarning = false;
+            this._message = "";
+            this._description = null;
+            this._name = "undefined";
+            this._number = null;
+            this._fileName = null;
+            this._lineNumber = null;
+            this._columnNumber = null;
+            this._stack = null;
+            this._innerError = null;
+            this.metaData = null;
+            this.isWarning = (typeof (isWarning) == "boolean") && isWarning;
+            if (typeof (value) === "undefined")
+                return;
+            this.name = typeof (value);
+            if (value === null)
+                return;
+            if (typeof (value) == "string") {
+                this.message = value;
+                return;
+            }
+            var foundMetaData = false;
+            var metaData = {};
+            if (Array.isArray(value)) {
+                this.message = asString(value, "");
+                for (var n in value) {
+                    if (n == "length")
+                        continue;
+                    var i = asNumber(n, null);
+                    if (nil(i) || i < 0 || i >= value.length) {
+                        foundMetaData = true;
+                        metaData[n] = value[n];
+                    }
+                }
+            }
+            else {
+                var message = null;
+                var description = null;
+                var name = null;
+                for (var n in value) {
+                    switch (n) {
+                        case "length":
+                            break;
+                        case "message":
+                            message = asString(value.message, "");
+                            break;
+                        case "description":
+                            description = asString(value.description, null);
+                            break;
+                        case "name":
+                            name = asString(value.name, null);
+                            break;
+                        case "number":
+                            this.number = asNumber(value.number, null);
+                            break;
+                        case "fileName":
+                            this.fileName = asString(value.description, null);
+                            break;
+                        case "lineNumber":
+                            this.lineNumber = asNumber(value.lineNumber, null);
+                            break;
+                        case "columnNumber":
+                            this.columnNumber = asNumber(value.columnNumber, null);
+                            break;
+                        case "stack":
+                            this.stack = asString(value.stack, null);
+                            break;
+                        case "innerError":
+                            this.innerError = ErrorInfo.asErrorInfo(value);
+                            break;
+                        default:
+                            foundMetaData = true;
+                            metaData[n] = value[n];
+                            break;
+                    }
+                }
+                if (message !== null) {
+                    if (description != null) {
+                        if (message.trim().length == 0 && description !== null && (description.length > message.length || description.trim().length > 0))
+                            this.message = description;
+                        else {
+                            this.message = message;
+                            this.description = description;
+                        }
+                    }
+                    else
+                        this.message = message;
+                }
+                else if (description != null)
+                    this.message = description;
+                if (name == null)
+                    name = typeof (value);
+            }
+            if (foundMetaData)
+                this.metaData = metaData;
+        }
+        Object.defineProperty(ErrorInfo.prototype, "isWarning", {
+            get: function () { return this._isWarning; },
+            set: function (value) { this._isWarning = asBoolean(value, false); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ErrorInfo.prototype, "message", {
+            get: function () { return this._message; },
+            set: function (value) { this._message = asString(value, ""); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ErrorInfo.prototype, "description", {
+            get: function () { return this._description; },
+            set: function (value) { this._description = asString(value, null); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ErrorInfo.prototype, "name", {
+            get: function () { return this._name; },
+            set: function (value) { this._name = asString(value, "undefined"); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ErrorInfo.prototype, "number", {
+            get: function () { return this._number; },
+            set: function (value) { this._number = asNumber(value, null); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ErrorInfo.prototype, "fileName", {
+            get: function () { return this._fileName; },
+            set: function (value) { this._fileName = asString(value, null); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ErrorInfo.prototype, "lineNumber", {
+            get: function () { return this._lineNumber; },
+            set: function (value) { this._lineNumber = asNumber(value, null); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ErrorInfo.prototype, "columnNumber", {
+            get: function () { return this._columnNumber; },
+            set: function (value) { this._columnNumber = asNumber(value, null); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ErrorInfo.prototype, "stack", {
+            get: function () { return this._stack; },
+            set: function (value) { this._stack = asString(value, null); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ErrorInfo.prototype, "innerError", {
+            get: function () { return this._innerError; },
+            set: function (value) { this._innerError = ErrorInfo.asErrorInfo(value); },
+            enumerable: true,
+            configurable: true
+        });
+        ErrorInfo.asErrorInfo = function (value) {
+            if (!defined(value))
+                return null;
+            if (derivesFrom(value, ErrorInfo))
+                return value;
+            return new ErrorInfo(value);
+        };
+        return ErrorInfo;
+    }());
+    TypeUtil.ErrorInfo = ErrorInfo;
+})(TypeUtil = exports.TypeUtil || (exports.TypeUtil = {}));
+//# sourceMappingURL=TypeUtil.js.map

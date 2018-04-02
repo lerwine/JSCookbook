@@ -1,8 +1,5 @@
-namespace TypeUtil {
-    /**
-     * Represents an object which may contain properties similar to Error objects.
-     */
-    export interface IErrorLike {
+declare module TypeUtil {
+    interface IErrorLike {
         message?: string;
         description?: string;
         name?: string;

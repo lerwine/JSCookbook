@@ -1,17 +1,21 @@
 {
     "compilerOptions": {
-        "target": "es3",
+        "target": "es5",
         "module": "commonjs",
+        //"allowJs": true,
         "noImplicitAny": true,
         "removeComments": true,
         "preserveConstEnums": true,
         "sourceMap": true,
         "declaration": true,
-        "outDir": "../../dist/es3"
+        "outDir": "dist",
+        "lib": [
+            "es2015"
+        ]
     },
     "files": [
-        "util.ts",
-        "IErrorLike.ts",
-        "ErrorInfo.ts"
+        "src/TypeUtil.ts",
+        "src/AssertionTesting.ts",
+        "src/ColorInfo.ts"
     ]
 }
