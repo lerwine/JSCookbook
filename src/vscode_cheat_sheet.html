@@ -33,6 +33,16 @@
     </nav>
     <aside class="float-sm-right border border-secondary p-sm-1 ml-md-3">Aside from all we've discussed.</aside>
     <section class="container-fluid border border-light p-md-3">
+        <h2>My Typical Initial Setup</h2>
+        Initial Setup for NPM and .NET Core Support.
+        <ol>
+            <li>Install latest version of .NET core (<a href="https://www.microsoft.com/net/download">https://www.microsoft.com/net/download</a>).</li>
+            <li>Install latest stable version of Node.js (<a href="https://nodejs.org">https://nodejs.org</a>).</li>
+            <li>Install VS Code extension for NPM support (eg2.vscode-npm-script)
+                <br />This can be done by searching for the extension or by entering the following into the VS Code terminal:
+                <br /><code>code --install-extension eg2.vscode-npm-script</code>
+            </li>
+        </ol>
         <dl>
             <dt>Initializing web app project</dt>
             <dd><pre><code>mkdir </code><var>[Project Name]</var>
@@ -48,6 +58,51 @@
 </pre>
             After packages are installed, the JavaScript and CSS sources can be copied out of the node_modules folder,
             and into the wwwroot/lib folder (creating it, if necessary).</dd>
+        </dl>
+        <h2>VS Code extension commands</h2>
+        <dl>
+            <dt>Show all installed extensions</dt>
+            <dd><code>code --list-extensions</code></dd>
+            <dt>Example PowerShell script for installing recommended extensions</dt>
+            <dd><code>$RecommendedExtensions = @(
+    'abusaidm.html-snippets',
+    'Angular.ng-template',
+    'christian-kohler.npm-intellisense',
+    'christian-kohler.path-intellisense',
+    'DavidAnson.vscode-markdownlint',
+    'dbaeumer.jshint',
+    'dbaeumer.vscode-eslint',
+    'DotJoshJohnson.xml',
+    'ecmel.vscode-html-css',
+    'EditorConfig.EditorConfig',
+    'eg2.tslint',
+    'eg2.vscode-npm-script',
+    'esbenp.prettier-vscode',
+    'fknop.vscode-npm',
+    'formulahendry.auto-close-tag',
+    'HookyQR.JSDocTagComplete',
+    'johnpapa.Angular2',
+    'johnpapa.angular-essentials',
+    'johnpapa.winteriscoming',
+    'lolkush.quickstart',
+    'mkaufman.HTMLHint',
+    'msjsdiag.debugger-for-chrome',
+    'ms-mssql.mssql',
+    'ms-vscode.csharp',
+    'ms-vscode.PowerShell',
+    'natewallace.angular2-inline',
+    'sidthesloth.html5-boilerplate',
+    'xabikos.JavaScriptSnippets',
+    'Zignd.html-css-class-completion'
+)
+$InstalledExtensions = (code --list-extensions) -split '\r\n?|\n';
+$RecommendedExtensions | ForEach-Object {
+    if ($InstalledExtensions -contains $_) {
+        "$_ is already installed." | Write-Host;
+    } else {
+        code --install-extension $_;
+    }
+}</code></dd>
         </dl>
     </section>
     <footer class="container-fluid border border-secondary p-sm-1 bg-secondary">It all ends with the footer.</footer>

@@ -5,6 +5,7 @@ Lenny's JavaScript Cookbook
 
 Dev Environment Setup
 ---------------------
+
 This solution was developed using Visual Studio Code.
 
 The npm package manager node.js (https://nodejs.org) and (VS Code extension eg2.vscode-npm-script) is required for building and package maintenance.
@@ -12,6 +13,7 @@ The npm package manager node.js (https://nodejs.org) and (VS Code extension eg2.
 Microsoft PowerShell 5.0 or better may be required for development.
 
 Additionally, the following npm packages most likely need to be installed globally:
+
 - uglify-js
 - gulp
 - mocha
@@ -55,4 +57,3 @@ $RecommendedExtensions | ForEach-Object {
         code --install-extension $_;
     }
 }
-</code>
