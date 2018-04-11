@@ -1,6 +1,5 @@
 export namespace TypeUtil {
     export interface AnyFunction { (...args: any[]): any; }
-
     export interface AnyConstructor<T> { new(...args: any[]): T; };
 
     let newLineString: string = "\n";
